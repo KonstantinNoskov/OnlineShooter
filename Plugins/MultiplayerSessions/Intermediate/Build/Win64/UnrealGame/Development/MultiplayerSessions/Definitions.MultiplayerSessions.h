@@ -45,7 +45,7 @@
 #define WITH_CEF3 1
 #define WITH_LIVE_CODING 1
 #define UE_LIVE_CODING_ENGINE_DIR "E:\\UE4\\UE_5.1\\Engine"
-#define UE_LIVE_CODING_PROJECT "E:\\UE4\\Projects\\TPShooter\\TPShooter.uproject"
+#define UE_LIVE_CODING_PROJECT "E:\\UE4\\Projects\\OnlineShooter\\OnlineShooter.uproject"
 #define WITH_CPP_MODULES 0
 #define WITH_CPP_COROUTINES 0
 #define WITH_PROCESS_PRIORITY_CONTROL 0
@@ -68,8 +68,8 @@
 #define UE_IS_ENGINE_MODULE 0
 #define UE_DISABLE_INLINE_GEN_CPP 0
 #define UE_ENABLE_INCLUDE_ORDER_DEPRECATED_IN_5_1 0
-#define UE_PROJECT_NAME TPShooter
-#define UE_TARGET_NAME TPShooter
+#define UE_PROJECT_NAME OnlineShooter
+#define UE_TARGET_NAME OnlineShooter
 #define UE_MODULE_NAME "MultiplayerSessions"
 #define UE_PLUGIN_NAME "MultiplayerSessions"
 #define IMPLEMENT_ENCRYPTION_KEY_REGISTRATION() 

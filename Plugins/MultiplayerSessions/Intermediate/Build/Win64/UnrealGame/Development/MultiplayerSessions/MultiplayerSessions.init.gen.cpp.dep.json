@@ -1,11 +1,11 @@
 {
     "Version": "1.2",
     "Data": {
-        "Source": "e:\\ue4\\projects\\tpshooter\\plugins\\multiplayersessions\\intermediate\\build\\win64\\unrealgame\\inc\\multiplayersessions\\uht\\multiplayersessions.init.gen.cpp",
+        "Source": "e:\\ue4\\projects\\onlineshooter\\plugins\\multiplayersessions\\intermediate\\build\\win64\\unrealgame\\inc\\multiplayersessions\\uht\\multiplayersessions.init.gen.cpp",
         "ProvidedModule": "",
-        "PCH": "e:\\ue4\\projects\\tpshooter\\intermediate\\build\\win64\\tpshooter\\development\\engine\\sharedpch.engine.shadowerrors.h.pch",
+        "PCH": "e:\\ue4\\projects\\onlineshooter\\intermediate\\build\\win64\\onlineshooter\\development\\engine\\sharedpch.engine.shadowerrors.h.pch",
         "Includes": [
-            "e:\\ue4\\projects\\tpshooter\\plugins\\multiplayersessions\\intermediate\\build\\win64\\unrealgame\\development\\multiplayersessions\\definitions.multiplayersessions.h"
+            "e:\\ue4\\projects\\onlineshooter\\plugins\\multiplayersessions\\intermediate\\build\\win64\\unrealgame\\development\\multiplayersessions\\definitions.multiplayersessions.h"
         ],
         "ImportedModules": [],
         "ImportedHeaderUnits": []

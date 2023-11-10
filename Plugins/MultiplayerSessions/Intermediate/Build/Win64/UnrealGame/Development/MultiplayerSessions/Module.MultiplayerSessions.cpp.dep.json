@@ -1,13 +1,30 @@
 {
     "Version": "1.2",
     "Data": {
-        "Source": "e:\\ue4\\projects\\tpshooter\\plugins\\multiplayersessions\\intermediate\\build\\win64\\unrealgame\\development\\multiplayersessions\\module.multiplayersessions.cpp",
+        "Source": "e:\\ue4\\projects\\onlineshooter\\plugins\\multiplayersessions\\intermediate\\build\\win64\\unrealgame\\development\\multiplayersessions\\module.multiplayersessions.cpp",
         "ProvidedModule": "",
-        "PCH": "e:\\ue4\\projects\\tpshooter\\intermediate\\build\\win64\\tpshooter\\development\\engine\\sharedpch.engine.shadowerrors.h.pch",
+        "PCH": "e:\\ue4\\projects\\onlineshooter\\intermediate\\build\\win64\\onlineshooter\\development\\engine\\sharedpch.engine.shadowerrors.h.pch",
         "Includes": [
-            "e:\\ue4\\projects\\tpshooter\\plugins\\multiplayersessions\\intermediate\\build\\win64\\unrealgame\\development\\multiplayersessions\\definitions.multiplayersessions.h",
-            "e:\\ue4\\projects\\tpshooter\\plugins\\multiplayersessions\\source\\multiplayersessions\\private\\multiplayersessions.cpp",
-            "e:\\ue4\\projects\\tpshooter\\plugins\\multiplayersessions\\source\\multiplayersessions\\public\\multiplayersessions.h"
+            "e:\\ue4\\projects\\onlineshooter\\plugins\\multiplayersessions\\intermediate\\build\\win64\\unrealgame\\development\\multiplayersessions\\definitions.multiplayersessions.h",
+            "e:\\ue4\\projects\\onlineshooter\\plugins\\multiplayersessions\\source\\multiplayersessions\\private\\multiplayersessions.cpp",
+            "e:\\ue4\\projects\\onlineshooter\\plugins\\multiplayersessions\\source\\multiplayersessions\\public\\multiplayersessions.h",
+            "e:\\ue4\\projects\\onlineshooter\\plugins\\multiplayersessions\\source\\multiplayersessions\\private\\multiplayersessionssubsystem.cpp",
+            "e:\\ue4\\projects\\onlineshooter\\plugins\\multiplayersessions\\source\\multiplayersessions\\public\\multiplayersessionssubsystem.h",
+            "e:\\ue4\\ue_5.1\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\interfaces\\onlinesessioninterface.h",
+            "e:\\ue4\\ue_5.1\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinesubsystemtypes.h",
+            "e:\\ue4\\ue_5.1\\engine\\plugins\\online\\onlinebase\\source\\public\\online\\onlinebase.h",
+            "e:\\ue4\\ue_5.1\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinesubsystemnames.h",
+            "e:\\ue4\\ue_5.1\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinesubsystempackage.h",
+            "e:\\ue4\\ue_5.1\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinedelegatemacros.h",
+            "e:\\ue4\\ue_5.1\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\interfaces\\onlinesessiondelegates.h",
+            "e:\\ue4\\ue_5.1\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinekeyvaluepair.h",
+            "e:\\ue4\\ue_5.1\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinesubsystempackage.h",
+            "e:\\ue4\\projects\\onlineshooter\\plugins\\multiplayersessions\\intermediate\\build\\win64\\unrealgame\\inc\\multiplayersessions\\uht\\multiplayersessionssubsystem.generated.h",
+            "e:\\ue4\\ue_5.1\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinesessionsettings.h",
+            "e:\\ue4\\ue_5.1\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinesubsystempackage.h",
+            "e:\\ue4\\ue_5.1\\engine\\plugins\\online\\onlinebase\\source\\public\\online\\onlinesessionnames.h",
+            "e:\\ue4\\ue_5.1\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinesubsystem.h",
+            "e:\\ue4\\ue_5.1\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinesubsystemmodule.h"
         ],
         "ImportedModules": [],
         "ImportedHeaderUnits": []

@@ -196,7 +196,6 @@ void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResu
 	}
 }
 
-
 void UMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 {
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();

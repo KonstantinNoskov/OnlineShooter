@@ -122,6 +122,21 @@ E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\U
 /I ..\Plugins\Online\OnlineSubsystemUtils\Source
 /I ..\Plugins\Online\OnlineSubsystemUtils\Source\OnlineSubsystemUtils\Classes
 /I ..\Plugins\Online\OnlineSubsystemUtils\Source\OnlineSubsystemUtils\Public
+/I ..\Intermediate\Build\Win64\UnrealGame\Inc\UMG\UHT
+/I Runtime\UMG\Public
+/I Runtime\Online
+/I Runtime\Online\HTTP\Public
+/I ..\Intermediate\Build\Win64\UnrealGame\Inc\MovieScene\UHT
+/I Runtime\MovieScene\Public
+/I ..\Intermediate\Build\Win64\UnrealGame\Inc\TimeManagement\UHT
+/I Runtime\TimeManagement\Public
+/I ..\Intermediate\Build\Win64\UnrealGame\Inc\MovieSceneTracks\UHT
+/I Runtime\MovieSceneTracks\Public
+/I ..\Intermediate\Build\Win64\UnrealGame\Inc\Constraints\UHT
+/I Runtime\Experimental\Animation
+/I Runtime\Experimental\Animation\Constraints\Public
+/I ..\Intermediate\Build\Win64\UnrealGame\Inc\PropertyPath\UHT
+/I Runtime\PropertyPath\Public
 /external:W0
 /external:I ThirdParty\mimalloc\include
 /external:I ThirdParty\LibTiff\Source\Win64

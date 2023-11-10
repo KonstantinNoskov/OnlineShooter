@@ -19,7 +19,7 @@ class MULTIPLAYERSESSIONS_API UMenu : public UUserWidget
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "Network")
-	void MenuSetup(int32 NumberOfPublicConnection = 4, FString TypeOfMatch = FString(TEXT("Noskov")), FString LobbyPath = FString(TEXT("/Game/ThirdPerson/Maps/L_Lobby?listen")));
+	void MenuSetup(int32 NumberOfPublicConnection = 4, FString TypeOfMatch = FString(TEXT("Noskov")), FString LobbyPath = FString(TEXT("/Game/ThirdPerson/Maps/L_Lobby")));
 
 protected:
 	
