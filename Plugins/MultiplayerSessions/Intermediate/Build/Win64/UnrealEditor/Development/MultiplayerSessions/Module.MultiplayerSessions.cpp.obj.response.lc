@@ -1,6 +1,6 @@
-E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Module.MultiplayerSessions.cpp
+E:\UE4\Projects\OnlineShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Module.MultiplayerSessions.cpp
 /I .
-/I E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Source\MultiplayerSessions\Private
+/I E:\UE4\Projects\OnlineShooter\Plugins\MultiplayerSessions\Source\MultiplayerSessions\Private
 /I ..\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\UHT
 /I Runtime
 /I Runtime\CoreUObject\Public
@@ -270,9 +270,9 @@ E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\U
 /I Runtime\MovieSceneCapture\Public
 /I ..\Intermediate\Build\Win64\UnrealEditor\Inc\AnimationDataController\UHT
 /I Developer\AnimationDataController\Public
-/I E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Inc\MultiplayerSessions\UHT
-/I E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Source
-/I E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Source\MultiplayerSessions\Public
+/I E:\UE4\Projects\OnlineShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Inc\MultiplayerSessions\UHT
+/I E:\UE4\Projects\OnlineShooter\Plugins\MultiplayerSessions\Source
+/I E:\UE4\Projects\OnlineShooter\Plugins\MultiplayerSessions\Source\MultiplayerSessions\Public
 /I ..\Plugins\Online\OnlineSubsystem\Intermediate\Build\Win64\UnrealEditor\Inc\OnlineSubsystem\UHT
 /I ..\Plugins\Online\OnlineSubsystem
 /I ..\Plugins\Online\OnlineSubsystem\Source
@@ -296,12 +296,12 @@ E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\U
 /external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\shared"
 /external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\um"
 /external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\winrt"
-/FI"E:\UE4\Projects\TPShooter\Intermediate\Build\Win64\TPShooterEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h"
-/FI"E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Definitions.MultiplayerSessions.h"
-/Yu"E:\UE4\Projects\TPShooter\Intermediate\Build\Win64\TPShooterEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h"
-/Fp"E:\UE4\Projects\TPShooter\Intermediate\Build\Win64\TPShooterEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.pch"
-/Fo"E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Module.MultiplayerSessions.cpp.lc.obj"
-/sourceDependencies"E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Module.MultiplayerSessions.cpp.dep.lc.json"
+/FI"E:\UE4\Projects\OnlineShooter\Intermediate\Build\Win64\OnlineShooterEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h"
+/FI"E:\UE4\Projects\OnlineShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Definitions.MultiplayerSessions.h"
+/Yu"E:\UE4\Projects\OnlineShooter\Intermediate\Build\Win64\OnlineShooterEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h"
+/Fp"E:\UE4\Projects\OnlineShooter\Intermediate\Build\Win64\OnlineShooterEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.pch"
+/Fo"E:\UE4\Projects\OnlineShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Module.MultiplayerSessions.cpp.lc.obj"
+/sourceDependencies"E:\UE4\Projects\OnlineShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Module.MultiplayerSessions.cpp.dep.lc.json"
 /Zc:inline
 /nologo
 /Oi

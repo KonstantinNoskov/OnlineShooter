@@ -6,11 +6,7 @@
 /NAME:"UnrealEditor-MultiplayerSessions.dll"
 /IGNORE:4221
 /NODEFAULTLIB
-"E:\UE4\Projects\TPShooter\Intermediate\Build\Win64\TPShooterEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.obj"
-"E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Module.MultiplayerSessions.cpp.obj"
-"E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Menu.cpp.obj"
-"E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\MultiplayerSessionsSubsystem.cpp.obj"
-"E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Menu.gen.cpp.obj"
-"E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\MultiplayerSessions.init.gen.cpp.obj"
-"E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Default.rc2.res"
-/OUT:"E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\UnrealEditor-MultiplayerSessions.lib"
+"E:\UE4\Projects\OnlineShooter\Intermediate\Build\Win64\OnlineShooterEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.obj"
+"E:\UE4\Projects\OnlineShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Module.MultiplayerSessions.cpp.obj"
+"E:\UE4\Projects\OnlineShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Default.rc2.res"
+/OUT:"E:\UE4\Projects\OnlineShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\UnrealEditor-MultiplayerSessions.lib"

@@ -296,7 +296,10 @@ E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Source\MultiplayerSessions
 /external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\shared"
 /external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\um"
 /external:I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\winrt"
-/FI"E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Definitions.h"
+/FI"E:\UE4\Projects\TPShooter\Intermediate\Build\Win64\TPShooterEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h"
+/FI"E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Definitions.MultiplayerSessions.h"
+/Yu"E:\UE4\Projects\TPShooter\Intermediate\Build\Win64\TPShooterEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h"
+/Fp"E:\UE4\Projects\TPShooter\Intermediate\Build\Win64\TPShooterEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.pch"
 /Fo"E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Menu.cpp.obj"
 /sourceDependencies E:\UE4\Projects\TPShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\UnrealEditor\Development\MultiplayerSessions\Menu.cpp.dep.json
 /Zc:inline
