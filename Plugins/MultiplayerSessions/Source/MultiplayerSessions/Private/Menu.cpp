@@ -64,6 +64,14 @@ bool UMenu::Initialize()
 	if(HostButton) { HostButton->OnClicked.AddDynamic(this, &ThisClass::HostButtonClicked); }
 	if(JoinButton) { JoinButton->OnClicked.AddDynamic(this, &ThisClass::JoinButtonClicked); }
 	if(QuitButton) { QuitButton->OnClicked.AddDynamic(this, &ThisClass::QuitButtonClicked); }
+
+	if(HostButton) {HostButton->OnHovered.AddDynamic(this, &ThisClass::SetHostButtonColor); }
+	if(JoinButton) {JoinButton->OnHovered.AddDynamic(this, &ThisClass::SetJoinButtonColor); }
+	if(QuitButton) {QuitButton->OnHovered.AddDynamic(this, &ThisClass::SetQuitButtonColor); }
+
+	if(HostButton) {HostButton->OnUnhovered.AddDynamic(this, &ThisClass::SetHostButtonColor); }
+	if(JoinButton) {JoinButton->OnUnhovered.AddDynamic(this, &ThisClass::SetJoinButtonColor); }
+	if(QuitButton) {QuitButton->OnUnhovered.AddDynamic(this, &ThisClass::SetQuitButtonColor); }
 	
 	return true;
 }
@@ -97,6 +105,44 @@ void UMenu::MenuTearDown()
 		}
 	}
 }
+
+void UMenu::SetHostButtonColor()
+{
+	if (HostButton->IsHovered())
+	{
+		HostButton->SetColorAndOpacity(ButtonHoverColor);
+	}
+	else
+	{
+		HostButton->SetColorAndOpacity(ButtonDefaultColor);	
+	}
+}
+
+void UMenu::SetJoinButtonColor()
+{
+	if (JoinButton->IsHovered())
+	{
+		JoinButton->SetColorAndOpacity(ButtonHoverColor);
+	}
+	else
+	{
+		JoinButton->SetColorAndOpacity(ButtonDefaultColor);	
+	}
+}
+
+void UMenu::SetQuitButtonColor()
+{
+	if (QuitButton->IsHovered())
+	{
+		QuitButton->SetColorAndOpacity(ButtonHoverColor);
+	}
+	else
+	{
+		QuitButton->SetColorAndOpacity(ButtonDefaultColor);	
+	}
+}
+
+
 
 
 /* BUTTONS FUNCTIONS

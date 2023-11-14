@@ -8,6 +8,8 @@
 
 #include "Menu.generated.h"
 
+class UButton;
+
 /**
  * 
  */
@@ -26,6 +28,8 @@ protected:
 	virtual bool Initialize() override;
 	virtual void NativeDestruct() override;
 
+protected:
+	
 	// Callbacks for the custom delegates on the MultiplayerSessionsSubsystem
 	UFUNCTION()
 	void OnCreateSession(bool bWasSuccessful);
@@ -42,15 +46,26 @@ protected:
 
 private:
 	
-	UPROPERTY(meta = (BindWidget))
-	class UButton* HostButton;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = "true"))
+	UButton* HostButton;
 
-	UPROPERTY(meta = (BindWidget))
-	class UButton* JoinButton;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = "true"))
+	UButton* JoinButton;
 
-	UPROPERTY(meta = (BindWidget))
-	class UButton* QuitButton;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = "true"))
+	UButton* QuitButton;
 
+public:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Color")
+	FLinearColor ButtonHoverColor{FLinearColor(1,1,1,1)};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Color")
+	FLinearColor ButtonDefaultColor{FLinearColor(.3,.3,.3,1)};
+
+
+private:
+	
 	UFUNCTION()
 	void HostButtonClicked();
 	
@@ -62,6 +77,17 @@ private:
 
 	void MenuTearDown();
 
+	UFUNCTION()
+	void SetHostButtonColor();
+
+	UFUNCTION()
+	void SetJoinButtonColor();
+
+	UFUNCTION()
+	void SetQuitButtonColor();
+	
+	
+	
 	// Reference to a subsystem designed to handle all online session functionality
 	UPROPERTY()
 	class UMultiplayerSessionsSubsystem* MultiplayerSessionsSubsystem;
@@ -71,4 +97,7 @@ private:
 	FString MatchType{TEXT("Noskov")};
 	
 	FString PathToLobby{TEXT("")};
+
+
+	
 };

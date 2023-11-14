@@ -28,7 +28,7 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	 * @var Speed - horizontal speed
 	 * @var bIsInAir - whether character is falling, jumping, flying etc.
 	 * @var bIsAccelerating - it's NOT the rate of change of velocity in physical understanding. It's just determines
-	 *		whether player pressed keyboard key to move.
+	 *						  whether player pressed keyboard key to move.
 	 *		
 	 *
 	 * ==============================================================================================================

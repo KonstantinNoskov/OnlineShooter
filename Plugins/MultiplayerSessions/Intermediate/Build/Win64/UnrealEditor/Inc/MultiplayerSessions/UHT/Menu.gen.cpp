@@ -9,6 +9,7 @@
 PRAGMA_DISABLE_DEPRECATION_WARNINGS
 void EmptyLinkFunctionForGeneratedCodeMenu() {}
 // Cross Module References
+	COREUOBJECT_API UScriptStruct* Z_Construct_UScriptStruct_FLinearColor();
 	MULTIPLAYERSESSIONS_API UClass* Z_Construct_UClass_UMenu();
 	MULTIPLAYERSESSIONS_API UClass* Z_Construct_UClass_UMenu_NoRegister();
 	MULTIPLAYERSESSIONS_API UClass* Z_Construct_UClass_UMultiplayerSessionsSubsystem_NoRegister();
@@ -16,6 +17,27 @@ void EmptyLinkFunctionForGeneratedCodeMenu() {}
 	UMG_API UClass* Z_Construct_UClass_UUserWidget();
 	UPackage* Z_Construct_UPackage__Script_MultiplayerSessions();
 // End Cross Module References
+	DEFINE_FUNCTION(UMenu::execSetQuitButtonColor)
+	{
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		P_THIS->SetQuitButtonColor();
+		P_NATIVE_END;
+	}
+	DEFINE_FUNCTION(UMenu::execSetJoinButtonColor)
+	{
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		P_THIS->SetJoinButtonColor();
+		P_NATIVE_END;
+	}
+	DEFINE_FUNCTION(UMenu::execSetHostButtonColor)
+	{
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		P_THIS->SetHostButtonColor();
+		P_NATIVE_END;
+	}
 	DEFINE_FUNCTION(UMenu::execQuitButtonClicked)
 	{
 		P_FINISH;
@@ -82,6 +104,9 @@ void EmptyLinkFunctionForGeneratedCodeMenu() {}
 			{ "OnDestroySession", &UMenu::execOnDestroySession },
 			{ "OnStartSession", &UMenu::execOnStartSession },
 			{ "QuitButtonClicked", &UMenu::execQuitButtonClicked },
+			{ "SetHostButtonColor", &UMenu::execSetHostButtonColor },
+			{ "SetJoinButtonColor", &UMenu::execSetJoinButtonColor },
+			{ "SetQuitButtonColor", &UMenu::execSetQuitButtonColor },
 		};
 		FNativeFunctionRegistrar::RegisterFunctions(Class, Funcs, UE_ARRAY_COUNT(Funcs));
 	}
@@ -308,6 +333,72 @@ void EmptyLinkFunctionForGeneratedCodeMenu() {}
 		}
 		return ReturnFunction;
 	}
+	struct Z_Construct_UFunction_UMenu_SetHostButtonColor_Statics
+	{
+#if WITH_METADATA
+		static const UECodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UECodeGen_Private::FFunctionParams FuncParams;
+	};
+#if WITH_METADATA
+	const UECodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_UMenu_SetHostButtonColor_Statics::Function_MetaDataParams[] = {
+		{ "ModuleRelativePath", "Public/Menu.h" },
+	};
+#endif
+	const UECodeGen_Private::FFunctionParams Z_Construct_UFunction_UMenu_SetHostButtonColor_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UMenu, nullptr, "SetHostButtonColor", nullptr, nullptr, 0, nullptr, 0, RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x00040401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_UMenu_SetHostButtonColor_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_UMenu_SetHostButtonColor_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_UMenu_SetHostButtonColor()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UECodeGen_Private::ConstructUFunction(&ReturnFunction, Z_Construct_UFunction_UMenu_SetHostButtonColor_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
+	struct Z_Construct_UFunction_UMenu_SetJoinButtonColor_Statics
+	{
+#if WITH_METADATA
+		static const UECodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UECodeGen_Private::FFunctionParams FuncParams;
+	};
+#if WITH_METADATA
+	const UECodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_UMenu_SetJoinButtonColor_Statics::Function_MetaDataParams[] = {
+		{ "ModuleRelativePath", "Public/Menu.h" },
+	};
+#endif
+	const UECodeGen_Private::FFunctionParams Z_Construct_UFunction_UMenu_SetJoinButtonColor_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UMenu, nullptr, "SetJoinButtonColor", nullptr, nullptr, 0, nullptr, 0, RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x00040401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_UMenu_SetJoinButtonColor_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_UMenu_SetJoinButtonColor_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_UMenu_SetJoinButtonColor()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UECodeGen_Private::ConstructUFunction(&ReturnFunction, Z_Construct_UFunction_UMenu_SetJoinButtonColor_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
+	struct Z_Construct_UFunction_UMenu_SetQuitButtonColor_Statics
+	{
+#if WITH_METADATA
+		static const UECodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UECodeGen_Private::FFunctionParams FuncParams;
+	};
+#if WITH_METADATA
+	const UECodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_UMenu_SetQuitButtonColor_Statics::Function_MetaDataParams[] = {
+		{ "ModuleRelativePath", "Public/Menu.h" },
+	};
+#endif
+	const UECodeGen_Private::FFunctionParams Z_Construct_UFunction_UMenu_SetQuitButtonColor_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UMenu, nullptr, "SetQuitButtonColor", nullptr, nullptr, 0, nullptr, 0, RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x00040401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_UMenu_SetQuitButtonColor_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_UMenu_SetQuitButtonColor_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_UMenu_SetQuitButtonColor()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UECodeGen_Private::ConstructUFunction(&ReturnFunction, Z_Construct_UFunction_UMenu_SetQuitButtonColor_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
 	IMPLEMENT_CLASS_NO_AUTO_REGISTRATION(UMenu);
 	UClass* Z_Construct_UClass_UMenu_NoRegister()
 	{
@@ -333,6 +424,14 @@ void EmptyLinkFunctionForGeneratedCodeMenu() {}
 #endif
 		static const UECodeGen_Private::FObjectPropertyParams NewProp_QuitButton;
 #if WITH_METADATA
+		static const UECodeGen_Private::FMetaDataPairParam NewProp_ButtonHoverColor_MetaData[];
+#endif
+		static const UECodeGen_Private::FStructPropertyParams NewProp_ButtonHoverColor;
+#if WITH_METADATA
+		static const UECodeGen_Private::FMetaDataPairParam NewProp_ButtonDefaultColor_MetaData[];
+#endif
+		static const UECodeGen_Private::FStructPropertyParams NewProp_ButtonDefaultColor;
+#if WITH_METADATA
 		static const UECodeGen_Private::FMetaDataPairParam NewProp_MultiplayerSessionsSubsystem_MetaData[];
 #endif
 		static const UECodeGen_Private::FObjectPropertyParams NewProp_MultiplayerSessionsSubsystem;
@@ -352,6 +451,9 @@ void EmptyLinkFunctionForGeneratedCodeMenu() {}
 		{ &Z_Construct_UFunction_UMenu_OnDestroySession, "OnDestroySession" }, // 2641345110
 		{ &Z_Construct_UFunction_UMenu_OnStartSession, "OnStartSession" }, // 989692030
 		{ &Z_Construct_UFunction_UMenu_QuitButtonClicked, "QuitButtonClicked" }, // 2187202241
+		{ &Z_Construct_UFunction_UMenu_SetHostButtonColor, "SetHostButtonColor" }, // 3212532215
+		{ &Z_Construct_UFunction_UMenu_SetJoinButtonColor, "SetJoinButtonColor" }, // 306528514
+		{ &Z_Construct_UFunction_UMenu_SetQuitButtonColor, "SetQuitButtonColor" }, // 3868601122
 	};
 #if WITH_METADATA
 	const UECodeGen_Private::FMetaDataPairParam Z_Construct_UClass_UMenu_Statics::Class_MetaDataParams[] = {
@@ -362,28 +464,48 @@ void EmptyLinkFunctionForGeneratedCodeMenu() {}
 #endif
 #if WITH_METADATA
 	const UECodeGen_Private::FMetaDataPairParam Z_Construct_UClass_UMenu_Statics::NewProp_HostButton_MetaData[] = {
+		{ "AllowPrivateAccess", "true" },
 		{ "BindWidget", "" },
+		{ "Category", "Menu" },
 		{ "EditInline", "true" },
 		{ "ModuleRelativePath", "Public/Menu.h" },
 	};
 #endif
-	const UECodeGen_Private::FObjectPropertyParams Z_Construct_UClass_UMenu_Statics::NewProp_HostButton = { "HostButton", nullptr, (EPropertyFlags)0x0040000000080008, UECodeGen_Private::EPropertyGenFlags::Object, RF_Public|RF_Transient|RF_MarkAsNative, 1, nullptr, nullptr, STRUCT_OFFSET(UMenu, HostButton), Z_Construct_UClass_UButton_NoRegister, METADATA_PARAMS(Z_Construct_UClass_UMenu_Statics::NewProp_HostButton_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_UMenu_Statics::NewProp_HostButton_MetaData)) };
+	const UECodeGen_Private::FObjectPropertyParams Z_Construct_UClass_UMenu_Statics::NewProp_HostButton = { "HostButton", nullptr, (EPropertyFlags)0x004000000008001c, UECodeGen_Private::EPropertyGenFlags::Object, RF_Public|RF_Transient|RF_MarkAsNative, 1, nullptr, nullptr, STRUCT_OFFSET(UMenu, HostButton), Z_Construct_UClass_UButton_NoRegister, METADATA_PARAMS(Z_Construct_UClass_UMenu_Statics::NewProp_HostButton_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_UMenu_Statics::NewProp_HostButton_MetaData)) };
 #if WITH_METADATA
 	const UECodeGen_Private::FMetaDataPairParam Z_Construct_UClass_UMenu_Statics::NewProp_JoinButton_MetaData[] = {
+		{ "AllowPrivateAccess", "true" },
 		{ "BindWidget", "" },
+		{ "Category", "Menu" },
 		{ "EditInline", "true" },
 		{ "ModuleRelativePath", "Public/Menu.h" },
 	};
 #endif
-	const UECodeGen_Private::FObjectPropertyParams Z_Construct_UClass_UMenu_Statics::NewProp_JoinButton = { "JoinButton", nullptr, (EPropertyFlags)0x0040000000080008, UECodeGen_Private::EPropertyGenFlags::Object, RF_Public|RF_Transient|RF_MarkAsNative, 1, nullptr, nullptr, STRUCT_OFFSET(UMenu, JoinButton), Z_Construct_UClass_UButton_NoRegister, METADATA_PARAMS(Z_Construct_UClass_UMenu_Statics::NewProp_JoinButton_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_UMenu_Statics::NewProp_JoinButton_MetaData)) };
+	const UECodeGen_Private::FObjectPropertyParams Z_Construct_UClass_UMenu_Statics::NewProp_JoinButton = { "JoinButton", nullptr, (EPropertyFlags)0x004000000008001c, UECodeGen_Private::EPropertyGenFlags::Object, RF_Public|RF_Transient|RF_MarkAsNative, 1, nullptr, nullptr, STRUCT_OFFSET(UMenu, JoinButton), Z_Construct_UClass_UButton_NoRegister, METADATA_PARAMS(Z_Construct_UClass_UMenu_Statics::NewProp_JoinButton_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_UMenu_Statics::NewProp_JoinButton_MetaData)) };
 #if WITH_METADATA
 	const UECodeGen_Private::FMetaDataPairParam Z_Construct_UClass_UMenu_Statics::NewProp_QuitButton_MetaData[] = {
+		{ "AllowPrivateAccess", "true" },
 		{ "BindWidget", "" },
+		{ "Category", "Menu" },
 		{ "EditInline", "true" },
 		{ "ModuleRelativePath", "Public/Menu.h" },
 	};
 #endif
-	const UECodeGen_Private::FObjectPropertyParams Z_Construct_UClass_UMenu_Statics::NewProp_QuitButton = { "QuitButton", nullptr, (EPropertyFlags)0x0040000000080008, UECodeGen_Private::EPropertyGenFlags::Object, RF_Public|RF_Transient|RF_MarkAsNative, 1, nullptr, nullptr, STRUCT_OFFSET(UMenu, QuitButton), Z_Construct_UClass_UButton_NoRegister, METADATA_PARAMS(Z_Construct_UClass_UMenu_Statics::NewProp_QuitButton_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_UMenu_Statics::NewProp_QuitButton_MetaData)) };
+	const UECodeGen_Private::FObjectPropertyParams Z_Construct_UClass_UMenu_Statics::NewProp_QuitButton = { "QuitButton", nullptr, (EPropertyFlags)0x004000000008001c, UECodeGen_Private::EPropertyGenFlags::Object, RF_Public|RF_Transient|RF_MarkAsNative, 1, nullptr, nullptr, STRUCT_OFFSET(UMenu, QuitButton), Z_Construct_UClass_UButton_NoRegister, METADATA_PARAMS(Z_Construct_UClass_UMenu_Statics::NewProp_QuitButton_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_UMenu_Statics::NewProp_QuitButton_MetaData)) };
+#if WITH_METADATA
+	const UECodeGen_Private::FMetaDataPairParam Z_Construct_UClass_UMenu_Statics::NewProp_ButtonHoverColor_MetaData[] = {
+		{ "Category", "Color" },
+		{ "ModuleRelativePath", "Public/Menu.h" },
+	};
+#endif
+	const UECodeGen_Private::FStructPropertyParams Z_Construct_UClass_UMenu_Statics::NewProp_ButtonHoverColor = { "ButtonHoverColor", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, RF_Public|RF_Transient|RF_MarkAsNative, 1, nullptr, nullptr, STRUCT_OFFSET(UMenu, ButtonHoverColor), Z_Construct_UScriptStruct_FLinearColor, METADATA_PARAMS(Z_Construct_UClass_UMenu_Statics::NewProp_ButtonHoverColor_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_UMenu_Statics::NewProp_ButtonHoverColor_MetaData)) };
+#if WITH_METADATA
+	const UECodeGen_Private::FMetaDataPairParam Z_Construct_UClass_UMenu_Statics::NewProp_ButtonDefaultColor_MetaData[] = {
+		{ "Category", "Color" },
+		{ "ModuleRelativePath", "Public/Menu.h" },
+	};
+#endif
+	const UECodeGen_Private::FStructPropertyParams Z_Construct_UClass_UMenu_Statics::NewProp_ButtonDefaultColor = { "ButtonDefaultColor", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, RF_Public|RF_Transient|RF_MarkAsNative, 1, nullptr, nullptr, STRUCT_OFFSET(UMenu, ButtonDefaultColor), Z_Construct_UScriptStruct_FLinearColor, METADATA_PARAMS(Z_Construct_UClass_UMenu_Statics::NewProp_ButtonDefaultColor_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_UMenu_Statics::NewProp_ButtonDefaultColor_MetaData)) };
 #if WITH_METADATA
 	const UECodeGen_Private::FMetaDataPairParam Z_Construct_UClass_UMenu_Statics::NewProp_MultiplayerSessionsSubsystem_MetaData[] = {
 		{ "Comment", "// Reference to a subsystem designed to handle all online session functionality\n" },
@@ -396,6 +518,8 @@ void EmptyLinkFunctionForGeneratedCodeMenu() {}
 		(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_UMenu_Statics::NewProp_HostButton,
 		(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_UMenu_Statics::NewProp_JoinButton,
 		(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_UMenu_Statics::NewProp_QuitButton,
+		(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_UMenu_Statics::NewProp_ButtonHoverColor,
+		(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_UMenu_Statics::NewProp_ButtonDefaultColor,
 		(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_UMenu_Statics::NewProp_MultiplayerSessionsSubsystem,
 	};
 	const FCppClassTypeInfoStatic Z_Construct_UClass_UMenu_Statics::StaticCppClassTypeInfo = {
@@ -435,9 +559,9 @@ void EmptyLinkFunctionForGeneratedCodeMenu() {}
 		static const FClassRegisterCompiledInInfo ClassInfo[];
 	};
 	const FClassRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Projects_OnlineShooter_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_Statics::ClassInfo[] = {
-		{ Z_Construct_UClass_UMenu, UMenu::StaticClass, TEXT("UMenu"), &Z_Registration_Info_UClass_UMenu, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(UMenu), 3706242036U) },
+		{ Z_Construct_UClass_UMenu, UMenu::StaticClass, TEXT("UMenu"), &Z_Registration_Info_UClass_UMenu, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(UMenu), 3922587164U) },
 	};
-	static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Projects_OnlineShooter_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_2705669118(TEXT("/Script/MultiplayerSessions"),
+	static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Projects_OnlineShooter_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_720705896(TEXT("/Script/MultiplayerSessions"),
 		Z_CompiledInDeferFile_FID_Projects_OnlineShooter_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_Statics::ClassInfo, UE_ARRAY_COUNT(Z_CompiledInDeferFile_FID_Projects_OnlineShooter_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_Statics::ClassInfo),
 		nullptr, 0,
 		nullptr, 0);
