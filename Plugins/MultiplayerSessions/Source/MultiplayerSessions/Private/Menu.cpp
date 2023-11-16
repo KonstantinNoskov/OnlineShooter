@@ -105,7 +105,7 @@ void UMenu::MenuTearDown()
 		}
 	}
 }
-
+ 
 void UMenu::SetHostButtonColor()
 {
 	if (HostButton->IsHovered())
