@@ -86,8 +86,6 @@ private:
 	UFUNCTION()
 	void SetQuitButtonColor();
 	
-	
-	
 	// Reference to a subsystem designed to handle all online session functionality
 	UPROPERTY()
 	class UMultiplayerSessionsSubsystem* MultiplayerSessionsSubsystem;
@@ -95,9 +93,6 @@ private:
 	// Menu setup properties
 	int32 NumPublicConnections{4};
 	FString MatchType{TEXT("Noskov")};
-	
 	FString PathToLobby{TEXT("")};
-
-
 	
 };

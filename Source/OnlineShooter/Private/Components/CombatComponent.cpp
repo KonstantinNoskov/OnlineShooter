@@ -4,22 +4,31 @@
 
 // References
 #include "Characters/OnlineShooterCharacter.h"
-#include "Components/SphereComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Net/UnrealNetwork.h"
 #include "Weapon/Weapon.h"
 
 // Constructor
 UCombatComponent::UCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-
 }
 
 // Begin play
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
+}
+
+void UCombatComponent::SetAiming(bool bIsAiming)
+{
+	bAiming = bIsAiming;
+	Server_SetAiming(bIsAiming);
+}
+
+void UCombatComponent::Server_SetAiming_Implementation(bool bIsAiming)
+{
+	bAiming = bIsAiming;
 }
 
 // Tick
@@ -48,3 +57,10 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	EquippedWeapon->SetOwner(Character);
 }
 
+void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
+	DOREPLIFETIME(UCombatComponent, bAiming);
+}

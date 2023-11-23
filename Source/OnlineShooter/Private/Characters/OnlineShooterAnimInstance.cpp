@@ -12,7 +12,6 @@ void UOnlineShooterAnimInstance::NativeInitializeAnimation()
 
 	// Get the reference to a player character 
 	OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(TryGetPawnOwner());
-	
 }
 
 void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -22,15 +21,17 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	/* ANIMATION PROPERTIES
 	 * ==============================================================================================================
 	 * 
-	 * Following properties will determine which character animation is gonna be played
-	 * Properties updates every "animation tick"
+	 * Following properties will determine which of character's animation is gonna be played
+	 * The properties updates every "animation tick"
 	 *
-	 * @var Speed - horizontal speed
-	 * @var bIsInAir - whether character is falling, jumping, flying etc.
+	 * @var Speed			- horizontal speed
+	 * @var bIsInAir		- whether character is falling, jumping, flying etc.
 	 * @var bIsAccelerating - it's NOT the rate of change of velocity in physical understanding. It's just determines
 	 *						  whether player pressed keyboard key to move.
+	 * @var bWeaponEquipped - checks if player has a equipped weapon
+	 * @var bIsCrouching	-
+	 * @var bAiming			-
 	 *		
-	 *
 	 * ==============================================================================================================
 	 */
 	
@@ -44,7 +45,18 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	FVector Velocity = OnlineShooterCharacter->GetVelocity();
 	Speed = Velocity.Size2D();
 
+	// Is character jumping
 	bIsInAir = OnlineShooterCharacter->GetCharacterMovement()->IsFalling();
-	
+
+	// Is character moving
 	bIsAccelerating = OnlineShooterCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0 ? true : false;
+
+	// Does character have a equipped weapon
+	bWeaponEquipped = OnlineShooterCharacter->IsWeaponEquipped();
+
+	// Is character crouching
+	bIsCrouching = OnlineShooterCharacter->bIsCrouched;
+
+	// Is character aiming
+	bAiming = OnlineShooterCharacter->IsAiming();
 }

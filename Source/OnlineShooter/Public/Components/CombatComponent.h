@@ -1,4 +1,6 @@
-﻿#include "CoreMinimal.h"
+﻿#pragma once
+
+#include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
@@ -16,6 +18,7 @@ public:
 	UCombatComponent();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	// Friend Classes
 	friend AOnlineShooterCharacter;
@@ -24,24 +27,25 @@ protected:
 	
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void SetAiming(bool bIsAiming);
+
+	UFUNCTION(Server, Reliable)
+	void Server_SetAiming(bool bIsAiming);
+
 private:
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	AWeapon* EquippedWeapon;
 
 	UPROPERTY()
 	AOnlineShooterCharacter* Character;
 
+	UPROPERTY(Replicated)
+	bool bAiming;
+
 	UFUNCTION()
 	void EquipWeapon(AWeapon* WeaponToEquip);
-
-public:
-
-	
-	
-	
-	
-
 
 	
 	
