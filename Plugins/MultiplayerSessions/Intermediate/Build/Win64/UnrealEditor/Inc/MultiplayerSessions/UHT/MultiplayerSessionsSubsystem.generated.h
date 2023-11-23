@@ -15,42 +15,15 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 #define MULTIPLAYERSESSIONS_MultiplayerSessionsSubsystem_generated_h
 
 #define FID_Projects_OnlineShooter_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_MultiplayerSessionsSubsystem_h_14_DELEGATE \
-struct _Script_MultiplayerSessions_eventMultiplayerOnCreateSessionComplete_Parms \
-{ \
-	bool bWasSuccessful; \
-}; \
-static inline void FMultiplayerOnCreateSessionComplete_DelegateWrapper(const FMulticastScriptDelegate& MultiplayerOnCreateSessionComplete, bool bWasSuccessful) \
-{ \
-	_Script_MultiplayerSessions_eventMultiplayerOnCreateSessionComplete_Parms Parms; \
-	Parms.bWasSuccessful=bWasSuccessful ? true : false; \
-	MultiplayerOnCreateSessionComplete.ProcessMulticastDelegate<UObject>(&Parms); \
-}
+MULTIPLAYERSESSIONS_API void FMultiplayerOnCreateSessionComplete_DelegateWrapper(const FMulticastScriptDelegate& MultiplayerOnCreateSessionComplete, bool bWasSuccessful);
 
 
 #define FID_Projects_OnlineShooter_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_MultiplayerSessionsSubsystem_h_17_DELEGATE \
-struct _Script_MultiplayerSessions_eventMultiplayerOnDestroySessionsComplete_Parms \
-{ \
-	bool bWasSuccessful; \
-}; \
-static inline void FMultiplayerOnDestroySessionsComplete_DelegateWrapper(const FMulticastScriptDelegate& MultiplayerOnDestroySessionsComplete, bool bWasSuccessful) \
-{ \
-	_Script_MultiplayerSessions_eventMultiplayerOnDestroySessionsComplete_Parms Parms; \
-	Parms.bWasSuccessful=bWasSuccessful ? true : false; \
-	MultiplayerOnDestroySessionsComplete.ProcessMulticastDelegate<UObject>(&Parms); \
-}
+MULTIPLAYERSESSIONS_API void FMultiplayerOnDestroySessionsComplete_DelegateWrapper(const FMulticastScriptDelegate& MultiplayerOnDestroySessionsComplete, bool bWasSuccessful);
 
 
 #define FID_Projects_OnlineShooter_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_MultiplayerSessionsSubsystem_h_18_DELEGATE \
-struct _Script_MultiplayerSessions_eventMultiplayerOnStartSessionsComplete_Parms \
-{ \
-	bool bWasSuccessful; \
-}; \
-static inline void FMultiplayerOnStartSessionsComplete_DelegateWrapper(const FMulticastScriptDelegate& MultiplayerOnStartSessionsComplete, bool bWasSuccessful) \
-{ \
-	_Script_MultiplayerSessions_eventMultiplayerOnStartSessionsComplete_Parms Parms; \
-	Parms.bWasSuccessful=bWasSuccessful ? true : false; \
-	MultiplayerOnStartSessionsComplete.ProcessMulticastDelegate<UObject>(&Parms); \
-}
+MULTIPLAYERSESSIONS_API void FMultiplayerOnStartSessionsComplete_DelegateWrapper(const FMulticastScriptDelegate& MultiplayerOnStartSessionsComplete, bool bWasSuccessful);
 
 
 #define FID_Projects_OnlineShooter_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_MultiplayerSessionsSubsystem_h_26_SPARSE_DATA

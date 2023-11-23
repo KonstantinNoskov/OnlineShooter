@@ -78,7 +78,7 @@ public: \
 
 #define FID_Projects_OnlineShooter_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_19_ENHANCED_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
-	NO_API UMenu(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()) : Super(ObjectInitializer) { }; \
+	NO_API UMenu(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()); \
 private: \
 	/** Private move- and copy-constructors, should never be used */ \
 	NO_API UMenu(UMenu&&); \

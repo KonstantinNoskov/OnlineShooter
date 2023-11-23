@@ -19,7 +19,7 @@ void UMenu::MenuSetup(int32 NumberOfPublicConnection, FString TypeOfMatch, FStri
 	
 	AddToViewport();
 	SetVisibility(ESlateVisibility::Visible);
-	bIsFocusable = true;
+	SetIsFocusable(true);
 
 	UWorld* World = GetWorld();
 
@@ -27,7 +27,7 @@ void UMenu::MenuSetup(int32 NumberOfPublicConnection, FString TypeOfMatch, FStri
 	{
 		APlayerController* PlayerController = World->GetFirstPlayerController();
 
-		if(PlayerController)
+		if(PlayerController) 
 		{
 			// Set input settings
 			FInputModeUIOnly InputModeData;
@@ -148,16 +148,17 @@ void UMenu::SetQuitButtonColor()
 /* BUTTONS FUNCTIONS
  * ====================================================================================================================
  * 
- *	This functions contains logic which is called every time the buttons is clicked.
+ * This functions contains logic which is called every time the buttons is clicked.
  * 
  * Button clicked functions should be added dynamically to OnClick delegate in UMenu::Initialize() function
- * The button function name must comply with the following format : void <SomeAction>ButtonClicked() 
+ * The button function's name must comply with the following format : void <SomeAction>ButtonClicked() 
  *
  * Example:
  * if(<SomeAction>Button) { <SomeAction>Button->OnClicked.AddDynamic(this, &ThisClass::<SomeAction>ButtonClicked); }
  * 
  * ====================================================================================================================
  */
+
 void UMenu::HostButtonClicked()
 {
 	// Disable button on click immediately by default regardless of whether was host successful
@@ -197,7 +198,7 @@ void UMenu::QuitButtonClicked()
 
 void UMenu::OnCreateSession(bool bWasSuccessful)
 {
-	// if
+	// if session has been created successfully...
 	if(bWasSuccessful)
 	{	
 		if (GEngine) { GEngine->AddOnScreenDebugMessage(-1,15.f,FColor::Green,FString::Printf(TEXT("Session was successfully created!"))); }
@@ -220,7 +221,7 @@ void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResu
 	// check if MultiplayerSessionsSubsystem is valid 
 	if(!MultiplayerSessionsSubsystem) { return; }
 
-	// 
+	// run through all created sessions
 	for (FOnlineSessionSearchResult Result : SessionResults)
 	{
 		FString SettingsValue;
@@ -228,7 +229,7 @@ void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResu
 
 		if (SettingsValue == MatchType)
 		{
-			MultiplayerSessionsSubsystem->JoinSession(Result);
+			MultiplayerSessionsSubsystem->JoinSession(Result); 
 			return;
 		}
 	}
