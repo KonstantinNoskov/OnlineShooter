@@ -35,7 +35,7 @@ protected:
 
 private:
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing=OnRep_EquippedWeapon)
 	AWeapon* EquippedWeapon;
 
 	UPROPERTY()
@@ -47,6 +47,7 @@ private:
 	UFUNCTION()
 	void EquipWeapon(AWeapon* WeaponToEquip);
 
-	
+	UFUNCTION()
+	void OnRep_EquippedWeapon();
 	
 };

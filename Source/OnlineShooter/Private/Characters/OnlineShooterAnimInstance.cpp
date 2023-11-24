@@ -5,6 +5,7 @@
 
 #include "Characters/OnlineShooterCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UOnlineShooterAnimInstance::NativeInitializeAnimation()
 {
@@ -17,23 +18,6 @@ void UOnlineShooterAnimInstance::NativeInitializeAnimation()
 void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
-
-	/* ANIMATION PROPERTIES
-	 * ==============================================================================================================
-	 * 
-	 * Following properties will determine which of character's animation is gonna be played
-	 * The properties updates every "animation tick"
-	 *
-	 * @var Speed			- horizontal speed
-	 * @var bIsInAir		- whether character is falling, jumping, flying etc.
-	 * @var bIsAccelerating - it's NOT the rate of change of velocity in physical understanding. It's just determines
-	 *						  whether player pressed keyboard key to move.
-	 * @var bWeaponEquipped - checks if player has a equipped weapon
-	 * @var bIsCrouching	-
-	 * @var bAiming			-
-	 *		
-	 * ==============================================================================================================
-	 */
 	
 	// if player reference is nov valid, try to get player reference
 	if (!OnlineShooterCharacter) { OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(TryGetPawnOwner()); }
@@ -59,4 +43,21 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	// Is character aiming
 	bAiming = OnlineShooterCharacter->IsAiming();
+
+	// Offset Yaw for Strafing
+	FRotator AimRotation = OnlineShooterCharacter->GetBaseAimRotation();
+	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(OnlineShooterCharacter->GetVelocity());
+	
+	FRotator Delta = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation);
+	StrafingDeltaRotation = FMath::RInterpTo(StrafingDeltaRotation, Delta, DeltaSeconds, 6.f);
+	YawOffset = StrafingDeltaRotation.Yaw;
+	
+	// Lean
+	CharacterRotationLastFrame = CharacterRotation;
+	CharacterRotation = OnlineShooterCharacter->GetActorRotation();
+	const FRotator CharacterRotationDelta = UKismetMathLibrary::NormalizedDeltaRotator(CharacterRotation, CharacterRotationLastFrame);
+	const float Target = CharacterRotationDelta.Yaw / DeltaSeconds;
+	const float Interp = FMath::FInterpTo(Lean, Target, DeltaSeconds, 6.f);
+	Lean = FMath::Clamp(Interp, -90.f, 90.f);
+	
 }
