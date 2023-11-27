@@ -552,6 +552,7 @@ void EmptyLinkFunctionForGeneratedCodeMenu() {}
 	{
 		return UMenu::StaticClass();
 	}
+	UMenu::UMenu(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
 	DEFINE_VTABLE_PTR_HELPER_CTOR(UMenu);
 	UMenu::~UMenu() {}
 	struct Z_CompiledInDeferFile_FID_Projects_OnlineShooter_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_Statics
@@ -559,9 +560,9 @@ void EmptyLinkFunctionForGeneratedCodeMenu() {}
 		static const FClassRegisterCompiledInInfo ClassInfo[];
 	};
 	const FClassRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Projects_OnlineShooter_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_Statics::ClassInfo[] = {
-		{ Z_Construct_UClass_UMenu, UMenu::StaticClass, TEXT("UMenu"), &Z_Registration_Info_UClass_UMenu, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(UMenu), 3922587164U) },
+		{ Z_Construct_UClass_UMenu, UMenu::StaticClass, TEXT("UMenu"), &Z_Registration_Info_UClass_UMenu, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(UMenu), 1487256108U) },
 	};
-	static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Projects_OnlineShooter_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_720705896(TEXT("/Script/MultiplayerSessions"),
+	static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Projects_OnlineShooter_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_3490145657(TEXT("/Script/MultiplayerSessions"),
 		Z_CompiledInDeferFile_FID_Projects_OnlineShooter_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_Statics::ClassInfo, UE_ARRAY_COUNT(Z_CompiledInDeferFile_FID_Projects_OnlineShooter_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h_Statics::ClassInfo),
 		nullptr, 0,
 		nullptr, 0);
