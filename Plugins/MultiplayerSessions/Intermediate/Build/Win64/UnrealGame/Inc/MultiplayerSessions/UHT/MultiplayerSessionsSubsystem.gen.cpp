@@ -6,7 +6,7 @@
 
 #include "UObject/GeneratedCppIncludes.h"
 #include "MultiplayerSessions/Public/MultiplayerSessionsSubsystem.h"
-#include "Engine/Classes/Engine/GameInstance.h"
+#include "../../Source/Runtime/Engine/Classes/Engine/GameInstance.h"
 PRAGMA_DISABLE_DEPRECATION_WARNINGS
 void EmptyLinkFunctionForGeneratedCodeMultiplayerSessionsSubsystem() {}
 // Cross Module References
@@ -57,6 +57,16 @@ void EmptyLinkFunctionForGeneratedCodeMultiplayerSessionsSubsystem() {}
 		}
 		return ReturnFunction;
 	}
+void FMultiplayerOnCreateSessionComplete_DelegateWrapper(const FMulticastScriptDelegate& MultiplayerOnCreateSessionComplete, bool bWasSuccessful)
+{
+	struct _Script_MultiplayerSessions_eventMultiplayerOnCreateSessionComplete_Parms
+	{
+		bool bWasSuccessful;
+	};
+	_Script_MultiplayerSessions_eventMultiplayerOnCreateSessionComplete_Parms Parms;
+	Parms.bWasSuccessful=bWasSuccessful ? true : false;
+	MultiplayerOnCreateSessionComplete.ProcessMulticastDelegate<UObject>(&Parms);
+}
 	struct Z_Construct_UDelegateFunction_MultiplayerSessions_MultiplayerOnDestroySessionsComplete__DelegateSignature_Statics
 	{
 		struct _Script_MultiplayerSessions_eventMultiplayerOnDestroySessionsComplete_Parms
@@ -94,6 +104,16 @@ void EmptyLinkFunctionForGeneratedCodeMultiplayerSessionsSubsystem() {}
 		}
 		return ReturnFunction;
 	}
+void FMultiplayerOnDestroySessionsComplete_DelegateWrapper(const FMulticastScriptDelegate& MultiplayerOnDestroySessionsComplete, bool bWasSuccessful)
+{
+	struct _Script_MultiplayerSessions_eventMultiplayerOnDestroySessionsComplete_Parms
+	{
+		bool bWasSuccessful;
+	};
+	_Script_MultiplayerSessions_eventMultiplayerOnDestroySessionsComplete_Parms Parms;
+	Parms.bWasSuccessful=bWasSuccessful ? true : false;
+	MultiplayerOnDestroySessionsComplete.ProcessMulticastDelegate<UObject>(&Parms);
+}
 	struct Z_Construct_UDelegateFunction_MultiplayerSessions_MultiplayerOnStartSessionsComplete__DelegateSignature_Statics
 	{
 		struct _Script_MultiplayerSessions_eventMultiplayerOnStartSessionsComplete_Parms
@@ -131,6 +151,16 @@ void EmptyLinkFunctionForGeneratedCodeMultiplayerSessionsSubsystem() {}
 		}
 		return ReturnFunction;
 	}
+void FMultiplayerOnStartSessionsComplete_DelegateWrapper(const FMulticastScriptDelegate& MultiplayerOnStartSessionsComplete, bool bWasSuccessful)
+{
+	struct _Script_MultiplayerSessions_eventMultiplayerOnStartSessionsComplete_Parms
+	{
+		bool bWasSuccessful;
+	};
+	_Script_MultiplayerSessions_eventMultiplayerOnStartSessionsComplete_Parms Parms;
+	Parms.bWasSuccessful=bWasSuccessful ? true : false;
+	MultiplayerOnStartSessionsComplete.ProcessMulticastDelegate<UObject>(&Parms);
+}
 	void UMultiplayerSessionsSubsystem::StaticRegisterNativesUMultiplayerSessionsSubsystem()
 	{
 	}

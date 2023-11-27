@@ -44,7 +44,7 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	// Is character aiming
 	bAiming = OnlineShooterCharacter->IsAiming();
 
-	// Offset Yaw for Strafing
+	// Calculate Offset Yaw for Strafing
 	FRotator AimRotation = OnlineShooterCharacter->GetBaseAimRotation();
 	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(OnlineShooterCharacter->GetVelocity());
 	
@@ -52,7 +52,8 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	StrafingDeltaRotation = FMath::RInterpTo(StrafingDeltaRotation, Delta, DeltaSeconds, 6.f);
 	YawOffset = StrafingDeltaRotation.Yaw;
 	
-	// Lean
+	
+	// Calculate Lean angle
 	CharacterRotationLastFrame = CharacterRotation;
 	CharacterRotation = OnlineShooterCharacter->GetActorRotation();
 	const FRotator CharacterRotationDelta = UKismetMathLibrary::NormalizedDeltaRotator(CharacterRotation, CharacterRotationLastFrame);

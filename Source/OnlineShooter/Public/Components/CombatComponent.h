@@ -44,6 +44,12 @@ private:
 	UPROPERTY(Replicated)
 	bool bAiming;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Walk", meta = (AllowPrivateAccess = "true"))
+	float BaseWalkSpeed;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Aim", meta = (AllowPrivateAccess = "true"))
+	float AimingWalkSpeed;
+
 	UFUNCTION()
 	void EquipWeapon(AWeapon* WeaponToEquip);
 
