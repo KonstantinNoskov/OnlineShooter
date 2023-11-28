@@ -114,6 +114,8 @@ protected:
 
 	/** Callback Aim input */
 	void AimButtonReleased();
+	
+	
 
 private:
 
@@ -125,6 +127,13 @@ private:
 #pragma endregion
 
 private:
+
+	void AimOffset(float DeltaTime);
+
+	float AO_Yaw;
+	float AO_Pitch;
+	
+	
 	UPROPERTY(ReplicatedUsing = OnRep_OverllapingWeapon)
 	AWeapon* OverlappingWeapon;
 
@@ -140,4 +149,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	bool IsAiming() const;
+
+	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
+	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
+	
+	FRotator StartingAimRotation;
 };

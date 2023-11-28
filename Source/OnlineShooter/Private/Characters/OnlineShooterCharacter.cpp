@@ -11,6 +11,9 @@
 // References
 #include "Weapon/Weapon.h"
 
+// Math
+#include "Kismet/KismetMathLibrary.h"
+
 // Components
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -18,6 +21,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/CombatComponent.h"
+
+
 
 // Constructor
 AOnlineShooterCharacter::AOnlineShooterCharacter()
@@ -91,6 +96,8 @@ void AOnlineShooterCharacter::BeginPlay()
 void AOnlineShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	AimOffset(DeltaTime);
 }
 
 // Binding inputs
@@ -187,6 +194,36 @@ void AOnlineShooterCharacter::AimButtonReleased()
 	}
 }
 
+void AOnlineShooterCharacter::AimOffset(float DeltaTime)
+{
+	if(Combat && !Combat->EquippedWeapon) return; 
+	
+	float Speed = GetVelocity().Size2D();
+	bool bIsInAir = GetCharacterMovement()->IsFalling();
+
+	if(!Speed && !bIsInAir) // standing still, not jumping
+	{
+		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
+		AO_Yaw = DeltaAimRotation.Yaw;
+		bUseControllerRotationYaw = false;
+
+		UE_LOG(LogTemp, Warning, TEXT("AO_Yaw: %f, "), AO_Yaw)
+	}
+
+	if (Speed || bIsInAir) // running or jumping
+	{
+		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		AO_Yaw = 0.f;
+		bUseControllerRotationYaw = true;
+
+		UE_LOG(LogTemp, Warning, TEXT("StartingAimRotation.Z: %f"), GetBaseAimRotation().Yaw)
+	}
+
+	AO_Pitch = GetBaseAimRotation().Pitch;
+		
+}
+
 // Equip weapon
 void AOnlineShooterCharacter::EquipButtonPressed()
 {
@@ -197,7 +234,7 @@ void AOnlineShooterCharacter::EquipButtonPressed()
 		if(HasAuthority())
 		{
 			// call EquipWeapon on Server
-			Combat->EquipWeapon(OverlappingWeapon);	
+			Combat->EquipWeapon(OverlappingWeapon);
 		}
 		// if we are client
 		else

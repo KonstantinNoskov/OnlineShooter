@@ -26,8 +26,7 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if(!OnlineShooterCharacter) { return; }
 
 	// Speed (horizontal)
-	FVector Velocity = OnlineShooterCharacter->GetVelocity();
-	Speed = Velocity.Size2D();
+	Speed = OnlineShooterCharacter->GetVelocity().Size2D();
 
 	// Is character jumping
 	bIsInAir = OnlineShooterCharacter->GetCharacterMovement()->IsFalling();
@@ -60,5 +59,8 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	const float Target = CharacterRotationDelta.Yaw / DeltaSeconds;
 	const float Interp = FMath::FInterpTo(Lean, Target, DeltaSeconds, 6.f);
 	Lean = FMath::Clamp(Interp, -90.f, 90.f);
-	
+
+	// Calculate AO_Offset
+	AO_Yaw = OnlineShooterCharacter->GetAO_Yaw();
+	AO_Pitch = OnlineShooterCharacter->GetAO_Pitch();
 }
