@@ -114,8 +114,6 @@ protected:
 
 	/** Callback Aim input */
 	void AimButtonReleased();
-	
-	
 
 private:
 
@@ -152,6 +150,8 @@ public:
 
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
-	
 	FRotator StartingAimRotation;
+
+
+	FORCEINLINE AWeapon* GetEquippedWeapon() const;
 };

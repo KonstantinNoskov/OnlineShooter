@@ -208,7 +208,7 @@ void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 		AO_Yaw = DeltaAimRotation.Yaw;
 		bUseControllerRotationYaw = false;
 
-		UE_LOG(LogTemp, Warning, TEXT("AO_Yaw: %f, "), AO_Yaw)
+		//UE_LOG(LogTemp, Warning, TEXT("AO_Yaw: %f, "), AO_Yaw)
 	}
 
 	if (Speed || bIsInAir) // running or jumping
@@ -217,10 +217,20 @@ void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 		AO_Yaw = 0.f;
 		bUseControllerRotationYaw = true;
 
-		UE_LOG(LogTemp, Warning, TEXT("StartingAimRotation.Z: %f"), GetBaseAimRotation().Yaw)
+		//UE_LOG(LogTemp, Warning, TEXT("StartingAimRotation.Z: %f"), GetBaseAimRotation().Yaw)
 	}
 
 	AO_Pitch = GetBaseAimRotation().Pitch;
+	if(AO_Pitch > 90.f && !IsLocallyControlled())
+	{
+		// map pitch from  [270, 360) to [-90, 0)
+		FVector2D InRange(270.f, 360.f);
+		FVector2D OutRange(-90.f, 0.f);
+
+		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
+	}
+	
+	
 		
 }
 
@@ -303,6 +313,12 @@ bool AOnlineShooterCharacter::IsWeaponEquipped() const
 bool AOnlineShooterCharacter::IsAiming() const
 {
 	return (Combat && Combat->bAiming);
+}
+
+AWeapon* AOnlineShooterCharacter::GetEquippedWeapon() const
+{
+	if(!Combat) return nullptr;
+	return Combat->EquippedWeapon;
 }
 
 

@@ -7,6 +7,8 @@
 #include "OnlineShooterAnimInstance.generated.h"
 
 class AOnlineShooterCharacter;
+class AWeapon;
+
 /**
  * 
  */
@@ -57,6 +59,9 @@ private:
 	bool bWeaponEquipped;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	AWeapon* EquippedWeapon;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool bIsCrouching;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
@@ -72,9 +77,13 @@ private:
 	FRotator CharacterRotation;
 	FRotator StrafingDeltaRotation;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = "Aim Offset", meta = (AllowPrivateAccess = "true"))
 	float AO_Yaw;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = "Aim Offset", meta = (AllowPrivateAccess = "true"))
 	float AO_Pitch;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon Grip", meta = (AllowPrivateAccess = "true"))
+	FTransform WeaponLeftHandTransform;
+	
 };

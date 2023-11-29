@@ -3,9 +3,13 @@
 
 #include "Characters/OnlineShooterAnimInstance.h"
 
+// Math
+#include "Kismet/KismetMathLibrary.h"
+
+// References
 #include "Characters/OnlineShooterCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/KismetMathLibrary.h"
+#include "Weapon/Weapon.h"
 
 void UOnlineShooterAnimInstance::NativeInitializeAnimation()
 {
@@ -37,6 +41,9 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	// Does character have a equipped weapon
 	bWeaponEquipped = OnlineShooterCharacter->IsWeaponEquipped();
 
+	// Returns character's equipped weapon. 
+	EquippedWeapon = OnlineShooterCharacter->GetEquippedWeapon();
+
 	// Is character crouching
 	bIsCrouching = OnlineShooterCharacter->bIsCrouched;
 
@@ -51,7 +58,7 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	StrafingDeltaRotation = FMath::RInterpTo(StrafingDeltaRotation, Delta, DeltaSeconds, 6.f);
 	YawOffset = StrafingDeltaRotation.Yaw;
 	
-	
+
 	// Calculate Lean angle
 	CharacterRotationLastFrame = CharacterRotation;
 	CharacterRotation = OnlineShooterCharacter->GetActorRotation();
@@ -63,4 +70,17 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	// Calculate AO_Offset
 	AO_Yaw = OnlineShooterCharacter->GetAO_Yaw();
 	AO_Pitch = OnlineShooterCharacter->GetAO_Pitch();
+
+	// Calculate weapon socket transform
+	if(bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh())
+	{
+		WeaponLeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("SKT_LeftHand"), RTS_World);
+		FVector OutPositionLeft;
+		FRotator OutRotationLeft;
+		OnlineShooterCharacter->GetMesh()->TransformToBoneSpace(FName("hand_r"), WeaponLeftHandTransform.GetLocation(), FRotator::ZeroRotator,
+			OutPositionLeft, OutRotationLeft);
+
+		WeaponLeftHandTransform.SetLocation(OutPositionLeft);
+		WeaponLeftHandTransform.SetRotation(FQuat(OutRotationLeft));
+	}
 }
