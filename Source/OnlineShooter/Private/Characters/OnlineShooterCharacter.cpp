@@ -23,7 +23,6 @@
 #include "Components/CombatComponent.h"
 
 
-
 // Constructor
 AOnlineShooterCharacter::AOnlineShooterCharacter()
 {
@@ -55,6 +54,9 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 	// Collision preset
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+
+	// Set Turning State
+	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 }
 
 // Replication
@@ -206,9 +208,15 @@ void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
 		AO_Yaw = DeltaAimRotation.Yaw;
-		bUseControllerRotationYaw = false;
 
-		//UE_LOG(LogTemp, Warning, TEXT("AO_Yaw: %f, "), AO_Yaw)
+		if(TurningInPlace == ETurningInPlace::ETIP_NotTurning)
+		{
+			InterpAO_Yaw = AO_Yaw;
+		}
+		
+		bUseControllerRotationYaw = true;
+
+		TurnInPlace(DeltaTime);
 	}
 
 	if (Speed || bIsInAir) // running or jumping
@@ -216,8 +224,7 @@ void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		AO_Yaw = 0.f;
 		bUseControllerRotationYaw = true;
-
-		//UE_LOG(LogTemp, Warning, TEXT("StartingAimRotation.Z: %f"), GetBaseAimRotation().Yaw)
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 	}
 
 	AO_Pitch = GetBaseAimRotation().Pitch;
@@ -229,7 +236,6 @@ void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 
 		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
 	}
-	
 	
 		
 }
@@ -313,6 +319,31 @@ bool AOnlineShooterCharacter::IsWeaponEquipped() const
 bool AOnlineShooterCharacter::IsAiming() const
 {
 	return (Combat && Combat->bAiming);
+}
+
+void AOnlineShooterCharacter::TurnInPlace(float DeltaTime)
+{
+	UE_LOG(LogTemp, Warning, TEXT("AO_YAW:%f"), AO_Yaw)
+	
+	if (AO_Yaw > 90.f)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_Right;
+	}
+	else if (AO_Yaw < -90.f)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_Left;
+	}
+	if (TurningInPlace != ETurningInPlace::ETIP_NotTurning)
+	{
+		InterpAO_Yaw = FMath::FInterpTo(InterpAO_Yaw, 0.f, DeltaTime, 4.f);
+		AO_Yaw = InterpAO_Yaw;
+
+		if (FMath::Abs(AO_Yaw) < 5.f)
+		{
+			TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+			StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		}
+	}
 }
 
 AWeapon* AOnlineShooterCharacter::GetEquippedWeapon() const

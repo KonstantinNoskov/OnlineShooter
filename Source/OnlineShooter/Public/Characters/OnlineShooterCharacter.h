@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "OnlineShooter/Data/TurningInPlace.h"
 
 // INPUT
 #include "InputActionValue.h"
@@ -130,13 +131,20 @@ private:
 
 	float AO_Yaw;
 	float AO_Pitch;
+	float InterpAO_Yaw;
 	
+	ETurningInPlace TurningInPlace;
+
+	UFUNCTION()
+	void TurnInPlace(float DeltaTime);
 	
 	UPROPERTY(ReplicatedUsing = OnRep_OverllapingWeapon)
 	AWeapon* OverlappingWeapon;
 
 	UFUNCTION()
 	void OnRep_OverllapingWeapon(AWeapon* LastWeapon);
+
+
 	
 public:
 	// Determines whether player overlap weapon
@@ -151,7 +159,7 @@ public:
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
 	FRotator StartingAimRotation;
-
-
+	
 	FORCEINLINE AWeapon* GetEquippedWeapon() const;
+	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 };
