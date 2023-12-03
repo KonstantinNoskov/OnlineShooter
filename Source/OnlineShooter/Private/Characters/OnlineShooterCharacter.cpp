@@ -42,6 +42,7 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 850.f);
 
 	// Create Overhead Widget
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
@@ -57,6 +58,10 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 
 	// Set Turning State
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+
+	// Net update settings
+	NetUpdateFrequency = 66.f;
+	MinNetUpdateFrequency = 33.f;
 }
 
 // Replication
@@ -168,6 +173,12 @@ void AOnlineShooterCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
+// Jump
+void AOnlineShooterCharacter::Jump()
+{	
+	bIsCrouched ? UnCrouch() : Super::Jump();
+}
+
 // Crouch
 void AOnlineShooterCharacter::CrouchButtonPressed()
 {
@@ -237,7 +248,7 @@ void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
 	}
 	
-		
+	
 }
 
 // Equip weapon

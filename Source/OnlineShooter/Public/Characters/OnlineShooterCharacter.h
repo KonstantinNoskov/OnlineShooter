@@ -41,6 +41,8 @@ protected:
 	
 	virtual void BeginPlay() override;
 
+	virtual void Jump() override;
+
 private:
 
 #pragma region COMPONENTS
@@ -144,8 +146,6 @@ private:
 	UFUNCTION()
 	void OnRep_OverllapingWeapon(AWeapon* LastWeapon);
 
-
-	
 public:
 	// Determines whether player overlap weapon
 	void SetOverlappingWeapon(AWeapon* Weapon);
@@ -160,6 +160,6 @@ public:
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
 	FRotator StartingAimRotation;
 	
-	FORCEINLINE AWeapon* GetEquippedWeapon() const;
+	AWeapon* GetEquippedWeapon() const;
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 };

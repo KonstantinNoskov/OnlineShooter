@@ -33,6 +33,7 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void Server_SetAiming(bool bIsAiming);
 
+
 private:
 
 	UPROPERTY(ReplicatedUsing=OnRep_EquippedWeapon)

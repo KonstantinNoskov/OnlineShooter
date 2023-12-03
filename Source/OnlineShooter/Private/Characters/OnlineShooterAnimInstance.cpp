@@ -22,6 +22,8 @@ void UOnlineShooterAnimInstance::NativeInitializeAnimation()
 void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
+
+	
 	
 	// if player reference is nov valid, try to get player reference
 	if (!OnlineShooterCharacter) { OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(TryGetPawnOwner()); }
@@ -69,7 +71,7 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	const float Interp = FMath::FInterpTo(Lean, Target, DeltaSeconds, 6.f);
 	Lean = FMath::Clamp(Interp, -90.f, 90.f);
 
-	// Calculate AO_Offset
+	// Calculate AimOffset
 	AO_Yaw = OnlineShooterCharacter->GetAO_Yaw();
 	AO_Pitch = OnlineShooterCharacter->GetAO_Pitch();
 
