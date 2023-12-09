@@ -23,11 +23,20 @@ UCombatComponent::UCombatComponent()
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	if (Character)
 	{
 		Character->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 	}
+}
+
+// Replication
+void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
+	DOREPLIFETIME(UCombatComponent, bAiming);
 }
 
 void UCombatComponent::SetAiming(bool bIsAiming)
@@ -60,6 +69,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	
 	EquippedWeapon = WeaponToEquip;
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+	
 
 	// if had weapon socket...
 	const USkeletalMeshSocket* WeaponHandSocket = Character->GetMesh()->GetSocketByName(FName("SKT_Weapon"));
@@ -85,10 +95,18 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	}
 }
 
-void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+// Fire 
+void UCombatComponent::FireButtonPressed(bool bPressed)
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	bFIreButtonPressed = bPressed;
 
-	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
-	DOREPLIFETIME(UCombatComponent, bAiming);
+	if(!EquippedWeapon) return;
+	
+	if (Character && bFIreButtonPressed)
+	{
+		Character->PlayFireMontage(bAiming);
+		EquippedWeapon->Fire();
+	}
 }
+
+

@@ -36,6 +36,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
+	
 
 protected:
 	
@@ -95,6 +96,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* AimAction;
 
+	/** Fire Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* FireAction;
+
 protected:
 	
 	/** Callback for movement input */
@@ -114,15 +119,21 @@ protected:
 
 	/** Callback for Aim input */
 	void AimButtonPressed();
-
-	/** Callback Aim input */
 	void AimButtonReleased();
+
+	/** Callback for Fire input */
+	void FireButtonPressed();
+	void FireButtonReleased();
+	
 
 private:
 
 	// Servers Inputs
 	UFUNCTION(Server, Reliable)
 	void Server_EquipButtonPressed();
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* FireWeaponMontage;
 
 
 #pragma endregion
@@ -162,4 +173,8 @@ public:
 	
 	AWeapon* GetEquippedWeapon() const;
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
+
+	UFUNCTION()
+	void PlayFireMontage(bool bAiming);
+	
 };

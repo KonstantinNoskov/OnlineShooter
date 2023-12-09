@@ -6,6 +6,7 @@
 
 class UWidgetComponent;
 class USphereComponent;
+class UAnimationAsset;
 
 UENUM()
 enum class EWeaponState : uint8
@@ -52,6 +53,12 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	UWidgetComponent* PickupWidget;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	UAnimationAsset* FireAnimation;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	float FireRate;
 	
 	// Replication
 	UFUNCTION()
@@ -60,10 +67,11 @@ private:
 public:
 	
 	void SetWeaponState(EWeaponState NewState);
+	void Fire();
 	
 	FORCEINLINE EWeaponState GetWeaponState() const { return WeaponState; }
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
+	FORCEINLINE float GetFireRate() const { return FireRate; }
 	
-
 };

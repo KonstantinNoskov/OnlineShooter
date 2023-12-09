@@ -5,17 +5,22 @@
 
 // References
 #include "Characters/OnlineShooterCharacter.h"
+#include "Animation/AnimationAsset.h"
 
 // Components
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 
 AWeapon::AWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
-	
+
+	FireRate = 2.f;
+
+		
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	SetRootComponent(WeaponMesh);
 
@@ -102,6 +107,14 @@ void AWeapon::SetWeaponState(EWeaponState NewState)
 		
 	default:
 		break;
+	}
+}
+
+void AWeapon::Fire()
+{
+	if(FireAnimation)
+	{
+		WeaponMesh->PlayAnimation(FireAnimation, false);
 	}
 }
 

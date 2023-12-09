@@ -50,11 +50,14 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Aim", meta = (AllowPrivateAccess = "true"))
 	float AimingWalkSpeed;
+	
+	bool bFIreButtonPressed;
 
 	UFUNCTION()
 	void EquipWeapon(AWeapon* WeaponToEquip);
 
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
-	
+
+	void FireButtonPressed(bool bPressed);
 };

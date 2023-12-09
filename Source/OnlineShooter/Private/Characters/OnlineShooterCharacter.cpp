@@ -132,6 +132,10 @@ void AOnlineShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 		// Aiming
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Triggered, this, &AOnlineShooterCharacter::AimButtonPressed);
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AOnlineShooterCharacter::AimButtonReleased);
+
+		// Fire
+		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AOnlineShooterCharacter::FireButtonPressed);
+		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &AOnlineShooterCharacter::FireButtonReleased);
 	}
 }
 
@@ -206,7 +210,6 @@ void AOnlineShooterCharacter::AimButtonReleased()
 		Combat->SetAiming(false);
 	}
 }
-
 void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 {
 	if(Combat && !Combat->EquippedWeapon) return; 
@@ -215,7 +218,7 @@ void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 	bool bIsInAir = GetCharacterMovement()->IsFalling();
 
 	if(!Speed && !bIsInAir) // standing still, not jumping
-	{
+		{
 		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
 		AO_Yaw = DeltaAimRotation.Yaw;
@@ -228,15 +231,15 @@ void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 		bUseControllerRotationYaw = true;
 
 		TurnInPlace(DeltaTime);
-	}
+		}
 
 	if (Speed || bIsInAir) // running or jumping
-	{
+		{
 		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		AO_Yaw = 0.f;
 		bUseControllerRotationYaw = true;
 		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
-	}
+		}
 
 	AO_Pitch = GetBaseAimRotation().Pitch;
 	if(AO_Pitch > 90.f && !IsLocallyControlled())
@@ -251,6 +254,22 @@ void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 	
 }
 
+// Fire
+void AOnlineShooterCharacter::FireButtonPressed()
+{
+	if(Combat)
+	{
+		Combat->FireButtonPressed(true);
+	}
+}
+void AOnlineShooterCharacter::FireButtonReleased()
+{
+	if(Combat)
+	{
+		Combat->FireButtonPressed(false);
+	}
+}
+ 
 // Equip weapon
 void AOnlineShooterCharacter::EquipButtonPressed()
 {
@@ -332,10 +351,9 @@ bool AOnlineShooterCharacter::IsAiming() const
 	return (Combat && Combat->bAiming);
 }
 
+// Calculate condition for character turning in place state
 void AOnlineShooterCharacter::TurnInPlace(float DeltaTime)
 {
-	UE_LOG(LogTemp, Warning, TEXT("AO_YAW:%f"), AO_Yaw)
-	
 	if (AO_Yaw > 90.f)
 	{
 		TurningInPlace = ETurningInPlace::ETIP_Right;
@@ -344,6 +362,7 @@ void AOnlineShooterCharacter::TurnInPlace(float DeltaTime)
 	{
 		TurningInPlace = ETurningInPlace::ETIP_Left;
 	}
+	
 	if (TurningInPlace != ETurningInPlace::ETIP_NotTurning)
 	{
 		InterpAO_Yaw = FMath::FInterpTo(InterpAO_Yaw, 0.f, DeltaTime, 4.f);
@@ -357,10 +376,29 @@ void AOnlineShooterCharacter::TurnInPlace(float DeltaTime)
 	}
 }
 
+// Returns weapon that character has if combat component exists
 AWeapon* AOnlineShooterCharacter::GetEquippedWeapon() const
 {
 	if(!Combat) return nullptr;
 	return Combat->EquippedWeapon;
+}
+
+// Play fire montage
+void AOnlineShooterCharacter::PlayFireMontage(bool bAiming)
+{
+	if (!Combat || !Combat->EquippedWeapon) return;
+
+	
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	
+	if(AnimInstance && FireWeaponMontage && !AnimInstance->IsAnyMontagePlaying())
+	{
+		AnimInstance->Montage_Play(FireWeaponMontage);
+
+		FName SectionName = bAiming ? FName("RifleAim") : FName("RifleHip");
+		AnimInstance->Montage_JumpToSection(SectionName);
+		GetEquippedWeapon()->Fire();
+	}
 }
 
 
