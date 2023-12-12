@@ -11,10 +11,18 @@ class ONLINESHOOTER_API AProjectileWeapon : public AWeapon
 
 public:
 	AProjectileWeapon();
+	
 
 protected:
 	virtual void BeginPlay() override;
 
-public:
 	virtual void Tick(float DeltaTime) override;
+
+public:
+	virtual void Fire(const FVector& HitTarget) override;
+
+private:
+
+	UPROPERTY(EditAnywhere, Category = "Projectile Properties")
+	TSubclassOf<class AProjectile> ProjectileClass;
 };

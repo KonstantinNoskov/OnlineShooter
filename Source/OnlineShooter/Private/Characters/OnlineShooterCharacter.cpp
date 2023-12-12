@@ -32,6 +32,7 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetMesh(), TEXT("SKT_Camera"));
+	
 	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
@@ -45,8 +46,8 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 850.f);
 
 	// Create Overhead Widget
-	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
-	OverheadWidget->SetupAttachment(RootComponent);
+	/*OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
+	OverheadWidget->SetupAttachment(RootComponent);*/
 
 	// Create Combat Component
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
@@ -387,17 +388,14 @@ AWeapon* AOnlineShooterCharacter::GetEquippedWeapon() const
 void AOnlineShooterCharacter::PlayFireMontage(bool bAiming)
 {
 	if (!Combat || !Combat->EquippedWeapon) return;
-
 	
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	
-	if(AnimInstance && FireWeaponMontage && !AnimInstance->IsAnyMontagePlaying())
+	if(AnimInstance && FireWeaponMontage)
 	{
-		AnimInstance->Montage_Play(FireWeaponMontage);
-
+		AnimInstance->Montage_Play(FireWeaponMontage, Combat->EquippedWeapon->GetFireRate());
 		FName SectionName = bAiming ? FName("RifleAim") : FName("RifleHip");
 		AnimInstance->Montage_JumpToSection(SectionName);
-		GetEquippedWeapon()->Fire();
 	}
 }
 

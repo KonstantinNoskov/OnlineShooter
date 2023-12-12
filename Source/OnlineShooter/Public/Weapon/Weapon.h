@@ -4,9 +4,11 @@
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
 
+class ACasing;
 class UWidgetComponent;
 class USphereComponent;
 class UAnimationAsset;
+class UAnimSequence;
 
 UENUM()
 enum class EWeaponState : uint8
@@ -53,12 +55,15 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	UWidgetComponent* PickupWidget;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
-	UAnimationAsset* FireAnimation;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Properties")
+	UAnimSequence* FireAnimationSequence;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Properties")
 	float FireRate;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ACasing> CasingClass;
 	
 	// Replication
 	UFUNCTION()
@@ -67,7 +72,7 @@ private:
 public:
 	
 	void SetWeaponState(EWeaponState NewState);
-	void Fire();
+	virtual void Fire(const FVector& HitTarget);
 	
 	FORCEINLINE EWeaponState GetWeaponState() const { return WeaponState; }
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }

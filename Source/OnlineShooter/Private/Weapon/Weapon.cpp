@@ -11,6 +11,8 @@
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Engine/SkeletalMeshSocket.h"
+#include "Weapon/Casing.h"
 
 
 AWeapon::AWeapon()
@@ -18,9 +20,8 @@ AWeapon::AWeapon()
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
 
-	FireRate = 2.f;
-
-		
+	FireRate = 1.f;
+	
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	SetRootComponent(WeaponMesh);
 
@@ -52,8 +53,14 @@ void AWeapon::BeginPlay()
 
 		// Bind overlap delegates
 		AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);
-		AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap); 
+		AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);
+
+		if(FireAnimationSequence)
+		{
+			FireAnimationSequence->RateScale = FireRate;	
+		}
 	}
+	
 }
 
 void AWeapon::Tick(float DeltaTime)
@@ -110,11 +117,36 @@ void AWeapon::SetWeaponState(EWeaponState NewState)
 	}
 }
 
-void AWeapon::Fire()
+void AWeapon::Fire(const FVector& HitTarget)
 {
-	if(FireAnimation)
+	// Play fire animation
+	if(FireAnimationSequence)
 	{
-		WeaponMesh->PlayAnimation(FireAnimation, false);
+		WeaponMesh->PlayAnimation(FireAnimationSequence, false);
+	}
+	
+	// Spawn ejected bullet shells
+	if(CasingClass)
+	{
+		const USkeletalMeshSocket* AmmoEjectSocket = GetWeaponMesh()->GetSocketByName(FName("AmmoEject"));
+		
+		if(AmmoEjectSocket)
+		{
+			FTransform SocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
+			
+			FActorSpawnParameters SpawnParams;
+			UWorld* World = GetWorld();
+
+			if(World)
+			{
+				World->SpawnActor<ACasing>(
+					CasingClass,
+					SocketTransform.GetLocation(),
+					SocketTransform.GetRotation().Rotator(),
+					SpawnParams
+					);
+			}
+		}
 	}
 }
 
@@ -127,6 +159,7 @@ void AWeapon::OnRep_WeaponState()
 	case EWeaponState::EWS_Equipped:
 		ShowPickupWidget(false);
 		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		
 		break;
 		
 	case EWeaponState::EWS_Dropped:

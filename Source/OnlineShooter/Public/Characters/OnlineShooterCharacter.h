@@ -36,6 +36,9 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
+
+	// Friend Classes
+	friend UCombatComponent;
 	
 
 protected:
@@ -57,8 +60,8 @@ private:
 	UCameraComponent* FollowCamera;
 	
 	// Follow camera 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = PlayerWidget, meta = (AllowPrivateAccess = "true"))
-	UWidgetComponent* OverheadWidget;
+	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = PlayerWidget, meta = (AllowPrivateAccess = "true"))
+	UWidgetComponent* OverheadWidget;*/
 
 	// Combat component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))

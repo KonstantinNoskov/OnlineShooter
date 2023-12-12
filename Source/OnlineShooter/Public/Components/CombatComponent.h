@@ -8,6 +8,8 @@
 class AWeapon;
 class AOnlineShooterCharacter;
 
+#define TRACE_LENGTH 80000.f
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class ONLINESHOOTER_API UCombatComponent : public UActorComponent
 {
@@ -33,6 +35,23 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void Server_SetAiming(bool bIsAiming);
 
+	UFUNCTION()
+	void EquipWeapon(AWeapon* WeaponToEquip);
+
+	UFUNCTION()
+	void OnRep_EquippedWeapon();
+
+	void FireButtonPressed(bool bPressed);
+
+	UFUNCTION(Server, Reliable)
+	void Server_Fire(const FVector_NetQuantize& TraceHitTarget);
+	
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_Fire(const FVector_NetQuantize& TraceHitTarget);
+
+	UFUNCTION()
+	void TraceUnderCrosshair(FHitResult& TraceHitResult);
 
 private:
 
@@ -53,11 +72,6 @@ private:
 	
 	bool bFIreButtonPressed;
 
-	UFUNCTION()
-	void EquipWeapon(AWeapon* WeaponToEquip);
-
-	UFUNCTION()
-	void OnRep_EquippedWeapon();
-
-	void FireButtonPressed(bool bPressed);
+	uint8 FireCount;
+	
 };
