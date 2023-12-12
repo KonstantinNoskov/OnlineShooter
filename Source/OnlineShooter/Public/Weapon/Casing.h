@@ -24,7 +24,22 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, Category = "Casing Properties")
-	float ShellEjectionImpulse;
+	float EjectionRightImpulseMin;
+	
+	UPROPERTY(EditAnywhere, Category = "Casing Properties")
+	float EjectionRightImpulseMax;
+
+	UPROPERTY(EditAnywhere, Category = "Casing Properties")
+	float EjectionUpImpulseMin;
+	
+	UPROPERTY(EditAnywhere, Category = "Casing Properties")
+	float EjectionUpImpulseMax;
+
+	UPROPERTY(EditAnywhere, Category = "Casing Properties")
+	float EjectionFwdImpulseMin;
+	
+	UPROPERTY(EditAnywhere, Category = "Casing Properties")
+	float EjectionFwdImpulseMax;
 
 	UPROPERTY(EditAnywhere, Category = "Casing Properties")
 	USoundCue* ShellSound;
@@ -35,13 +50,22 @@ private:
 	UStaticMeshComponent* CasingMesh;
 
 	UPROPERTY(EditAnywhere, Category = "Casing Properties")
-	float CasingSpinYaw;
+	float CasingSpinYawMin;
 	
 	UPROPERTY(EditAnywhere, Category = "Casing Properties")
-	float CasingSpinPitch;
+	float CasingSpinYawMax;
+
+	UPROPERTY(EditAnywhere, Category = "Casing Properties")
+	float CasingSpinPitchMin;
 	
 	UPROPERTY(EditAnywhere, Category = "Casing Properties")
-	float CasingSpinRoll;
+	float CasingSpinPitchMax;
+
+	UPROPERTY(EditAnywhere, Category = "Casing Properties")
+	float CasingSpinRollMin;
+	
+	UPROPERTY(EditAnywhere, Category = "Casing Properties")
+	float CasingSpinRollMax;
 
 	UPROPERTY(EditAnywhere, Category = "Casing Properties")
 	float CasingLifeTime;
