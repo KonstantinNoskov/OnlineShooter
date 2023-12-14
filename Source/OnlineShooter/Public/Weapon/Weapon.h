@@ -64,12 +64,32 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ACasing> CasingClass;
+
 	
 	// Replication
 	UFUNCTION()
 	void OnRep_WeaponState();
 	
 public:
+
+	/*
+	 * Textures for the weapon crosshair
+	 */
+
+	UPROPERTY(EditAnywhere, Category = Crosshairs)
+	UTexture2D* CrosshairCenter;
+
+	UPROPERTY(EditAnywhere, Category = Crosshairs)
+	UTexture2D* CrosshairLeft;
+
+	UPROPERTY(EditAnywhere, Category = Crosshairs)
+	UTexture2D* CrosshairRight;
+
+	UPROPERTY(EditAnywhere, Category = Crosshairs)
+	UTexture2D* CrosshairTop;
+
+	UPROPERTY(EditAnywhere, Category = Crosshairs)
+	UTexture2D* CrosshairBottom;
 	
 	void SetWeaponState(EWeaponState NewState);
 	virtual void Fire(const FVector& HitTarget);

@@ -13,6 +13,8 @@ ACasing::ACasing()
 
 	CasingMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	CasingMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	CasingMesh->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+	
 	
 	CasingMesh->SetSimulatePhysics(true);
 	CasingMesh->SetEnableGravity(true);

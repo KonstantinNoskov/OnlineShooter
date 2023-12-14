@@ -7,6 +7,8 @@
 // References
 class AWeapon;
 class AOnlineShooterCharacter;
+class AOnlineShooterPlayerController;
+class AOnlineShooterHUD;
 
 #define TRACE_LENGTH 80000.f
 
@@ -46,21 +48,26 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void Server_Fire(const FVector_NetQuantize& TraceHitTarget);
 	
-
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_Fire(const FVector_NetQuantize& TraceHitTarget);
 
 	UFUNCTION()
 	void TraceUnderCrosshair(FHitResult& TraceHitResult);
 
-private:
+	UFUNCTION()
+	void SetHUDCrosshair(float DeltaTime);
 
-	UPROPERTY(ReplicatedUsing=OnRep_EquippedWeapon)
-	AWeapon* EquippedWeapon;
+private:
 
 	UPROPERTY()
 	AOnlineShooterCharacter* Character;
 
+	UPROPERTY()
+	AOnlineShooterPlayerController* Controller;
+	
+	UPROPERTY(ReplicatedUsing=OnRep_EquippedWeapon)
+	AWeapon* EquippedWeapon;
+	
 	UPROPERTY(Replicated)
 	bool bAiming;
 
@@ -71,7 +78,19 @@ private:
 	float AimingWalkSpeed;
 	
 	bool bFIreButtonPressed;
+	
 
-	uint8 FireCount;
+#pragma region HUD & CROSSHAIR
+
+	UPROPERTY()
+	AOnlineShooterHUD* HUD;
+
+	UPROPERTY()
+	float CrosshairVelocityFactor;
+
+	UPROPERTY()
+	float CrosshairInAirFactor;
+
+#pragma endregion
 	
 };
