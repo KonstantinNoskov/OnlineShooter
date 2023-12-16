@@ -399,4 +399,11 @@ void AOnlineShooterCharacter::PlayFireMontage(bool bAiming)
 	}
 }
 
+FVector AOnlineShooterCharacter::GetHitTarget() const
+{
+	if (!Combat) return FVector();
+
+	return Combat->HitTarget;
+}
+
 

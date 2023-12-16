@@ -22,8 +22,6 @@ void UOnlineShooterAnimInstance::NativeInitializeAnimation()
 void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
-
-	
 	
 	// if player reference is nov valid, try to get player reference
 	if (!OnlineShooterCharacter) { OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(TryGetPawnOwner()); }
@@ -86,5 +84,28 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 		WeaponLeftHandTransform.SetLocation(OutPositionLeft);
 		WeaponLeftHandTransform.SetRotation(FQuat(OutRotationLeft));
+		
+		if (OnlineShooterCharacter->IsLocallyControlled())
+		{
+			bLocallyControlled = true;
+			
+			FTransform RightHandTransform = OnlineShooterCharacter->GetMesh()->GetSocketTransform(FName("hand_r"), RTS_World);
+			
+			//RightHandRotation = (FVector() - (OnlineShooterCharacter->GetHitTarget() - RightHandTransform.GetLocation())).Rotation();
+
+			RightHandRotation = UKismetMathLibrary::FindLookAtRotation(FVector(), RightHandTransform.GetLocation() - OnlineShooterCharacter->GetHitTarget());
+			
+			RightHandRotation.Roll += OnlineShooterCharacter->RightHandRotationRoll;
+			RightHandRotation.Yaw += OnlineShooterCharacter->RightHandRotationYaw;
+			RightHandRotation.Pitch += OnlineShooterCharacter->RightHandRotationPitch;
+			
+			
+		}
+		
+		FTransform MuzzleTipTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"), RTS_World);
+		FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
+		DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), MuzzleTipTransform.GetLocation() + MuzzleX * 1000.f, FColor::Red);
+		DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), OnlineShooterCharacter->GetHitTarget(), FColor::Yellow);
+		
 	}
 }

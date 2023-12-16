@@ -44,6 +44,13 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
 	SetHUDCrosshair(DeltaTime);
+
+	if (Character && Character->IsLocallyControlled())
+	{
+		FHitResult HitResult;
+		TraceUnderCrosshair(HitResult);
+		HitTarget = HitResult.ImpactPoint;
+	}
 }
 
 // Replication
@@ -212,7 +219,7 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 			
 			FVector2d VelocityMultiplierRange(0.f, 1.f);
 			FVector Velocity = Character->GetVelocity();
-			Velocity.Z = 0.f;
+			Velocity.Z = 0.f; 
 			
 			CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityMultiplierRange, Velocity.Size());
 
@@ -224,7 +231,6 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 			{
 				CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 0.f, DeltaTime, 30.f);
 			}
-			
 			
 			HUDPackage.CrosshairSpread = CrosshairVelocityFactor + CrosshairInAirFactor;
 			

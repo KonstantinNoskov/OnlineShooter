@@ -179,5 +179,14 @@ public:
 
 	UFUNCTION()
 	void PlayFireMontage(bool bAiming);
+
+	FVector GetHitTarget() const;
+
+	UPROPERTY(EditAnywhere, Category = "WeaponRotationCorrection") 
+	float RightHandRotationRoll; 
+	UPROPERTY(EditAnywhere, Category = "WeaponRotationCorrection") 
+	float RightHandRotationYaw; 
+	UPROPERTY(EditAnywhere, Category = "WeaponRotationCorrection") 
+	float RightHandRotationPitch;
 	
 };

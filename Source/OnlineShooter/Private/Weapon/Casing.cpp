@@ -63,7 +63,7 @@ void ACasing::BeginPlay()
 	float RandFwdImpulse = FMath::FRandRange(EjectionFwdImpulseMin, EjectionFwdImpulseMax);
 	FVector CasingEjectImpulse(RandRightImpulse, RandUpImpulse, RandFwdImpulse);
 	
-	CasingMesh->AddImpulse((GetActorRightVector() * RandRightImpulse + GetActorForwardVector() * RandUpImpulse * -1 + GetActorUpVector() * 2.f));
+	CasingMesh->AddImpulse((GetActorRightVector() * RandRightImpulse - GetActorForwardVector() * RandUpImpulse + GetActorUpVector() * RandFwdImpulse));
 	
 	CasingMesh->OnComponentHit.AddDynamic(this, &ACasing::OnHit);
 	SetLifeSpan(CasingLifeTime);

@@ -92,5 +92,7 @@ private:
 	float CrosshairInAirFactor;
 
 #pragma endregion
+
+	FVector HitTarget;
 	
 };
