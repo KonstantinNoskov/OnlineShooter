@@ -10,6 +10,9 @@
 #include "InputActionValue.h"
 #include "Components/CombatComponent.h"
 
+// INTERFACES
+#include "Interfaces/InteractInterface.h"
+
 #include "OnlineShooterCharacter.generated.h"
 
 class UCombatComponent;
@@ -22,7 +25,7 @@ class UInputMappingContext;
 class UInputAction;
 
 UCLASS()
-class ONLINESHOOTER_API AOnlineShooterCharacter : public ACharacter
+class ONLINESHOOTER_API AOnlineShooterCharacter : public ACharacter, public IInteractInterface
 {
 	GENERATED_BODY()
 
@@ -169,14 +172,11 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	bool IsAiming() const;
-
-	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
-	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
+	
 	FRotator StartingAimRotation;
 	
 	AWeapon* GetEquippedWeapon() const;
-	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
-
+	
 	UFUNCTION()
 	void PlayFireMontage(bool bAiming);
 
@@ -188,5 +188,9 @@ public:
 	float RightHandRotationYaw; 
 	UPROPERTY(EditAnywhere, Category = "WeaponRotationCorrection") 
 	float RightHandRotationPitch;
-	
+
+	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
+	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
+	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
+	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 };

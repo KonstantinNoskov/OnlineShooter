@@ -90,14 +90,14 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			bLocallyControlled = true;
 			
 			FTransform RightHandTransform = OnlineShooterCharacter->GetMesh()->GetSocketTransform(FName("hand_r"), RTS_World);
-			
-			//RightHandRotation = (FVector() - (OnlineShooterCharacter->GetHitTarget() - RightHandTransform.GetLocation())).Rotation();
 
-			RightHandRotation = UKismetMathLibrary::FindLookAtRotation(FVector(), RightHandTransform.GetLocation() - OnlineShooterCharacter->GetHitTarget());
+			FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(FVector(), RightHandTransform.GetLocation() - OnlineShooterCharacter->GetHitTarget());
+
+			LookAtRotation.Roll += OnlineShooterCharacter->RightHandRotationRoll;
+			LookAtRotation.Yaw += OnlineShooterCharacter->RightHandRotationYaw;
+			LookAtRotation.Pitch += OnlineShooterCharacter->RightHandRotationPitch;
 			
-			RightHandRotation.Roll += OnlineShooterCharacter->RightHandRotationRoll;
-			RightHandRotation.Yaw += OnlineShooterCharacter->RightHandRotationYaw;
-			RightHandRotation.Pitch += OnlineShooterCharacter->RightHandRotationPitch;
+			RightHandRotation = FMath::RInterpTo(RightHandRotation, LookAtRotation, DeltaSeconds, 40.f);// UKismetMathLibrary::FindLookAtRotation(FVector(), RightHandTransform.GetLocation() - OnlineShooterCharacter->GetHitTarget());
 			
 			
 		}

@@ -55,7 +55,9 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 
 	// Collision preset
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 
 	// Set Turning State
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
@@ -97,7 +99,6 @@ void AOnlineShooterCharacter::BeginPlay()
 			Subsystem->AddMappingContext(CharacterMappingContext, 0);
 		}
 	}
-	
 }
 
 // Tick
