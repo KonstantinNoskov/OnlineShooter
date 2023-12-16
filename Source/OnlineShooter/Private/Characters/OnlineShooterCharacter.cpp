@@ -107,6 +107,8 @@ void AOnlineShooterCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	AimOffset(DeltaTime);
+
+	HideCamera();
 }
 
 // Binding inputs
@@ -338,6 +340,30 @@ void AOnlineShooterCharacter::OnRep_OverllapingWeapon(AWeapon* LastWeapon)
 	if(LastWeapon)
 	{
 		LastWeapon->ShowPickupWidget(false);
+	}
+}
+
+// Hide camera if character is too close
+void AOnlineShooterCharacter::HideCamera()
+{
+	if (!IsLocallyControlled()) return;
+	UE_LOG(LogClass, Warning, TEXT("CrosshairCharacterDelta: %f, CameraThreshld:%f"), (FollowCamera->GetComponentLocation() - GetActorLocation()).Size(), CameraThreshold)
+
+	if ((FollowCamera->GetComponentLocation() - GetActorLocation()).Size() < CameraThreshold)
+	{
+		GetMesh()->SetVisibility(false);
+		if(Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
+		{
+			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = true;
+		}
+	}
+	else
+	{
+		GetMesh()->SetVisibility(true);
+		if(Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
+		{
+			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
+		}
 	}
 }
 

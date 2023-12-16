@@ -18,6 +18,7 @@
 #include "DrawDebugHelpers.h"
 
 // HUD
+#include "GameFramework/SpringArmComponent.h"
 #include "HUD/OnlineShooterHUD.h"
 
 
@@ -181,6 +182,14 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 	if (bScreenToWorld)
 	{
 		FVector Start = CrosshairWorldPosition;
+
+		if (Character)
+		{
+			float DistanceToCharacter = (Character->GetActorLocation() - Start).Size();
+			Start += CrosshairWorldDirection * (DistanceToCharacter + 100.f);
+			
+		}
+		
 		FVector End = Start + CrosshairWorldDirection * TRACE_LENGTH;
 
 		// Shoot crosshair line trace

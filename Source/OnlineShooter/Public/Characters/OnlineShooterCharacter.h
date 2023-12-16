@@ -159,9 +159,14 @@ private:
 	
 	UPROPERTY(ReplicatedUsing = OnRep_OverllapingWeapon)
 	AWeapon* OverlappingWeapon;
-
+	
 	UFUNCTION()
 	void OnRep_OverllapingWeapon(AWeapon* LastWeapon);
+
+	void HideCamera();
+
+	UPROPERTY(EditAnywhere)
+	float CameraThreshold = 200.f;
 
 public:
 	// Determines whether player overlap weapon
@@ -193,4 +198,5 @@ public:
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 };
