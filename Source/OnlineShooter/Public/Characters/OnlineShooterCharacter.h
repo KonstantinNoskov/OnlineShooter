@@ -39,6 +39,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
+	virtual void OnRep_ReplicatedMovement() override;
 
 	// Friend Classes
 	friend UCombatComponent;
@@ -125,6 +126,7 @@ protected:
 	/** Callback for Aim input */
 	void AimButtonPressed();
 	void AimButtonReleased();
+	void CalculateAO_Pitch();
 
 	/** Callback for Fire input */
 	void FireButtonPressed();
@@ -165,6 +167,26 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* HitReactMontage;
 
+	UPROPERTY()
+	bool bRotateRootBone;
+
+	UPROPERTY()
+	float TurnThreshold = .5f;
+
+	UPROPERTY()
+	FRotator ProxyRotationLastFrame;
+
+	UPROPERTY()
+	FRotator ProxyRotation;
+
+	UPROPERTY()
+	float ProxyYaw;
+
+	UPROPERTY()
+	float TimeSinceLastMovementReplication;
+
+	
+
 public:
 	
 	UPROPERTY(EditAnywhere, Category = "WeaponRotationCorrection") 
@@ -180,6 +202,9 @@ private:
 	
 	UFUNCTION()
 	void AimOffset(float DeltaTime);
+
+	UFUNCTION()
+	void SimProxiesTurn();
 	
 	UFUNCTION() // Handles character turn in place animations depending on Z-axis offset.
 	void TurnInPlace(float DeltaTime);
@@ -220,4 +245,5 @@ public:
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
 };

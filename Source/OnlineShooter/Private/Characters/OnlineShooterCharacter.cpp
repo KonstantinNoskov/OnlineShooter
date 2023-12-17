@@ -88,6 +88,19 @@ void AOnlineShooterCharacter::PostInitializeComponents()
 	}
 }
 
+// Replicated movement
+void AOnlineShooterCharacter::OnRep_ReplicatedMovement()
+{
+	Super::OnRep_ReplicatedMovement();
+
+	if (GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		SimProxiesTurn();
+	}
+
+	TimeSinceLastMovementReplication = 0.f;
+}
+
 // Begin Play
 void AOnlineShooterCharacter::BeginPlay()
 {
@@ -108,8 +121,22 @@ void AOnlineShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	AimOffset(DeltaTime);
+	if (GetLocalRole() > ROLE_SimulatedProxy && IsLocallyControlled())
+	{
+		AimOffset(DeltaTime);	
+	}
+	else
+	{
+		TimeSinceLastMovementReplication += DeltaTime;
 
+		if (TimeSinceLastMovementReplication > .25f)
+		{
+			OnRep_ReplicatedMovement();
+		}
+
+		CalculateAO_Pitch();
+	}
+	
 	HideMesh();
 }
 
@@ -192,10 +219,8 @@ void AOnlineShooterCharacter::Jump()
 // Crouch
 void AOnlineShooterCharacter::CrouchButtonPressed()
 {
-	bIsCrouched ? UnCrouch() : Crouch(); 
-	
+	bIsCrouched ? UnCrouch() : Crouch();
 }
-
 void AOnlineShooterCharacter::CrouchButtonReleased()
 {
 	UnCrouch();
@@ -216,37 +241,9 @@ void AOnlineShooterCharacter::AimButtonReleased()
 		Combat->SetAiming(false);
 	}
 }
-void AOnlineShooterCharacter::AimOffset(float DeltaTime)
+
+void AOnlineShooterCharacter::CalculateAO_Pitch()
 {
-	if(Combat && !Combat->EquippedWeapon) return; 
-	
-	float Speed = GetVelocity().Size2D();
-	bool bIsInAir = GetCharacterMovement()->IsFalling();
-
-	if(!Speed && !bIsInAir) // standing still, not jumping
-		{
-		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
-		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
-		AO_Yaw = DeltaAimRotation.Yaw;
-
-		if(TurningInPlace == ETurningInPlace::ETIP_NotTurning)
-		{
-			InterpAO_Yaw = AO_Yaw;
-		}
-		
-		bUseControllerRotationYaw = true;
-
-		TurnInPlace(DeltaTime);
-		}
-
-	if (Speed || bIsInAir) // running or jumping
-		{
-		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
-		AO_Yaw = 0.f;
-		bUseControllerRotationYaw = true;
-		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
-		}
-
 	AO_Pitch = GetBaseAimRotation().Pitch;
 	if(AO_Pitch > 90.f && !IsLocallyControlled())
 	{
@@ -256,8 +253,83 @@ void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 
 		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
 	}
+}
+
+void AOnlineShooterCharacter::AimOffset(float DeltaTime)
+{
+	if (Combat && !Combat->EquippedWeapon) return; 
+	
+	float Speed = GetVelocity().Size2D();
+	bool bIsInAir = GetCharacterMovement()->IsFalling();
+	
+	if (!Speed && !bIsInAir) // standing still, not jumping
+	{
+		bRotateRootBone = true;
+		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
+		AO_Yaw = DeltaAimRotation.Yaw;
+	
+		if(TurningInPlace == ETurningInPlace::ETIP_NotTurning)
+		{
+			InterpAO_Yaw = AO_Yaw;
+		}
+		
+		bUseControllerRotationYaw = true;
+	
+		TurnInPlace(DeltaTime);
+	}
+
+	if (Speed || bIsInAir) // running or jumping
+	{
+		bRotateRootBone = false;
+		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		AO_Yaw = 0.f;
+		bUseControllerRotationYaw = true;
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+	}
+
+	CalculateAO_Pitch();
+}
+
+void AOnlineShooterCharacter::SimProxiesTurn()
+{
+	if(!Combat || !Combat->EquippedWeapon) return;
+	bRotateRootBone = false;
+	
+	float Speed = GetVelocity().Size2D();
+	bool bIsInAir = GetCharacterMovement()->IsFalling();
+
+	if(Speed)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		return;
+	}
 	
 	
+	ProxyRotationLastFrame = ProxyRotation;
+	ProxyRotation = GetActorRotation();
+	ProxyYaw = UKismetMathLibrary::NormalizedDeltaRotator(ProxyRotation, ProxyRotationLastFrame).Yaw;
+
+	UE_LOG(LogTemp, Warning, TEXT("ProxyYaw:%f"), ProxyYaw)
+	
+	if (FMath::Abs(ProxyYaw) > TurnThreshold)
+	{
+		if (ProxyYaw > TurnThreshold)
+		{
+			TurningInPlace = ETurningInPlace::ETIP_Right;
+		}
+		else if (ProxyYaw < -TurnThreshold)
+		{
+			TurningInPlace = ETurningInPlace::ETIP_Left;
+		}
+		else
+		{
+			TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		}
+		return;
+	}
+	
+	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 }
 
 // Fire

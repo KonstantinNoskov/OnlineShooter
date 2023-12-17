@@ -50,8 +50,11 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	// Is character aiming
 	bAiming = OnlineShooterCharacter->IsAiming();
 
-	// Which side the character is turning 
+	// Which side the character is turning to
 	TurningInPlace = OnlineShooterCharacter->GetTurningInPlace();
+
+	//
+	bRotateRootBone = OnlineShooterCharacter->ShouldRotateRootBone();
 
 	// Calculate Offset Yaw for Strafing
 	FRotator AimRotation = OnlineShooterCharacter->GetBaseAimRotation();

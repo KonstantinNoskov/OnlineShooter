@@ -94,9 +94,9 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon Grip", meta = (AllowPrivateAccess = "true"))
 	FRotator RightHandRotation;
 	
-
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon Grip", meta = (AllowPrivateAccess = "true"))
 	bool bLocallyControlled;
 
-	
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon Grip", meta = (AllowPrivateAccess = "true"))
+	bool bRotateRootBone;
 };
