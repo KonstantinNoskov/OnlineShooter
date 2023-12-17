@@ -10,6 +10,7 @@
 
 // References
 #include "Weapon/Weapon.h"
+#include "OnlineShooter.h"
 
 // Math
 #include "Kismet/KismetMathLibrary.h"
@@ -56,6 +57,7 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 	// Collision preset
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 
@@ -108,7 +110,7 @@ void AOnlineShooterCharacter::Tick(float DeltaTime)
 
 	AimOffset(DeltaTime);
 
-	HideCamera();
+	HideMesh();
 }
 
 // Binding inputs
@@ -344,11 +346,10 @@ void AOnlineShooterCharacter::OnRep_OverllapingWeapon(AWeapon* LastWeapon)
 }
 
 // Hide camera if character is too close
-void AOnlineShooterCharacter::HideCamera()
+void AOnlineShooterCharacter::HideMesh()
 {
 	if (!IsLocallyControlled()) return;
-	UE_LOG(LogClass, Warning, TEXT("CrosshairCharacterDelta: %f, CameraThreshld:%f"), (FollowCamera->GetComponentLocation() - GetActorLocation()).Size(), CameraThreshold)
-
+	
 	if ((FollowCamera->GetComponentLocation() - GetActorLocation()).Size() < CameraThreshold)
 	{
 		GetMesh()->SetVisibility(false);
@@ -414,6 +415,7 @@ AWeapon* AOnlineShooterCharacter::GetEquippedWeapon() const
 // Play fire montage
 void AOnlineShooterCharacter::PlayFireMontage(bool bAiming)
 {
+	// Play fire montage only if we have a combat component and a weapon
 	if (!Combat || !Combat->EquippedWeapon) return;
 	
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -424,6 +426,26 @@ void AOnlineShooterCharacter::PlayFireMontage(bool bAiming)
 		FName SectionName = bAiming ? FName("RifleAim") : FName("RifleHip");
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
+}
+
+void AOnlineShooterCharacter::PlayHitReactMontage()
+{
+	// Play hit react montage only if we have a combat component and a weapon
+	if (!Combat || !Combat->EquippedWeapon) return;
+	
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	
+	if(AnimInstance && HitReactMontage)
+	{
+		AnimInstance->Montage_Play(HitReactMontage);
+		FName SectionName("FromFront");
+		AnimInstance->Montage_JumpToSection(SectionName);
+	}
+}
+
+void AOnlineShooterCharacter::Multicast_Hit_Implementation()
+{
+	PlayHitReactMontage();
 }
 
 FVector AOnlineShooterCharacter::GetHitTarget() const

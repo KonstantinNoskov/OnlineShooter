@@ -42,7 +42,6 @@ public:
 
 	// Friend Classes
 	friend UCombatComponent;
-	
 
 protected:
 	
@@ -138,35 +137,58 @@ private:
 	UFUNCTION(Server, Reliable)
 	void Server_EquipButtonPressed();
 
-	UPROPERTY(EditAnywhere, Category = Combat)
-	UAnimMontage* FireWeaponMontage;
-
-
 #pragma endregion
 
 private:
 
-	void AimOffset(float DeltaTime);
-
+	UPROPERTY()
 	float AO_Yaw;
+
+	UPROPERTY()
 	float AO_Pitch;
-	float InterpAO_Yaw;
 	
+	UPROPERTY()
+	float InterpAO_Yaw;
+
+	UPROPERTY()
 	ETurningInPlace TurningInPlace;
 
-	UFUNCTION()
-	void TurnInPlace(float DeltaTime);
-	
 	UPROPERTY(ReplicatedUsing = OnRep_OverllapingWeapon)
 	AWeapon* OverlappingWeapon;
-	
-	UFUNCTION()
-	void OnRep_OverllapingWeapon(AWeapon* LastWeapon);
 
-	void HideCamera();
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* FireWeaponMontage;
 
 	UPROPERTY(EditAnywhere)
 	float CameraThreshold = 200.f;
+	
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* HitReactMontage;
+
+public:
+	
+	UPROPERTY(EditAnywhere, Category = "WeaponRotationCorrection") 
+	float RightHandRotationRoll;
+	
+	UPROPERTY(EditAnywhere, Category = "WeaponRotationCorrection") 
+	float RightHandRotationYaw;
+	
+	UPROPERTY(EditAnywhere, Category = "WeaponRotationCorrection") 
+	float RightHandRotationPitch;
+
+private:
+	
+	UFUNCTION()
+	void AimOffset(float DeltaTime);
+	
+	UFUNCTION() // Handles character turn in place animations depending on Z-axis offset.
+	void TurnInPlace(float DeltaTime);
+	
+	UFUNCTION() 
+	void OnRep_OverllapingWeapon(AWeapon* LastWeapon);
+	
+	UFUNCTION() // Hides meshes when camera too close
+	void HideMesh();
 
 public:
 	// Determines whether player overlap weapon
@@ -185,15 +207,14 @@ public:
 	UFUNCTION()
 	void PlayFireMontage(bool bAiming);
 
+	UFUNCTION()
+	void PlayHitReactMontage();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_Hit();
+
 	FVector GetHitTarget() const;
-
-	UPROPERTY(EditAnywhere, Category = "WeaponRotationCorrection") 
-	float RightHandRotationRoll; 
-	UPROPERTY(EditAnywhere, Category = "WeaponRotationCorrection") 
-	float RightHandRotationYaw; 
-	UPROPERTY(EditAnywhere, Category = "WeaponRotationCorrection") 
-	float RightHandRotationPitch;
-
+	
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }

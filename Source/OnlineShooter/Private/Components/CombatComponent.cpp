@@ -133,8 +133,6 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 		TraceUnderCrosshair(HitResult);
 		
 		Server_Fire(HitResult.ImpactPoint);
-
-		
 	}
 }
 void UCombatComponent::Server_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget)

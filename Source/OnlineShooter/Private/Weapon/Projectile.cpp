@@ -4,11 +4,13 @@
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
-// References
-#include "Sound/SoundCue.h"
-
 // Kismet
 #include "Kismet/GameplayStatics.h"
+
+// References
+#include "Sound/SoundCue.h"
+#include "OnlineShooter.h"
+#include "Characters/OnlineShooterCharacter.h"
 
 AProjectile::AProjectile()
 {
@@ -23,8 +25,8 @@ AProjectile::AProjectile()
 	CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
 	CollisionBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-	CollisionBox->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
-	CollisionBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	CollisionBox->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	CollisionBox->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECR_Block);
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
@@ -72,6 +74,13 @@ void AProjectile::Destroyed()
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                         FVector NormalImpulse, const FHitResult& Hit)
 {
+	//AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(OtherActor);
+
+	if (AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(OtherActor))
+	{
+		OnlineShooterCharacter->Multicast_Hit();
+	}
+	
 	Destroy();
 }
 
