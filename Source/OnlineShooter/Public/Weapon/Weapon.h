@@ -44,26 +44,26 @@ protected:
 	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
 private:
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+	UPROPERTY(VisibleAnywhere, Category = "General Settings")
 	USkeletalMeshComponent* WeaponMesh;
 
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+	UPROPERTY(VisibleAnywhere, Category = "General Settings")
 	USphereComponent* AreaSphere;
 
-	UPROPERTY(ReplicatedUsing=OnRep_WeaponState, VisibleAnywhere, Category = "Weapon Properties")
+	UPROPERTY(ReplicatedUsing=OnRep_WeaponState, VisibleAnywhere, Category = "General Settings")
 	EWeaponState WeaponState;
 
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	UPROPERTY(EditAnywhere, Category = "General Settings")
 	UWidgetComponent* PickupWidget;
 	
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	UPROPERTY(EditAnywhere, Category = "General Settings")
 	UAnimSequence* FireAnimationSequence;
 
 	// The lower - the faster
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	UPROPERTY(EditAnywhere, Category = "General Settings")
 	float FireRate = 1.f;
 
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	UPROPERTY(EditAnywhere, Category = "General Settings")
 	bool bAutomatic = true;
 
 	UPROPERTY(EditAnywhere)
@@ -73,10 +73,10 @@ private:
 	 *  Zoomed FOV while aiming
 	 */
 
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	UPROPERTY(EditAnywhere, Category = "General Settings")
 	float ZoomedFOV = 30.f;
 
-	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	UPROPERTY(EditAnywhere, Category = "General Settings")
 	float ZoomInterpSpeed = 20.f;
 	
 	// Replication
@@ -103,8 +103,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Crosshairs)
 	UTexture2D* CrosshairBottom;
-
-	
 	
 	void SetWeaponState(EWeaponState NewState);
 	virtual void Fire(const FVector& HitTarget);

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "InputAction.h"
 #include "Components/ActorComponent.h"
 #include "HUD/OnlineShooterHUD.h"
 #include "CombatComponent.generated.h"
@@ -44,9 +45,10 @@ protected:
 
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
+	void FireButtonReleaseCheck();
 	void Fire();
 
-	void FireButtonPressed(bool bPressed, FInputActionInstance InputActionInstance);
+	void FireButtonPressed(bool bPressed, const FInputActionInstance& InputInstance);
 
 	UFUNCTION(Server, Reliable)
 	void Server_Fire(const FVector_NetQuantize& TraceHitTarget);
@@ -82,6 +84,7 @@ private:
 	
 	bool bFireButtonPressed;
 
+	UPROPERTY(Replicated)
 	float LastShotTime;
 	
 

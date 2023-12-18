@@ -331,39 +331,20 @@ void AOnlineShooterCharacter::SimProxiesTurn()
 }
 
 // Fire
-void AOnlineShooterCharacter::FireButtonPressed(const FInputActionInstance& Instance)
+void AOnlineShooterCharacter::FireButtonPressed(const FInputActionInstance& InputInstance)
 {
-	
-	FInputActionInstance FireInstance = Instance;
-	float ElapsedTime = FireInstance.GetElapsedTime();	
-	
-	/*if (ElapsedTime <= Combat->EquippedWeapon->GetFireRate())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("SingleFire"))
-	}*/
 	
 	if(Combat && Combat->EquippedWeapon)
 	{
-		Combat->FireButtonPressed(true, Instance);
-
-		if(!Combat->EquippedWeapon->IsAutomatic())
-		{
-			Combat->bCanFire = false;
-		}
-		
+		Combat->FireButtonPressed(true, InputInstance);
 	}
 }
 
-void AOnlineShooterCharacter::FireButtonReleased(const FInputActionInstance& Instance)
+void AOnlineShooterCharacter::FireButtonReleased(const FInputActionInstance& InputInstance)
 {
 	if(Combat && Combat->EquippedWeapon)
 	{
-		Combat->FireButtonPressed(false, Instance);
-
-		if(!Combat->EquippedWeapon->IsAutomatic())
-		{
-			Combat->bCanFire = true;
-		}
+		Combat->FireButtonPressed(false, InputInstance);
 	}
 }
  

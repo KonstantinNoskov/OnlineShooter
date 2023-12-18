@@ -132,8 +132,8 @@ protected:
 	void CalculateAO_Pitch();
 
 	/** Callback for Fire input */
-	void FireButtonPressed(const FInputActionInstance& Instance);
-	void FireButtonReleased(const FInputActionInstance& Instance);
+	void FireButtonPressed(const FInputActionInstance& InputInstance);
+	void FireButtonReleased(const FInputActionInstance& InputInstance);
 
 private:
 

@@ -72,6 +72,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
 	DOREPLIFETIME(UCombatComponent, bAiming);
+	DOREPLIFETIME(UCombatComponent, LastShotTime);
 }
 
 // Aim
@@ -123,13 +124,23 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	}
 }
 
+void UCombatComponent::FireButtonReleaseCheck()
+{
+	if (!bFireButtonPressed)
+	{	
+		float CurrentTime = GetWorld()->GetTimeSeconds();
+		
+		if (CurrentTime - LastShotTime >= EquippedWeapon->GetFireRate())
+		{
+			bCanFire = true;
+		}
+	}
+}
+
 // Fire
-void UCombatComponent::FireButtonPressed(bool bPressed, FInputActionInstance InputActionInstance)
+void UCombatComponent::FireButtonPressed(bool bPressed, const FInputActionInstance& InputInstance)
 {	
 	bFireButtonPressed = bPressed;
-
-	LastShotTime = InputActionInstance.GetElapsedTime();
-	UE_LOG(LogTemp, Warning, TEXT("ElapsedTime:%f"), InputActionInstance.GetElapsedTime())
 	
 	if (bFireButtonPressed)
 	{	
@@ -138,10 +149,8 @@ void UCombatComponent::FireButtonPressed(bool bPressed, FInputActionInstance Inp
 		
 		Fire();
 	}
-	else
-	{
-		if (InputActionInstance.GetElapsedTime() >= EquippedWeapon->GetFireRate()) bCanFire = true;
-	}
+	
+	FireButtonReleaseCheck();
 }
 
 void UCombatComponent::Fire() 
@@ -150,19 +159,19 @@ void UCombatComponent::Fire()
 	{
 		bCanFire = false;
 		Server_Fire(HitTarget);
-
+		
 		if(EquippedWeapon)
 		{
 			CrosshairShootFactor = .75f;
 		}
 		
 		StartFireTimer();
-		
 	}
 }
 
 void UCombatComponent::Server_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget) 
 {
+	LastShotTime = GetWorld()->GetTimeSeconds();
 	Multicast_Fire(TraceHitTarget);
 }
 
@@ -183,23 +192,19 @@ void UCombatComponent::StartFireTimer()
 	if (!EquippedWeapon || !Character) return;
 
 	Character->GetWorldTimerManager().SetTimer(FireTimer, this, &UCombatComponent::OnFireTimerFinished, EquippedWeapon->GetFireRate());
-	//GetWorld()->GetTimerManager().SetTimer(FireTimer, this, &UCombatComponent::OnFireTimerFinished, EquippedWeapon->GetFireRate());
 }
-
 void UCombatComponent::OnFireTimerFinished()
 {
 	if(!EquippedWeapon) return;
 	
-	//bCanFire = true;
-	
-	if(bFireButtonPressed && EquippedWeapon->IsAutomatic())
+	if(bFireButtonPressed && EquippedWeapon->IsAutomatic()) 
 	{
+		bCanFire = true;
 		Fire();
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("%hhd"), bCanFire)	
+	FireButtonReleaseCheck();
 }
-
 
 // Crosshair & Aiming
 void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
