@@ -5,6 +5,7 @@
 #include "HUD/OnlineShooterHUD.h"
 #include "CombatComponent.generated.h"
 
+struct FInputActionInstance;
 // References
 class AWeapon;
 class AOnlineShooterCharacter;
@@ -43,8 +44,9 @@ protected:
 
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
+	void Fire();
 
-	void FireButtonPressed(bool bPressed);
+	void FireButtonPressed(bool bPressed, FInputActionInstance InputActionInstance);
 
 	UFUNCTION(Server, Reliable)
 	void Server_Fire(const FVector_NetQuantize& TraceHitTarget);
@@ -78,7 +80,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Aim", meta = (AllowPrivateAccess = "true"))
 	float AimingWalkSpeed;
 	
-	bool bFIreButtonPressed;
+	bool bFireButtonPressed;
+
+	float LastShotTime;
 	
 
 #pragma region HUD & CROSSHAIR
@@ -99,6 +103,14 @@ private:
 
 	UPROPERTY()
 	float CrosshairShootFactor;
+
+	UPROPERTY()
+	FTimerHandle FireTimer;
+	
+	void StartFireTimer();
+	void OnFireTimerFinished();
+	
+	bool bCanFire = true;
 
 #pragma endregion
 

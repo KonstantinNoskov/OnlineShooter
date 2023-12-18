@@ -19,8 +19,6 @@ AWeapon::AWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
-
-	FireRate = 1.f;
 	
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	SetRootComponent(WeaponMesh);
@@ -54,13 +52,7 @@ void AWeapon::BeginPlay()
 		// Bind overlap delegates
 		AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);
 		AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);
-
-		if(FireAnimationSequence)
-		{
-			FireAnimationSequence->RateScale = FireRate;	
-		}
 	}
-	
 }
 
 void AWeapon::Tick(float DeltaTime)

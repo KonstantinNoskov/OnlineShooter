@@ -15,14 +15,17 @@
 
 #include "OnlineShooterCharacter.generated.h"
 
+
 class UCombatComponent;
 class AWeapon;
 class UWidgetComponent;
 class USpringArmComponent;
 class UCameraComponent;
 
+// INPUT
 class UInputMappingContext;
 class UInputAction;
+struct FInputActionInstance;
 
 UCLASS()
 class ONLINESHOOTER_API AOnlineShooterCharacter : public ACharacter, public IInteractInterface
@@ -129,9 +132,8 @@ protected:
 	void CalculateAO_Pitch();
 
 	/** Callback for Fire input */
-	void FireButtonPressed();
-	void FireButtonReleased();
-	
+	void FireButtonPressed(const FInputActionInstance& Instance);
+	void FireButtonReleased(const FInputActionInstance& Instance);
 
 private:
 

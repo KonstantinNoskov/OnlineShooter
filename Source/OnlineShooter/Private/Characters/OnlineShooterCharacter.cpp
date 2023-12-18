@@ -309,8 +309,6 @@ void AOnlineShooterCharacter::SimProxiesTurn()
 	ProxyRotationLastFrame = ProxyRotation;
 	ProxyRotation = GetActorRotation();
 	ProxyYaw = UKismetMathLibrary::NormalizedDeltaRotator(ProxyRotation, ProxyRotationLastFrame).Yaw;
-
-	UE_LOG(LogTemp, Warning, TEXT("ProxyYaw:%f"), ProxyYaw)
 	
 	if (FMath::Abs(ProxyYaw) > TurnThreshold)
 	{
@@ -333,18 +331,39 @@ void AOnlineShooterCharacter::SimProxiesTurn()
 }
 
 // Fire
-void AOnlineShooterCharacter::FireButtonPressed()
+void AOnlineShooterCharacter::FireButtonPressed(const FInputActionInstance& Instance)
 {
-	if(Combat)
+	
+	FInputActionInstance FireInstance = Instance;
+	float ElapsedTime = FireInstance.GetElapsedTime();	
+	
+	/*if (ElapsedTime <= Combat->EquippedWeapon->GetFireRate())
 	{
-		Combat->FireButtonPressed(true);
+		UE_LOG(LogTemp, Warning, TEXT("SingleFire"))
+	}*/
+	
+	if(Combat && Combat->EquippedWeapon)
+	{
+		Combat->FireButtonPressed(true, Instance);
+
+		if(!Combat->EquippedWeapon->IsAutomatic())
+		{
+			Combat->bCanFire = false;
+		}
+		
 	}
 }
-void AOnlineShooterCharacter::FireButtonReleased()
+
+void AOnlineShooterCharacter::FireButtonReleased(const FInputActionInstance& Instance)
 {
-	if(Combat)
+	if(Combat && Combat->EquippedWeapon)
 	{
-		Combat->FireButtonPressed(false);
+		Combat->FireButtonPressed(false, Instance);
+
+		if(!Combat->EquippedWeapon->IsAutomatic())
+		{
+			Combat->bCanFire = true;
+		}
 	}
 }
  
@@ -494,7 +513,7 @@ void AOnlineShooterCharacter::PlayFireMontage(bool bAiming)
 	
 	if(AnimInstance && FireWeaponMontage)
 	{
-		AnimInstance->Montage_Play(FireWeaponMontage, Combat->EquippedWeapon->GetFireRate());
+		AnimInstance->Montage_Play(FireWeaponMontage);
 		FName SectionName = bAiming ? FName("RifleAim") : FName("RifleHip");
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}

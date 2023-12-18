@@ -56,11 +56,15 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	UWidgetComponent* PickupWidget;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon Properties")
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	UAnimSequence* FireAnimationSequence;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon Properties")
-	float FireRate;
+
+	// The lower - the faster
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	float FireRate = 1.f;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	bool bAutomatic = true;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ACasing> CasingClass;
@@ -74,7 +78,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	float ZoomInterpSpeed = 20.f;
-
 	
 	// Replication
 	UFUNCTION()
@@ -100,6 +103,8 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Crosshairs)
 	UTexture2D* CrosshairBottom;
+
+	
 	
 	void SetWeaponState(EWeaponState NewState);
 	virtual void Fire(const FVector& HitTarget);
@@ -110,7 +115,7 @@ public:
 	FORCEINLINE float GetFireRate() const { return FireRate; }
 	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
-
+	FORCEINLINE bool IsAutomatic() const { return  bAutomatic; }
 	
 	
 };
