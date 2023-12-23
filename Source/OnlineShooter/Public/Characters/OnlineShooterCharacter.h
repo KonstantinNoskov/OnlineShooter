@@ -13,6 +13,9 @@
 // INTERFACES
 #include "Interfaces/InteractInterface.h"
 
+// TIMELINE
+#include "Components/TimelineComponent.h"
+
 #include "OnlineShooterCharacter.generated.h"
 
 
@@ -202,6 +205,98 @@ private:
 	UPROPERTY()
 	float TimeSinceLastMovementReplication;
 
+
+#pragma region DISSOLVE EFFECT
+
+	UPROPERTY(VisibleAnywhere)
+	UTimelineComponent* DissolveTimeline;
+	
+	UPROPERTY()
+	FOnTimelineFloat DissolveTrack;
+
+	UPROPERTY(EditAnywhere)
+	UCurveFloat* DissolveCurve;
+	
+	// Dynamic instance that we can change at runtime
+	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_0;
+
+	// Material instance set on the Blueprint, used with the dynamic material instance 
+	UPROPERTY(EditAnywhere, Category = Elimination)
+	UMaterialInstance* DissolveMaterialInstance_0;
+	
+	// Dynamic instance that we can change at runtime
+	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_1;
+
+	// Material instance set on the Blueprint, used with the dynamic material instance 
+	UPROPERTY(EditAnywhere, Category = Elimination)
+	UMaterialInstance* DissolveMaterialInstance_1;
+
+	// Dynamic instance that we can change at runtime
+	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_2;
+
+	// Material instance set on the Blueprint, used with the dynamic material instance 
+	UPROPERTY(EditAnywhere, Category = Elimination)
+	UMaterialInstance* DissolveMaterialInstance_2;
+
+	// Dynamic instance that we can change at runtime
+	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_3;
+
+	// Material instance set on the Blueprint, used with the dynamic material instance 
+	UPROPERTY(EditAnywhere, Category = Elimination)
+	UMaterialInstance* DissolveMaterialInstance_3;
+
+	// Dynamic instance that we can change at runtime
+	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_5;
+
+	// Material instance set on the Blueprint, used with the dynamic material instance 
+	UPROPERTY(EditAnywhere, Category = Elimination)
+	UMaterialInstance* DissolveMaterialInstance_5;
+
+	// Dynamic instance that we can change at runtime
+	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_6;
+
+	// Material instance set on the Blueprint, used with the dynamic material instance 
+	UPROPERTY(EditAnywhere, Category = Elimination)
+	UMaterialInstance* DissolveMaterialInstance_6;
+
+	// Dynamic instance that we can change at runtime
+	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_7;
+
+	// Material instance set on the Blueprint, used with the dynamic material instance 
+	UPROPERTY(EditAnywhere, Category = Elimination)
+	UMaterialInstance* DissolveMaterialInstance_7;
+
+	// Dynamic instance that we can change at runtime
+	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_8;
+
+	// Material instance set on the Blueprint, used with the dynamic material instance 
+	UPROPERTY(EditAnywhere, Category = Elimination)
+	UMaterialInstance* DissolveMaterialInstance_8;
+
+	// Dynamic instance that we can change at runtime
+	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_9;
+
+	// Material instance set on the Blueprint, used with the dynamic material instance 
+	UPROPERTY(EditAnywhere, Category = Elimination)
+	UMaterialInstance* DissolveMaterialInstance_9;
+	
+	UFUNCTION()
+	void UpdateDissolveMaterial(float DissolveValue);
+
+	UFUNCTION()
+	void StartDissolve();
+
+#pragma endregion
+
 #pragma region HEALTH
 
 	UPROPERTY(EditAnywhere, Category = Health)
@@ -284,6 +379,7 @@ public:
 	UFUNCTION()
 	void Eliminated();
 	
+
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_Eliminated();
 	

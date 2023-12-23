@@ -11,7 +11,7 @@ void AOnlineShooterGameMode::PlayerEliminated(AOnlineShooterCharacter* ElimedCha
 {
 	if (ElimedCharacter)
 	{
-		ElimedCharacter->Eliminated();
+		ElimedCharacter->Multicast_Eliminated();
 	}
 }
 

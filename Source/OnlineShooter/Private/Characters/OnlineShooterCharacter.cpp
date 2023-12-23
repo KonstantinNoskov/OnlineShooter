@@ -67,12 +67,15 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 
+	// Timeline component
+	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
+
 	// Set Turning State
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 
 	// Net update settings
-	NetUpdateFrequency = 66.f;
-	MinNetUpdateFrequency = 33.f;
+	NetUpdateFrequency = 120.f;
+	MinNetUpdateFrequency = 66.f;
 }
 
 // Replication
@@ -272,6 +275,7 @@ void AOnlineShooterCharacter::CalculateAO_Pitch()
 
 
 #pragma region HEALTH
+
 void AOnlineShooterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
 {
 	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
@@ -290,6 +294,7 @@ void AOnlineShooterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, 
 		}	
 	}
 }
+
 void AOnlineShooterCharacter::OnRep_Health()
 {
 	UpdateHUDHealth();
@@ -314,17 +319,166 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 {
 	bEliminated = true;
 	PlayElimMontage();
+	
+	// Start Dissolve effect
+	if(DissolveMaterialInstance_0)
+	{
+		
+		DynamicDissolveMaterialInstance_0 = UMaterialInstanceDynamic::Create(DissolveMaterialInstance_0, this);
+		GetMesh()->SetMaterial(0, DynamicDissolveMaterialInstance_0);
+		DynamicDissolveMaterialInstance_0->SetScalarParameterValue(TEXT("Dissolve"), .75f);
+		DynamicDissolveMaterialInstance_0->SetScalarParameterValue(TEXT("Glow"), 200.f);
+	}
+
+	if(DissolveMaterialInstance_1)
+	{
+		
+		DynamicDissolveMaterialInstance_1 = UMaterialInstanceDynamic::Create(DissolveMaterialInstance_1, this);
+		GetMesh()->SetMaterial(1, DynamicDissolveMaterialInstance_1);
+		DynamicDissolveMaterialInstance_1->SetScalarParameterValue(TEXT("Dissolve"), .75f);
+		DynamicDissolveMaterialInstance_1->SetScalarParameterValue(TEXT("Glow"), 200.f);
+	}
+
+	if(DissolveMaterialInstance_2)
+	{
+		
+		DynamicDissolveMaterialInstance_2 = UMaterialInstanceDynamic::Create(DissolveMaterialInstance_2, this);
+		GetMesh()->SetMaterial(2, DynamicDissolveMaterialInstance_2);
+		DynamicDissolveMaterialInstance_2->SetScalarParameterValue(TEXT("Dissolve"), .75f);
+		DynamicDissolveMaterialInstance_2->SetScalarParameterValue(TEXT("Glow"), 200.f); 
+	}
+
+	if(DissolveMaterialInstance_3)
+	{
+		
+		DynamicDissolveMaterialInstance_3 = UMaterialInstanceDynamic::Create(DissolveMaterialInstance_3, this);
+		GetMesh()->SetMaterial(3, DynamicDissolveMaterialInstance_3);
+		DynamicDissolveMaterialInstance_3->SetScalarParameterValue(TEXT("Dissolve"), .75f);
+		DynamicDissolveMaterialInstance_3->SetScalarParameterValue(TEXT("Glow"), 200.f);
+	}
+
+	if(DissolveMaterialInstance_5)
+	{
+		
+		DynamicDissolveMaterialInstance_5 = UMaterialInstanceDynamic::Create(DissolveMaterialInstance_5, this);
+		GetMesh()->SetMaterial(5, DynamicDissolveMaterialInstance_5);
+		DynamicDissolveMaterialInstance_5->SetScalarParameterValue(TEXT("Dissolve"), .75f);
+		DynamicDissolveMaterialInstance_5->SetScalarParameterValue(TEXT("Glow"), 200.f);
+	}
+
+	if(DissolveMaterialInstance_6)
+	{
+		
+		DynamicDissolveMaterialInstance_6 = UMaterialInstanceDynamic::Create(DissolveMaterialInstance_6, this);
+		GetMesh()->SetMaterial(6, DynamicDissolveMaterialInstance_6);
+		DynamicDissolveMaterialInstance_6->SetScalarParameterValue(TEXT("Dissolve"), .75f);
+		DynamicDissolveMaterialInstance_6->SetScalarParameterValue(TEXT("Glow"), 200.f);
+	}
+
+	if(DissolveMaterialInstance_7)
+	{
+		
+		DynamicDissolveMaterialInstance_7 = UMaterialInstanceDynamic::Create(DissolveMaterialInstance_7, this);
+		GetMesh()->SetMaterial(7, DynamicDissolveMaterialInstance_7);
+		DynamicDissolveMaterialInstance_7->SetScalarParameterValue(TEXT("Dissolve"), .75f);
+		DynamicDissolveMaterialInstance_7->SetScalarParameterValue(TEXT("Glow"), 200.f);
+	}
+
+	if(DissolveMaterialInstance_8)
+	{
+		
+		DynamicDissolveMaterialInstance_8 = UMaterialInstanceDynamic::Create(DissolveMaterialInstance_8, this);
+		GetMesh()->SetMaterial(8, DynamicDissolveMaterialInstance_8);
+		DynamicDissolveMaterialInstance_8->SetScalarParameterValue(TEXT("Dissolve"), .75f);
+		DynamicDissolveMaterialInstance_8->SetScalarParameterValue(TEXT("Glow"), 200.f);
+	}
+
+	if(DissolveMaterialInstance_9)
+	{
+		
+		DynamicDissolveMaterialInstance_9 = UMaterialInstanceDynamic::Create(DissolveMaterialInstance_9, this);
+		GetMesh()->SetMaterial(9, DynamicDissolveMaterialInstance_9);
+		DynamicDissolveMaterialInstance_9->SetScalarParameterValue(TEXT("Dissolve"), .75f);
+		DynamicDissolveMaterialInstance_9->SetScalarParameterValue(TEXT("Glow"), 200.f);
+	}
+	
+	
+	StartDissolve();
 }
 
 void AOnlineShooterCharacter::EliminatedTimerFinished()
 {
 	AOnlineShooterGameMode* OnlineShooterGameMode = GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>();
-
+	
 	if (OnlineShooterGameMode)
 	{
 		OnlineShooterGameMode->RequestRespawn(this, Controller);
 	}
 }
+#pragma endregion
+
+#pragma region DISSOLVE EFFECT
+
+void AOnlineShooterCharacter::UpdateDissolveMaterial(float DissolveValue)
+{
+	if(DynamicDissolveMaterialInstance_0)
+	{
+		DynamicDissolveMaterialInstance_0->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+
+	if(DynamicDissolveMaterialInstance_1)
+	{
+		DynamicDissolveMaterialInstance_1->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+
+	if(DynamicDissolveMaterialInstance_2)
+	{
+		DynamicDissolveMaterialInstance_2->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+
+	if(DynamicDissolveMaterialInstance_3)
+	{
+		DynamicDissolveMaterialInstance_3->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+
+	if(DynamicDissolveMaterialInstance_5)
+	{
+		DynamicDissolveMaterialInstance_5->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+
+	if(DynamicDissolveMaterialInstance_6)
+	{
+		DynamicDissolveMaterialInstance_6->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+
+	if(DynamicDissolveMaterialInstance_7)
+	{
+		DynamicDissolveMaterialInstance_7->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+
+	if(DynamicDissolveMaterialInstance_8) 
+	{
+		DynamicDissolveMaterialInstance_8->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+	
+	if(DynamicDissolveMaterialInstance_9)
+	{
+		DynamicDissolveMaterialInstance_9->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+}
+
+void AOnlineShooterCharacter::StartDissolve()
+{
+	DissolveTrack.BindDynamic(this, &AOnlineShooterCharacter::UpdateDissolveMaterial);
+
+	if(DissolveCurve && DissolveTimeline)
+	{
+		
+		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
+		DissolveTimeline->Play();
+	}
+}
+
 #pragma endregion
 
 
