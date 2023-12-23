@@ -6,6 +6,7 @@
 #include "GameFramework/HUD.h"
 #include "OnlineShooterHUD.generated.h"
 
+class UCharacterOverlay;
 
 USTRUCT(BlueprintType)
 struct FHUDPackage
@@ -37,13 +38,29 @@ public:
 
 private:
 
+	UPROPERTY()
 	FHUDPackage HUDPackage;
-
-	void DrawCrosshair(UTexture2D* Texture, FVector2D ViewportCenter, FVector2D Spread, FLinearColor CrosshairColor = FLinearColor::White);
-
+	
 	UPROPERTY(EditAnywhere)
 	float CrosshairSpreadMax = 16.f;
 
+protected:
+
+	virtual void BeginPlay() override;
+
+	void AddCharacterOverlay();
+	
+	
+public:
+	
+	UPROPERTY()
+	UCharacterOverlay* CharacterOverlay;
+
+	UPROPERTY(EditAnywhere, Category = "Player Stats")
+	TSubclassOf<UUserWidget> CharacterOverlayClass;
+	
+	void DrawCrosshair(UTexture2D* Texture, FVector2D ViewportCenter, FVector2D Spread, FLinearColor CrosshairColor = FLinearColor::White);
+	
 public:
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package) { HUDPackage = Package; }
 };

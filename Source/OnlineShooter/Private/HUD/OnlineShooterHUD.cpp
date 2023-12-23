@@ -1,7 +1,8 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
+﻿
 #include "HUD/OnlineShooterHUD.h"
+
+#include "Blueprint/UserWidget.h"
+#include "HUD/CharacterOverlay.h"
 
 void AOnlineShooterHUD::DrawHUD()
 {
@@ -44,6 +45,24 @@ void AOnlineShooterHUD::DrawHUD()
 			FVector2d Spread(0.f, SpreadScaled);
 			DrawCrosshair(HUDPackage.CrosshairBottom, ViewportCenter, Spread, HUDPackage.CrosshairColor);
 		}
+	}
+}
+
+void AOnlineShooterHUD::BeginPlay()
+{
+	Super::BeginPlay();
+
+	AddCharacterOverlay();
+}
+
+void AOnlineShooterHUD::AddCharacterOverlay()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+
+	if (PlayerController && CharacterOverlayClass)
+	{
+		CharacterOverlay = CreateWidget<UCharacterOverlay>(PlayerController, CharacterOverlayClass);
+		CharacterOverlay->AddToViewport();
 	}
 }
 

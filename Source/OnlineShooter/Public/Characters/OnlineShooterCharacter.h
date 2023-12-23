@@ -146,6 +146,9 @@ private:
 private:
 
 	UPROPERTY()
+	AOnlineShooterPlayerController* OnlineShooterPlayerController; 
+	
+	UPROPERTY()
 	float AO_Yaw;
 
 	UPROPERTY()
@@ -157,7 +160,7 @@ private:
 	UPROPERTY()
 	ETurningInPlace TurningInPlace;
 
-	UPROPERTY(ReplicatedUsing = OnRep_OverllapingWeapon)
+	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
 	AWeapon* OverlappingWeapon;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
@@ -168,6 +171,18 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* HitReactMontage;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* EliminatedMontage;
+
+	UPROPERTY()
+	FTimerHandle EliminatedTimer;
+
+	UPROPERTY(EditDefaultsOnly)
+	float EliminatedDelay = 3.f;
+
+	UPROPERTY()
+	bool bEliminated = false;
 
 	UPROPERTY()
 	bool bRotateRootBone;
@@ -187,7 +202,21 @@ private:
 	UPROPERTY()
 	float TimeSinceLastMovementReplication;
 
+#pragma region HEALTH
+
+	UPROPERTY(EditAnywhere, Category = Health)
+	float MaxHealth = 100.f;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Health ,VisibleAnywhere, Category = Health)
+	float Health = 100.f;
+
+	UFUNCTION()
+	void OnRep_Health();
+
+	UFUNCTION()
+	void UpdateHUDHealth();
 	
+#pragma endregion
 
 public:
 	
@@ -212,10 +241,18 @@ private:
 	void TurnInPlace(float DeltaTime);
 	
 	UFUNCTION() 
-	void OnRep_OverllapingWeapon(AWeapon* LastWeapon);
+	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
 	
 	UFUNCTION() // Hides meshes when camera too close
 	void HideMesh();
+
+	UFUNCTION()
+	void EliminatedTimerFinished();
+
+protected:
+
+	UFUNCTION()
+	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser);
 
 public:
 	// Determines whether player overlap weapon
@@ -228,7 +265,8 @@ public:
 	bool IsAiming() const;
 	
 	FRotator StartingAimRotation;
-	
+
+	UFUNCTION()
 	AWeapon* GetEquippedWeapon() const;
 	
 	UFUNCTION()
@@ -237,10 +275,17 @@ public:
 	UFUNCTION()
 	void PlayHitReactMontage();
 
-	UFUNCTION(NetMulticast, Unreliable)
-	void Multicast_Hit();
+	UFUNCTION()
+	void PlayElimMontage();
 
+	UFUNCTION()
 	FVector GetHitTarget() const;
+
+	UFUNCTION()
+	void Eliminated();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_Eliminated();
 	
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
@@ -248,4 +293,5 @@ public:
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
+	FORCEINLINE bool IsEliminated() const { return bEliminated; }
 };

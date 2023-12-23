@@ -11,6 +11,7 @@
 // References
 #include "Weapon/Weapon.h"
 #include "OnlineShooter.h"
+#include "PlayerController/OnlineShooterPlayerController.h"
 
 // Math
 #include "Kismet/KismetMathLibrary.h"
@@ -20,14 +21,19 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Components/WidgetComponent.h"
 #include "Components/CombatComponent.h"
+
+// GameModes
+#include "GameModes/OnlineShooterGameMode.h"
+
 
 
 // Constructor
 AOnlineShooterCharacter::AOnlineShooterCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	
 	GetMovementComponent()->NavAgentProps.bCanCrouch = true;
 	
 	// Create a camera boom (pulls in towards the player if there is a collision)
@@ -75,6 +81,7 @@ void AOnlineShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
 	DOREPLIFETIME_CONDITION(AOnlineShooterCharacter, OverlappingWeapon, COND_OwnerOnly);
+	DOREPLIFETIME(AOnlineShooterCharacter, Health);
 }
 
 // Post Initialize Components 
@@ -113,6 +120,13 @@ void AOnlineShooterCharacter::BeginPlay()
 		{
 			Subsystem->AddMappingContext(CharacterMappingContext, 0);
 		}
+	}
+
+	UpdateHUDHealth();
+	
+	if(HasAuthority())
+	{
+		OnTakeAnyDamage.AddDynamic(this, &AOnlineShooterCharacter::ReceiveDamage);
 	}
 }
 
@@ -226,7 +240,8 @@ void AOnlineShooterCharacter::CrouchButtonReleased()
 	UnCrouch();
 }
 
-// Aim 
+
+#pragma region AIM
 void AOnlineShooterCharacter::AimButtonPressed()
 {
 	if(Combat)
@@ -241,7 +256,6 @@ void AOnlineShooterCharacter::AimButtonReleased()
 		Combat->SetAiming(false);
 	}
 }
-
 void AOnlineShooterCharacter::CalculateAO_Pitch()
 {
 	AO_Pitch = GetBaseAimRotation().Pitch;
@@ -254,6 +268,65 @@ void AOnlineShooterCharacter::CalculateAO_Pitch()
 		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
 	}
 }
+#pragma endregion
+
+
+#pragma region HEALTH
+void AOnlineShooterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
+{
+	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+	UpdateHUDHealth();
+	PlayHitReactMontage();
+
+	if(Health <= 0.f)
+	{
+		AOnlineShooterGameMode* OnlineShooterGameMode = GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>();
+		if(OnlineShooterGameMode)
+		{
+			OnlineShooterPlayerController = !OnlineShooterPlayerController ? Cast<AOnlineShooterPlayerController>(Controller) : OnlineShooterPlayerController;
+			AOnlineShooterPlayerController* AttackerController = Cast<AOnlineShooterPlayerController>(InstigatorController);
+			
+			OnlineShooterGameMode->PlayerEliminated(this, OnlineShooterPlayerController, AttackerController);
+		}	
+	}
+}
+void AOnlineShooterCharacter::OnRep_Health()
+{
+	UpdateHUDHealth();
+	PlayHitReactMontage();
+}
+void AOnlineShooterCharacter::UpdateHUDHealth()
+{
+	OnlineShooterPlayerController = !OnlineShooterPlayerController ? Cast<AOnlineShooterPlayerController>(Controller) : OnlineShooterPlayerController;
+
+	if(OnlineShooterPlayerController)
+	{
+		OnlineShooterPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
+}
+void AOnlineShooterCharacter::Eliminated()
+{
+	Multicast_Eliminated();
+	GetWorldTimerManager().SetTimer(EliminatedTimer, this, &AOnlineShooterCharacter::EliminatedTimerFinished, EliminatedDelay);
+}
+
+void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
+{
+	bEliminated = true;
+	PlayElimMontage();
+}
+
+void AOnlineShooterCharacter::EliminatedTimerFinished()
+{
+	AOnlineShooterGameMode* OnlineShooterGameMode = GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>();
+
+	if (OnlineShooterGameMode)
+	{
+		OnlineShooterGameMode->RequestRespawn(this, Controller);
+	}
+}
+#pragma endregion
+
 
 void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 {
@@ -398,7 +471,7 @@ void AOnlineShooterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 }
 
 // Set overlapped weapon for clients
-void AOnlineShooterCharacter::OnRep_OverllapingWeapon(AWeapon* LastWeapon)
+void AOnlineShooterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 {
 	// if player overlaps weapon (Determined by Weapon.cpp callback function)
 	if(OverlappingWeapon)
@@ -515,9 +588,16 @@ void AOnlineShooterCharacter::PlayHitReactMontage()
 	}
 }
 
-void AOnlineShooterCharacter::Multicast_Hit_Implementation()
+void AOnlineShooterCharacter::PlayElimMontage()
 {
-	PlayHitReactMontage();
+	if (!Combat) return;
+	
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	
+	if(AnimInstance && EliminatedMontage)
+	{
+		AnimInstance->Montage_Play(EliminatedMontage);
+	}
 }
 
 FVector AOnlineShooterCharacter::GetHitTarget() const
@@ -526,5 +606,10 @@ FVector AOnlineShooterCharacter::GetHitTarget() const
 
 	return Combat->HitTarget;
 }
+
+
+
+
+
 
 

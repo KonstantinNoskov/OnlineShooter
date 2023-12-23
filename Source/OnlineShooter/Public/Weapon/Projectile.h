@@ -44,8 +44,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Projectile Properties")
 	USoundCue* ImpactSound;
 
-	UPROPERTY(EditAnywhere, Category = "Projectile Properties", meta = (ClampMin = 0, ClampMax = 10))
-	uint8 TraceFactor;
 	
+protected:
 	
+	UPROPERTY(EditAnywhere, Category = "Projectile Properties")
+	float Damage = 10.f;
 };

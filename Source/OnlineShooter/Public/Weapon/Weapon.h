@@ -44,28 +44,36 @@ protected:
 	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
 private:
+
+	// Weapon mesh
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")
 	USkeletalMeshComponent* WeaponMesh;
 
+	// Overlap Area
 	UPROPERTY(VisibleAnywhere, Category = "General Settings")
 	USphereComponent* AreaSphere;
 
+	// Weapon state
 	UPROPERTY(ReplicatedUsing=OnRep_WeaponState, VisibleAnywhere, Category = "General Settings")
 	EWeaponState WeaponState;
 
+	// Pickup Widget
 	UPROPERTY(EditAnywhere, Category = "General Settings")
 	UWidgetComponent* PickupWidget;
-	
+
+	// Fire animation
 	UPROPERTY(EditAnywhere, Category = "General Settings")
 	UAnimSequence* FireAnimationSequence;
 
-	// The lower - the faster
+	// Fire rate (the lower - the faster)
 	UPROPERTY(EditAnywhere, Category = "General Settings")
 	float FireRate = 1.f;
 
+	// Whether automatic fire or not 
 	UPROPERTY(EditAnywhere, Category = "General Settings")
 	bool bAutomatic = true;
 
+	// Shells, casings ejected after shot
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ACasing> CasingClass;
 
@@ -73,10 +81,10 @@ private:
 	 *  Zoomed FOV while aiming
 	 */
 
-	UPROPERTY(EditAnywhere, Category = "General Settings")
-	float ZoomedFOV = 30.f;
+	UPROPERTY(EditDefaultsOnly, Category = "General Settings")
+	float ZoomedFOV = 60.f;
 
-	UPROPERTY(EditAnywhere, Category = "General Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "General Settings")
 	float ZoomInterpSpeed = 20.f;
 	
 	// Replication

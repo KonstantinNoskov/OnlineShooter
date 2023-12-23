@@ -32,6 +32,9 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	// Speed (horizontal)
 	Speed = OnlineShooterCharacter->GetVelocity().Size2D();
 
+	// Is character eliminated
+	bEliminated = OnlineShooterCharacter->IsEliminated();
+
 	// Is character jumping
 	bIsInAir = OnlineShooterCharacter->GetCharacterMovement()->IsFalling();
 
@@ -53,9 +56,9 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	// Which side the character is turning to
 	TurningInPlace = OnlineShooterCharacter->GetTurningInPlace();
 
-	//
+	
 	bRotateRootBone = OnlineShooterCharacter->ShouldRotateRootBone();
-
+	
 	// Calculate Offset Yaw for Strafing
 	FRotator AimRotation = OnlineShooterCharacter->GetBaseAimRotation();
 	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(OnlineShooterCharacter->GetVelocity());
@@ -107,8 +110,12 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		
 		FTransform MuzzleTipTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"), RTS_World);
 		FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
-		DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), MuzzleTipTransform.GetLocation() + MuzzleX * 1000.f, FColor::Red);
-		DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), OnlineShooterCharacter->GetHitTarget(), FColor::Yellow);
+
+		// Debug Lines for correcting muzzle rotation towards to crosshair
+		//DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), MuzzleTipTransform.GetLocation() + MuzzleX * 1000.f, FColor::Red);
+		//DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), OnlineShooterCharacter->GetHitTarget(), FColor::Yellow);
 		
 	}
+
+	
 }

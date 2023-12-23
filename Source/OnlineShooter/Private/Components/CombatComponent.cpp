@@ -58,8 +58,8 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	{
 		FHitResult HitResult;
 		TraceUnderCrosshair(HitResult);
+
 		HitTarget = HitResult.ImpactPoint;
-		
 		SetHUDCrosshair(DeltaTime);
 		InterpFOV(DeltaTime);
 	}
@@ -124,33 +124,15 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	}
 }
 
-void UCombatComponent::FireButtonReleaseCheck()
-{
-	if (!bFireButtonPressed)
-	{	
-		float CurrentTime = GetWorld()->GetTimeSeconds();
-		
-		if (CurrentTime - LastShotTime >= EquippedWeapon->GetFireRate())
-		{
-			bCanFire = true;
-		}
-	}
-}
-
 // Fire
 void UCombatComponent::FireButtonPressed(bool bPressed, const FInputActionInstance& InputInstance)
 {	
 	bFireButtonPressed = bPressed;
 	
 	if (bFireButtonPressed)
-	{	
-		/*FHitResult HitResult;
-		TraceUnderCrosshair(HitResult);*/
-		
+	{
 		Fire();
 	}
-	
-	FireButtonReleaseCheck();
 }
 
 void UCombatComponent::Fire() 
@@ -168,13 +150,11 @@ void UCombatComponent::Fire()
 		StartFireTimer();
 	}
 }
-
 void UCombatComponent::Server_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget) 
 {
 	LastShotTime = GetWorld()->GetTimeSeconds();
 	Multicast_Fire(TraceHitTarget);
 }
-
 void UCombatComponent::Multicast_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget) 
 {
 	if(!EquippedWeapon) return;
@@ -183,10 +163,8 @@ void UCombatComponent::Multicast_Fire_Implementation(const FVector_NetQuantize& 
 	{
 		Character->PlayFireMontage(bAiming);
 		EquippedWeapon->Fire(TraceHitTarget);
-		UE_LOG(LogTemp, Warning, TEXT("FIRE! %hhd"), bCanFire)
 	}
 }
-
 void UCombatComponent::StartFireTimer()
 {
 	if (!EquippedWeapon || !Character) return;
@@ -196,14 +174,13 @@ void UCombatComponent::StartFireTimer()
 void UCombatComponent::OnFireTimerFinished()
 {
 	if(!EquippedWeapon) return;
+
+	bCanFire = true;
 	
 	if(bFireButtonPressed && EquippedWeapon->IsAutomatic()) 
 	{
-		bCanFire = true;
 		Fire();
 	}
-	
-	FireButtonReleaseCheck();
 }
 
 // Crosshair & Aiming
@@ -253,7 +230,7 @@ void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 		}
 		else // otherwise show hit point
 		{
-			DrawDebugSphere(GetWorld(),TraceHitResult.ImpactPoint, 12.f, 12, FColor::Red);
+			//DrawDebugSphere(GetWorld(),TraceHitResult.ImpactPoint, 12.f, 12, FColor::Red);
 		}
 
 		// if line trace hit another player we want to change crosshair color
