@@ -119,6 +119,16 @@ void UCombatComponent::OnRep_EquippedWeapon()
 {
 	if(EquippedWeapon && Character)
 	{
+		EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+	
+		// if had weapon socket...
+		const USkeletalMeshSocket* WeaponHandSocket = Character->GetMesh()->GetSocketByName(FName("SKT_Weapon"));
+		if (WeaponHandSocket)
+		{
+			// add equipped weapon to a socket
+			WeaponHandSocket->AttachActor(EquippedWeapon, Character->GetMesh());
+		}
+		
 		Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 		Character->bUseControllerRotationYaw = true;	
 	}

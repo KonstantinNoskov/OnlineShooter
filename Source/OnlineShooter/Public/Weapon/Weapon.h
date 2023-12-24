@@ -114,6 +114,10 @@ public:
 	
 	void SetWeaponState(EWeaponState NewState);
 	virtual void Fire(const FVector& HitTarget);
+
+	UFUNCTION()
+	void Dropped();
+	
 	
 	FORCEINLINE EWeaponState GetWeaponState() const { return WeaponState; }
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }

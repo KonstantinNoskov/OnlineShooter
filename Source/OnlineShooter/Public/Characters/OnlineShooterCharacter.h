@@ -19,6 +19,7 @@
 #include "OnlineShooterCharacter.generated.h"
 
 
+class USoundCue;
 class UCombatComponent;
 class AWeapon;
 class UWidgetComponent;
@@ -46,6 +47,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 	virtual void OnRep_ReplicatedMovement() override;
+	virtual void Destroyed() override;
 
 	// Friend Classes
 	friend UCombatComponent;
@@ -205,6 +207,19 @@ private:
 	UPROPERTY()
 	float TimeSinceLastMovementReplication;
 
+
+#pragma region ELIMBOT
+
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* ElimBotEffect;
+
+	UPROPERTY(VisibleAnywhere)
+	UParticleSystemComponent* ElimBotComponent;
+
+	UPROPERTY(EditAnywhere)
+	USoundCue* ElimBotSound;
+
+#pragma endregion
 
 #pragma region DISSOLVE EFFECT
 

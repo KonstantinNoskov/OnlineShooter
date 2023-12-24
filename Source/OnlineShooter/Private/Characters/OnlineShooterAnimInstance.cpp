@@ -23,7 +23,7 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 	
-	// if player reference is nov valid, try to get player reference
+	// if player reference is not valid, try to get player reference
 	if (!OnlineShooterCharacter) { OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(TryGetPawnOwner()); }
 
 	// if player reference still is null, return

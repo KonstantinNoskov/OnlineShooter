@@ -13,8 +13,10 @@
 #include "OnlineShooter.h"
 #include "PlayerController/OnlineShooterPlayerController.h"
 
-// Math
+// Add libs
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 // Components
 #include "Camera/CameraComponent.h"
@@ -22,6 +24,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CombatComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 
 // GameModes
 #include "GameModes/OnlineShooterGameMode.h"
@@ -309,8 +312,14 @@ void AOnlineShooterCharacter::UpdateHUDHealth()
 		OnlineShooterPlayerController->SetHUDHealth(Health, MaxHealth);
 	}
 }
+
 void AOnlineShooterCharacter::Eliminated()
 {
+	if(Combat && Combat->EquippedWeapon)
+	{
+		Combat->EquippedWeapon->Dropped();	
+	}
+	
 	Multicast_Eliminated();
 	GetWorldTimerManager().SetTimer(EliminatedTimer, this, &AOnlineShooterCharacter::EliminatedTimerFinished, EliminatedDelay);
 }
@@ -402,8 +411,31 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 		DynamicDissolveMaterialInstance_9->SetScalarParameterValue(TEXT("Glow"), 200.f);
 	}
 	
-	
 	StartDissolve();
+
+	// Disable character movement
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+	if(OnlineShooterPlayerController)
+	{
+		DisableInput(OnlineShooterPlayerController);
+	}
+
+	// Disable collision
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// Spawn elim bot
+	if(ElimBotEffect)
+	{
+		FVector ElimBotSpawnPoint(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 200.f);
+		ElimBotComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ElimBotEffect, ElimBotSpawnPoint, GetActorRotation());
+	}
+
+	if(ElimBotSound)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(this, ElimBotSound, GetActorLocation());
+	}
 }
 
 void AOnlineShooterCharacter::EliminatedTimerFinished()
@@ -481,6 +513,15 @@ void AOnlineShooterCharacter::StartDissolve()
 
 #pragma endregion
 
+void AOnlineShooterCharacter::Destroyed()
+{
+	Super::Destroyed();
+
+	if(ElimBotComponent)
+	{
+		ElimBotComponent->DestroyComponent();
+	}
+}
 
 void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 {
