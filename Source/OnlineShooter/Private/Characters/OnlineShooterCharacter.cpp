@@ -20,6 +20,7 @@
 
 // Components
 #include "Camera/CameraComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -28,7 +29,7 @@
 
 // GameModes
 #include "GameModes/OnlineShooterGameMode.h"
-
+#include "PlayerStates/OnlineShooterPlayerState.h"
 
 
 // Constructor
@@ -158,6 +159,23 @@ void AOnlineShooterCharacter::Tick(float DeltaTime)
 	}
 	
 	HideMesh();
+
+	// Try to Initialize relevant classes every tick if it's equal to null 
+	PollInit();
+}
+
+void AOnlineShooterCharacter::PollInit()
+{
+	if (!OnlineShooterPlayerState)
+	{
+		OnlineShooterPlayerState = GetPlayerState<AOnlineShooterPlayerState>();
+
+		if (OnlineShooterPlayerState)
+		{
+			OnlineShooterPlayerState->AddToScore(0.f);
+			OnlineShooterPlayerState->AddToDefeats(0);
+		}
+	}
 }
 
 // Binding inputs
@@ -189,6 +207,9 @@ void AOnlineShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 		// Fire
 		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AOnlineShooterCharacter::FireButtonPressed);
 		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &AOnlineShooterCharacter::FireButtonReleased);
+
+		// Reload
+		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Triggered, this, &AOnlineShooterCharacter::ReloadButtonPressed);
 	}
 }
 
@@ -246,7 +267,6 @@ void AOnlineShooterCharacter::CrouchButtonReleased()
 	UnCrouch();
 }
 
-
 #pragma region AIM
 void AOnlineShooterCharacter::AimButtonPressed()
 {
@@ -275,7 +295,6 @@ void AOnlineShooterCharacter::CalculateAO_Pitch()
 	}
 }
 #pragma endregion
-
 
 #pragma region HEALTH
 
@@ -326,13 +345,17 @@ void AOnlineShooterCharacter::Eliminated()
 
 void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 {
+	if(OnlineShooterPlayerController)
+	{
+		OnlineShooterPlayerController->SetHUDWeaponAmmo(0);
+	}
+	
 	bEliminated = true;
 	PlayElimMontage();
 	
 	// Start Dissolve effect
 	if(DissolveMaterialInstance_0)
 	{
-		
 		DynamicDissolveMaterialInstance_0 = UMaterialInstanceDynamic::Create(DissolveMaterialInstance_0, this);
 		GetMesh()->SetMaterial(0, DynamicDissolveMaterialInstance_0);
 		DynamicDissolveMaterialInstance_0->SetScalarParameterValue(TEXT("Dissolve"), .75f);
@@ -525,7 +548,7 @@ void AOnlineShooterCharacter::Destroyed()
 
 void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 {
-	if (Combat && !Combat->EquippedWeapon) return; 
+	if (!Combat && !Combat->EquippedWeapon) return; 
 	
 	float Speed = GetVelocity().Size2D();
 	bool bIsInAir = GetCharacterMovement()->IsFalling();
@@ -615,7 +638,15 @@ void AOnlineShooterCharacter::FireButtonReleased(const FInputActionInstance& Inp
 		Combat->FireButtonPressed(false, InputInstance);
 	}
 }
- 
+
+void AOnlineShooterCharacter::ReloadButtonPressed()
+{
+	if(Combat)
+	{
+		Combat->Reload();
+	}
+}
+
 // Equip weapon
 void AOnlineShooterCharacter::EquipButtonPressed()
 {
@@ -768,6 +799,34 @@ void AOnlineShooterCharacter::PlayFireMontage(bool bAiming)
 	}
 }
 
+void AOnlineShooterCharacter::PlayReloadMontage()
+{
+	// Play fire montage only if we have a combat component and a weapon
+	if (!Combat || !Combat->EquippedWeapon) return;
+	
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	
+	if(AnimInstance && ReloadMontage)
+	{
+		AnimInstance->Montage_Play(ReloadMontage);
+		FName SectionName;
+		
+		switch (Combat->EquippedWeapon->GetWeaponType())
+		{
+			case EWeaponType::EWT_AssaultRifle:
+
+				SectionName = FName("Rifle");
+				break;
+			case EWeaponType::EWT_MAX:
+				break;
+			
+			default: ;
+		}
+		
+		AnimInstance->Montage_JumpToSection(SectionName);
+	}
+}
+
 void AOnlineShooterCharacter::PlayHitReactMontage()
 {
 	// Play hit react montage only if we have a combat component and a weapon
@@ -775,7 +834,7 @@ void AOnlineShooterCharacter::PlayHitReactMontage()
 	
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	
-	if(AnimInstance && HitReactMontage)
+	if(AnimInstance && HitReactMontage && !AnimInstance->IsAnyMontagePlaying())
 	{
 		AnimInstance->Montage_Play(HitReactMontage);
 		FName SectionName("FromFront");
@@ -785,14 +844,13 @@ void AOnlineShooterCharacter::PlayHitReactMontage()
 
 void AOnlineShooterCharacter::PlayElimMontage()
 {
-	if (!Combat) return;
-	
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	
 	if(AnimInstance && EliminatedMontage)
 	{
 		AnimInstance->Montage_Play(EliminatedMontage);
 	}
+	
 }
 
 FVector AOnlineShooterCharacter::GetHitTarget() const
@@ -800,6 +858,14 @@ FVector AOnlineShooterCharacter::GetHitTarget() const
 	if (!Combat) return FVector();
 
 	return Combat->HitTarget;
+}
+
+// Get combat state
+ECombatState AOnlineShooterCharacter::GetCombatState() const
+{
+	if(!Combat) return ECombatState::ECS_MAX;
+
+	return Combat->CombatState;
 }
 
 

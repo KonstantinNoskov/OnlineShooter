@@ -9,3 +9,5 @@ enum class ETurningInPlace : uint8
 
 	ETIP_Max UMETA(Displayname = "DefaultMAX")
 };
+
+

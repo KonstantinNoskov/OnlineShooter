@@ -2,3 +2,12 @@
 
 
 #include "HUD/CharacterOverlay.h"
+
+#include "Components/TextBlock.h"
+
+void UCharacterOverlay::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+
+	ElimText->SetVisibility(ESlateVisibility::Collapsed);
+}

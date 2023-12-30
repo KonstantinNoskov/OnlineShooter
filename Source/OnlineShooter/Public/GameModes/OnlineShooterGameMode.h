@@ -8,9 +8,8 @@
 
 class AOnlineShooterPlayerController;
 class AOnlineShooterCharacter;
-/**
- * 
- */
+
+
 UCLASS()
 class ONLINESHOOTER_API AOnlineShooterGameMode : public AGameMode
 {
@@ -19,5 +18,7 @@ class ONLINESHOOTER_API AOnlineShooterGameMode : public AGameMode
 public:
 	
 	virtual void PlayerEliminated(AOnlineShooterCharacter* ElimedCharacter, AOnlineShooterPlayerController* VictimController, AOnlineShooterPlayerController* AttackerController);
+
+	AActor* GetRespawnPoint();
 	virtual void RequestRespawn(ACharacter* EliminatedCharacter, AController* EliminatedController);
 };

@@ -12,6 +12,7 @@
 #include "Components/WidgetComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "PlayerController/OnlineShooterPlayerController.h"
 #include "Weapon/Casing.h"
 
 
@@ -19,6 +20,7 @@ AWeapon::AWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
+	//SetReplicateMovement(true);
 	
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	SetRootComponent(WeaponMesh);
@@ -32,7 +34,7 @@ AWeapon::AWeapon()
 	PickupWidget->SetupAttachment(RootComponent);
 }
 
-void AWeapon::BeginPlay()
+void AWeapon::BeginPlay() 
 {
 	Super::BeginPlay();
 
@@ -66,8 +68,93 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeapon, WeaponState)
+	DOREPLIFETIME(AWeapon, Ammo)
 }
 
+void AWeapon::OnRep_WeaponState() 
+{ 
+	switch (WeaponState) {
+	case EWeaponState::EWS_Initial:
+		break;
+		
+	case EWeaponState::EWS_Equipped:
+		ShowPickupWidget(false);
+
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		WeaponMesh->SetSimulatePhysics(false);
+		WeaponMesh->SetEnableGravity(false);
+		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		
+		break;
+		
+	case EWeaponState::EWS_Dropped:
+		
+		WeaponMesh->SetSimulatePhysics(true);
+		WeaponMesh->SetEnableGravity(true);
+		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+		
+		break;
+		
+	case EWeaponState::EWS_MAX:
+		break;
+		
+	default:
+		break;
+	}
+}
+
+void AWeapon::SetHUDAmmo()
+{
+	OnlineShooterOwnerCharacter = !OnlineShooterOwnerCharacter ? Cast<AOnlineShooterCharacter>(GetOwner()) : OnlineShooterOwnerCharacter;
+
+	if(OnlineShooterOwnerCharacter)
+	{
+		OnlineShooterOwnerController = !OnlineShooterOwnerController ? Cast<AOnlineShooterPlayerController>(OnlineShooterOwnerCharacter->Controller) : OnlineShooterOwnerController;
+
+		if(OnlineShooterOwnerController)
+		{
+			OnlineShooterOwnerController->SetHUDWeaponAmmo(Ammo);
+		}
+	}
+}
+
+bool AWeapon::IsEmpty()
+{
+	return Ammo <= 0; 
+}
+
+void AWeapon::AddAmmo(int32 AmmoToAdd)
+{
+	Ammo = FMath::Clamp(Ammo - AmmoToAdd, 0, MagCapacity);
+	SetHUDAmmo();
+}
+
+void AWeapon::OnRep_Ammo()
+{
+	SetHUDAmmo();
+}
+
+void AWeapon::OnRep_Owner()
+{
+	Super::OnRep_Owner();
+
+	if(!Owner)
+	{
+		OnlineShooterOwnerCharacter = nullptr;
+		OnlineShooterOwnerController = nullptr;
+	}
+
+	else
+	{
+		SetHUDAmmo();
+	}
+	
+}
 // if player overlap weapon collision sphere, pass this weapon to player's @var OverlapWeapon
 void AWeapon::OnSphereOverlap(UPrimitiveComponent* OvelappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -162,6 +249,14 @@ void AWeapon::Fire(const FVector& HitTarget)
 			}
 		}
 	}
+
+	SpendRound();
+}
+
+void AWeapon::SpendRound()
+{
+	Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
+	SetHUDAmmo();
 }
 
 void AWeapon::Dropped()
@@ -170,43 +265,9 @@ void AWeapon::Dropped()
 	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRules);
 	SetOwner(nullptr);
-	
-}
 
-void AWeapon::OnRep_WeaponState()
-{ 
-	switch (WeaponState) {
-	case EWeaponState::EWS_Initial:
-		break;
-		
-	case EWeaponState::EWS_Equipped:
-		ShowPickupWidget(false);
-		//AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		WeaponMesh->SetSimulatePhysics(false);
-		WeaponMesh->SetEnableGravity(false);
-		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		
-		break;
-		
-	case EWeaponState::EWS_Dropped:
-		
-		WeaponMesh->SetSimulatePhysics(true);
-		WeaponMesh->SetEnableGravity(true);
-		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
-		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-		
-		break;
-		
-	case EWeaponState::EWS_MAX:
-		break;
-		
-	default:
-		break;
-	}
+	OnlineShooterOwnerCharacter = nullptr;
+	OnlineShooterOwnerController = nullptr;
 }
 
 // Show or hide weapon pick up widget
@@ -217,4 +278,6 @@ void AWeapon::ShowPickupWidget(bool bShowWidget)
 		PickupWidget->SetVisibility(bShowWidget);
 	}
 }
+
+
 

@@ -18,7 +18,7 @@
 
 #include "OnlineShooterCharacter.generated.h"
 
-
+class AOnlineShooterPlayerState;
 class USoundCue;
 class UCombatComponent;
 class AWeapon;
@@ -114,31 +114,51 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* FireAction;
 
+	/** Reload Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ReloadAction;
+
 protected:
 	
 	/** Callback for movement input */
+	UFUNCTION()
 	void Move(const FInputActionValue& Value);
 
 	/** Callback for looking input */
+	UFUNCTION()
 	void Look(const FInputActionValue& Value);
 
 	/** Callback for Equip input */
+	UFUNCTION()
 	void EquipButtonPressed();
 
 	/** Callback for Crouch input */
+	UFUNCTION()
 	void CrouchButtonPressed();
 	
 	/** Callback for Crouch input */
+	UFUNCTION()
 	void CrouchButtonReleased();
 
 	/** Callback for Aim input */
+	UFUNCTION()
 	void AimButtonPressed();
+
+	UFUNCTION()
 	void AimButtonReleased();
+
+	UFUNCTION()
 	void CalculateAO_Pitch();
 
 	/** Callback for Fire input */
+	UFUNCTION()
 	void FireButtonPressed(const FInputActionInstance& InputInstance);
+	
+	UFUNCTION()
 	void FireButtonReleased(const FInputActionInstance& InputInstance);
+
+	UFUNCTION()
+	void ReloadButtonPressed();
 
 private:
 
@@ -167,24 +187,15 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
 	AWeapon* OverlappingWeapon;
-
-	UPROPERTY(EditAnywhere, Category = Combat)
-	UAnimMontage* FireWeaponMontage;
-
+	
 	UPROPERTY(EditAnywhere)
 	float CameraThreshold = 200.f;
 	
-	UPROPERTY(EditAnywhere, Category = Combat)
-	UAnimMontage* HitReactMontage;
-
-	UPROPERTY(EditAnywhere, Category = Combat)
-	UAnimMontage* EliminatedMontage;
-
 	UPROPERTY()
 	FTimerHandle EliminatedTimer;
 
 	UPROPERTY(EditDefaultsOnly)
-	float EliminatedDelay = 3.f;
+	float EliminatedDelay = 2.f;
 
 	UPROPERTY()
 	bool bEliminated = false;
@@ -207,6 +218,21 @@ private:
 	UPROPERTY()
 	float TimeSinceLastMovementReplication;
 
+#pragma region MONTAGES
+
+	UPROPERTY(EditAnywhere, Category = Montages)
+	UAnimMontage* FireWeaponMontage;
+
+	UPROPERTY(EditAnywhere, Category = Montages)
+	UAnimMontage* ReloadMontage;
+
+	UPROPERTY(EditAnywhere, Category = Montages)
+	UAnimMontage* HitReactMontage;
+
+	UPROPERTY(EditAnywhere, Category = Montages)
+	UAnimMontage* EliminatedMontage;
+
+#pragma endregion
 
 #pragma region ELIMBOT
 
@@ -323,6 +349,8 @@ private:
 	UFUNCTION()
 	void OnRep_Health();
 
+protected:
+	
 	UFUNCTION()
 	void UpdateHUDHealth();
 	
@@ -338,6 +366,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category = "WeaponRotationCorrection") 
 	float RightHandRotationPitch;
+
+	UPROPERTY()
+	AOnlineShooterPlayerState* OnlineShooterPlayerState;
 
 private:
 	
@@ -364,6 +395,10 @@ protected:
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser);
 
+	// Poll for any relevant classes and initialize our HUD 
+	UFUNCTION()
+	void PollInit();
+	
 public:
 	// Determines whether player overlap weapon
 	void SetOverlappingWeapon(AWeapon* Weapon);
@@ -383,18 +418,20 @@ public:
 	void PlayFireMontage(bool bAiming);
 
 	UFUNCTION()
+	void PlayReloadMontage();
+
+	UFUNCTION()
 	void PlayHitReactMontage();
 
 	UFUNCTION()
 	void PlayElimMontage();
-
+	
 	UFUNCTION()
 	FVector GetHitTarget() const;
 
 	UFUNCTION()
 	void Eliminated();
 	
-
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_Eliminated();
 	
@@ -405,4 +442,7 @@ public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
 	FORCEINLINE bool IsEliminated() const { return bEliminated; }
+	FORCEINLINE float GetHealth() const { return Health; }
+	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	ECombatState GetCombatState() const;
 };

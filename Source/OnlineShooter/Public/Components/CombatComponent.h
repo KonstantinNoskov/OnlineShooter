@@ -4,14 +4,17 @@
 #include "InputAction.h"
 #include "Components/ActorComponent.h"
 #include "HUD/OnlineShooterHUD.h"
+#include "OnlineShooter/Data/CombatState.h"
+#include "Weapon/WeaponTypes.h"
 #include "CombatComponent.generated.h"
 
-struct FInputActionInstance;
+
 // References
 class AWeapon;
 class AOnlineShooterCharacter;
 class AOnlineShooterPlayerController;
 class AOnlineShooterHUD;
+struct FInputActionInstance;
 
 #define TRACE_LENGTH 80000.f
 
@@ -45,11 +48,54 @@ protected:
 
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
-	void FireButtonReleaseCheck();
+	
+	UFUNCTION()
+	void TraceUnderCrosshair(FHitResult& TraceHitResult);
+
+	UFUNCTION()
+	void SetHUDCrosshair(float DeltaTime);
+
+#pragma region FIRE
+
+private:
+	
+	UPROPERTY()
+	bool bFireButtonPressed;
+
+	UPROPERTY(Replicated)
+	float LastShotTime;
+
+	UPROPERTY()
+	FTimerHandle FireTimer;
+
+	UPROPERTY()
+	EWeaponType WeaponType;
+
+	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
+	ECombatState CombatState;
+	
+	UPROPERTY()
+	bool bCanFire = true;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingARAmmo = 30;
+
+	// Ammo for the currently-equipped weapon carried by player
+	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
+	int32 CarriedAmmo;
+
+	UPROPERTY()
+	TMap<EWeaponType, int32> CarriedAmmoMap;
+	
+	UFUNCTION()
+	bool CanFire();
+
+	UFUNCTION()
 	void Fire();
 
+	UFUNCTION()
 	void FireButtonPressed(bool bPressed, const FInputActionInstance& InputInstance);
-
+	
 	UFUNCTION(Server, Reliable)
 	void Server_Fire(const FVector_NetQuantize& TraceHitTarget);
 	
@@ -57,10 +103,49 @@ protected:
 	void Multicast_Fire(const FVector_NetQuantize& TraceHitTarget);
 
 	UFUNCTION()
-	void TraceUnderCrosshair(FHitResult& TraceHitResult);
+	void StartFireTimer();
+	
+	UFUNCTION() 
+	void InitializeCarriedAmmo();
 
 	UFUNCTION()
-	void SetHUDCrosshair(float DeltaTime);
+	void OnFireTimerFinished();
+
+	UFUNCTION()
+	void OnRep_CarriedAmmo();
+
+	UFUNCTION()
+	void OnRep_CombatState();
+
+#pragma endregion
+
+#pragma region RELOAD
+
+public:
+
+	UFUNCTION()
+	void Reload();
+	
+	UFUNCTION(Server, Reliable)
+	void Server_Reload();
+
+	UFUNCTION()
+	void HandleReload();
+
+	UFUNCTION(BlueprintCallable)
+	void FinishReloading();
+
+protected:
+
+	UFUNCTION()
+	int32 AmountToReload();
+
+private:
+
+	UFUNCTION()
+	void UpdateAmmoValues();
+	
+#pragma endregion
 
 private:
 
@@ -81,18 +166,13 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Aim", meta = (AllowPrivateAccess = "true"))
 	float AimingWalkSpeed;
-	
-	bool bFireButtonPressed;
-
-	UPROPERTY(Replicated)
-	float LastShotTime;
-	
 
 #pragma region HUD & CROSSHAIR
 
 	UPROPERTY()
 	AOnlineShooterHUD* HUD;
 
+	UPROPERTY()
 	FHUDPackage HUDPackage;
 
 	UPROPERTY()
@@ -107,14 +187,6 @@ private:
 	UPROPERTY()
 	float CrosshairShootFactor;
 
-	UPROPERTY()
-	FTimerHandle FireTimer;
-	
-	void StartFireTimer();
-	void OnFireTimerFinished();
-	
-	bool bCanFire = true;
-
 #pragma endregion
 
 	FVector HitTarget;
@@ -124,6 +196,8 @@ private:
 	 */
 
 	// Field of view when not aiming; set to the camera's base FOV in BeginPlay
+
+	UPROPERTY()
 	float DefaultFOV;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
@@ -132,8 +206,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float ZoomInterpSpeed = 20.f;
 
+	UPROPERTY()
 	float CurrentFOV;
 
+	UFUNCTION()
 	void InterpFOV(float DeltaTime);
 	
 };

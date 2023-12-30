@@ -55,7 +55,6 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	// Which side the character is turning to
 	TurningInPlace = OnlineShooterCharacter->GetTurningInPlace();
-
 	
 	bRotateRootBone = OnlineShooterCharacter->ShouldRotateRootBone();
 	
@@ -103,8 +102,7 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			LookAtRotation.Yaw += OnlineShooterCharacter->RightHandRotationYaw;
 			LookAtRotation.Pitch += OnlineShooterCharacter->RightHandRotationPitch;
 			
-			RightHandRotation = FMath::RInterpTo(RightHandRotation, LookAtRotation, DeltaSeconds, 40.f);// UKismetMathLibrary::FindLookAtRotation(FVector(), RightHandTransform.GetLocation() - OnlineShooterCharacter->GetHitTarget());
-			
+			RightHandRotation = FMath::RInterpTo(RightHandRotation, LookAtRotation, DeltaSeconds, 20.f);// UKismetMathLibrary::FindLookAtRotation(FVector(), RightHandTransform.GetLocation() - OnlineShooterCharacter->GetHitTarget());
 			
 		}
 		
@@ -116,6 +114,13 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		//DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), OnlineShooterCharacter->GetHitTarget(), FColor::Yellow);
 		
 	}
-
 	
+	// Use FABRIK all the time except reloading
+	bUseFABRIK = OnlineShooterCharacter->GetCombatState() != ECombatState::ECS_Reloading;
+
+	// Use AimOffsets all the time except reloading
+	bUseAimOffsets = OnlineShooterCharacter->GetCombatState() != ECombatState::ECS_Reloading;
+
+	// Use Right hand transform all the time except reloading
+	bTransformRightHand = OnlineShooterCharacter->GetCombatState() != ECombatState::ECS_Reloading;
 }
