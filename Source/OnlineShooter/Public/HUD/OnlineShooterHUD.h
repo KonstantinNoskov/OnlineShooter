@@ -6,6 +6,7 @@
 #include "GameFramework/HUD.h"
 #include "OnlineShooterHUD.generated.h"
 
+class UAnnouncement;
 class UCharacterOverlay;
 
 USTRUCT(BlueprintType)
@@ -48,9 +49,6 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void AddCharacterOverlay();
-	
-	
 public:
 	
 	UPROPERTY()
@@ -58,8 +56,21 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Player Stats")
 	TSubclassOf<UUserWidget> CharacterOverlayClass;
-	
+
+	UPROPERTY(EditAnywhere, Category = "Announcements")
+	TSubclassOf<UUserWidget> AnnouncementClass;
+
+	UPROPERTY()
+	UAnnouncement* Announcement;
+
+	UFUNCTION()
 	void DrawCrosshair(UTexture2D* Texture, FVector2D ViewportCenter, FVector2D Spread, FLinearColor CrosshairColor = FLinearColor::White);
+
+	UFUNCTION()
+	void AddCharacterOverlay();
+
+	UFUNCTION()
+	void AddAnnouncement();
 	
 public:
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package) { HUDPackage = Package; }

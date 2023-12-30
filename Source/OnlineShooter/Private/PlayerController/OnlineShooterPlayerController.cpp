@@ -6,15 +6,24 @@
 #include "Characters/OnlineShooterCharacter.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "GameFramework/GameMode.h"
+#include "GameModes/OnlineShooterGameMode.h"
+#include "HUD/Announcement.h"
 #include "HUD/CharacterOverlay.h"
 #include "HUD/OnlineShooterHUD.h"
+#include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 #include "PlayerStates/OnlineShooterPlayerState.h"
 
 void AOnlineShooterPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Server_CheckMatchState();
+	
 	OnlineShooterHUD = Cast<AOnlineShooterHUD>(GetHUD());
+	Server_CheckMatchState();
+		
 }
 
 void AOnlineShooterPlayerController::Tick(float DeltaSeconds)
@@ -24,6 +33,32 @@ void AOnlineShooterPlayerController::Tick(float DeltaSeconds)
 	SetHUDTime();
 
 	CheckTimeSync(DeltaSeconds);
+
+	PollInit();
+}
+
+void AOnlineShooterPlayerController::PollInit()
+{
+	if(!CharacterOverlay)
+	{
+		if(OnlineShooterHUD && OnlineShooterHUD->CharacterOverlay)
+		{
+			CharacterOverlay = OnlineShooterHUD->CharacterOverlay;
+			if(CharacterOverlay)
+			{
+				SetHUDHealth(HUDHealth, HUDMaxHealth);
+				SetHUDScore(HUDScore);
+				SetHUDDefeats(HUDDefeats);
+			}
+		}
+	}
+}
+
+void AOnlineShooterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AOnlineShooterPlayerController, MatchState)
 }
 
 void AOnlineShooterPlayerController::OnPossess(APawn* InPawn)
@@ -59,6 +94,12 @@ void AOnlineShooterPlayerController::SetHUDHealth(float Health, float MaxHealth)
 		FString HealthText = FString::Printf(TEXT("%d / %d"), FMath::CeilToInt(Health), FMath::CeilToInt(MaxHealth));
 		OnlineShooterHUD->CharacterOverlay->HealthText->SetText(FText::FromString(HealthText));
 	}
+	else
+	{
+		bInitializeCharacterOverlay = true;
+		HUDHealth = Health;
+		HUDMaxHealth = MaxHealth;
+	}
 }
 
 void AOnlineShooterPlayerController::SetHUDScore(float Score)
@@ -68,14 +109,20 @@ void AOnlineShooterPlayerController::SetHUDScore(float Score)
 	bool bHUDValid =
 		OnlineShooterHUD &&
 		OnlineShooterHUD->CharacterOverlay &&
-		OnlineShooterHUD->CharacterOverlay->HealthBar &&
-		OnlineShooterHUD->CharacterOverlay->HealthText;
+		OnlineShooterHUD->CharacterOverlay->ScoreAmount &&
+		OnlineShooterHUD->CharacterOverlay->ScoreText;
 
 	if(bHUDValid)
 	{
 		// Set Score Amount
 		FString ScoreText = FString::Printf(TEXT("%d"), FMath::FloorToInt(Score)); 
 		OnlineShooterHUD->CharacterOverlay->ScoreAmount->SetText(FText::FromString(ScoreText));
+	}
+
+	else
+	{
+		bInitializeCharacterOverlay = true;
+		HUDScore = Score;
 	}
 }
 
@@ -93,6 +140,12 @@ void AOnlineShooterPlayerController::SetHUDDefeats(int32 Defeats)
 		// Set Defeats Amount
 		FString DefeatText = FString::Printf(TEXT("%d"), Defeats); 
 		OnlineShooterHUD->CharacterOverlay->DefeatsAmount->SetText(FText::FromString(DefeatText));
+	}
+	
+	else
+	{
+		bInitializeCharacterOverlay = true;
+		HUDDefeats = Defeats;
 	}
 }
 
@@ -186,13 +239,45 @@ void AOnlineShooterPlayerController::SetHUDMatchCountdown(float CountdownTime)
 	}
 }
 
+void AOnlineShooterPlayerController::SetHUDAnnouncementCountdown(float CountdownTime)
+{
+	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+
+	bool bHUDValid =
+		OnlineShooterHUD &&
+		OnlineShooterHUD->Announcement &&
+		OnlineShooterHUD->Announcement->WarmupTime;
+
+	if(bHUDValid)
+	{
+		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
+		int32 Seconds = CountdownTime - Minutes * 60;
+		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+		
+		OnlineShooterHUD->Announcement->WarmupTime->SetText(FText::FromString(CountdownText));
+	}
+}
+
 void AOnlineShooterPlayerController::SetHUDTime()
 {
-	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetServerTime());
+	float TimeLeft = 0.f;
+
+	if(MatchState == MatchState::WaitingToStart)	TimeLeft = WarmupTime - GetServerTime() + LevelStartingTime;
+	else if (MatchState == MatchState::InProgress)	TimeLeft = WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;
+		
+	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
 
 	if(CountdownInt != SecondsLeft)
 	{
-		SetHUDMatchCountdown(MatchTime - GetServerTime());
+		if(MatchState == MatchState::WaitingToStart)
+		{
+			SetHUDAnnouncementCountdown(TimeLeft);
+		}
+
+		if(MatchState == MatchState::InProgress)
+		{
+			SetHUDMatchCountdown(TimeLeft);
+		}
 	}
 	
 	CountdownInt = SecondsLeft;
@@ -241,6 +326,73 @@ void AOnlineShooterPlayerController::CheckTimeSync(float DeltaTime)
 }
 
 #pragma endregion
+
+void AOnlineShooterPlayerController::OnMatchStateSet(FName State)
+{	
+	MatchState = State;
+	
+	if(MatchState == MatchState::InProgress)
+	{
+		HandleMatchHasStarted();
+	}
+}
+
+void AOnlineShooterPlayerController::OnRep_MatchState()
+{
+	if(MatchState == MatchState::InProgress)
+	{
+		HandleMatchHasStarted();
+	}
+}
+
+void AOnlineShooterPlayerController::HandleMatchHasStarted() 
+{
+	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+	if(OnlineShooterHUD)
+	{
+		OnlineShooterHUD->AddCharacterOverlay();
+		if(OnlineShooterHUD->Announcement)
+		{
+			OnlineShooterHUD->Announcement->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+}
+
+void AOnlineShooterPlayerController::Server_CheckMatchState_Implementation()  
+{
+	AOnlineShooterGameMode* GameMode = Cast<AOnlineShooterGameMode>(UGameplayStatics::GetGameMode(this));
+
+	if(GameMode)
+	{
+		MatchState = GameMode->GetMatchState();
+		WarmupTime = GameMode->WarmupTime;
+		MatchTime = GameMode->MatchTime;
+		LevelStartingTime = GameMode->LevelStartingTime;
+		
+		Client_JoinMidgame(MatchState, WarmupTime, MatchTime, LevelStartingTime);
+
+		if(OnlineShooterHUD && MatchState == MatchState::WaitingToStart)
+		{
+			OnlineShooterHUD->AddAnnouncement();
+		}
+	}
+}
+
+void AOnlineShooterPlayerController::Client_JoinMidgame_Implementation(FName StateOfMatch, float Warmup, float Match, float StartingTime)
+{
+	MatchState = StateOfMatch;
+	WarmupTime = Warmup;
+	MatchTime = Match;
+	LevelStartingTime = StartingTime;
+	OnMatchStateSet(MatchState);
+
+	if(OnlineShooterHUD && MatchState == MatchState::WaitingToStart)
+	{
+		OnlineShooterHUD->AddAnnouncement();
+	}
+}
+
+
 
 
 

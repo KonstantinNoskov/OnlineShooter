@@ -8,6 +8,50 @@
 #include "PlayerController/OnlineShooterPlayerController.h"
 #include "PlayerStates/OnlineShooterPlayerState.h"
 
+AOnlineShooterGameMode::AOnlineShooterGameMode()
+{
+	bDelayedStart = true;
+
+	
+}
+
+void AOnlineShooterGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	LevelStartingTime = GetWorld()->GetTimeSeconds();
+}
+
+void AOnlineShooterGameMode::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if(MatchState == MatchState::WaitingToStart)
+	{
+		CountdownTime = WarmupTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+
+		if(CountdownTime <= 0.f)
+		{
+			StartMatch();
+		}
+	}
+}
+
+void AOnlineShooterGameMode::OnMatchStateSet()
+{
+	Super::OnMatchStateSet();
+	
+	for (auto It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		AOnlineShooterPlayerController* OnlineShooterPlayer = Cast<AOnlineShooterPlayerController>(*It);
+
+		if(OnlineShooterPlayer)
+		{
+			OnlineShooterPlayer->OnMatchStateSet(MatchState);
+		}
+	}
+}
+
 void AOnlineShooterGameMode::PlayerEliminated(AOnlineShooterCharacter* ElimedCharacter,
                                               AOnlineShooterPlayerController* VictimController, AOnlineShooterPlayerController* AttackerController)
 {
@@ -25,12 +69,6 @@ void AOnlineShooterGameMode::PlayerEliminated(AOnlineShooterCharacter* ElimedCha
 		
 		UE_LOG(LogTemp, Warning, TEXT("AOnlineShooterGameMode::PlayerEliminated - SUCCESS"))
 	}
-
-	/*if(AttackerPlayerState && VictimPlayerState)
-	{
-		FString Name = AttackerPlayerState->GetPlayerName();
-		VictimPlayerState->SetAttackerName(Name);
-	}*/
 	
 	if (ElimedCharacter)
 	{
