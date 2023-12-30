@@ -15,10 +15,37 @@ class ONLINESHOOTER_API AOnlineShooterPlayerController : public APlayerControlle
 	GENERATED_BODY()
 
 protected:
+	
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
+	
+	virtual float GetServerTime(); // Synced with server world clock
+	virtual void ReceivedPlayer() override; // Sync with server clock as soon as possible
 
 	void SetHUDTime();
+
+
+	// Sync time between client and server
+	
+	// Requests the current server time, passing in the client's time when the request was sent
+	UFUNCTION(Server, Reliable)
+	void Server_RequestServerTime(float TimeOfClientRequest);
+
+	// Reports the current server time to the client in response to ServerRequestServerTime
+	UFUNCTION(Client, Reliable)
+	void ClientReportServerTime(float TimeOfClientRequest, float TimerServerReceivedClientRequest);
+
+	UFUNCTION()
+	void CheckTimeSync(float DeltaTime);
+
+	UPROPERTY()
+	float ClinetServerDelta = 0.f; // difference between client and server time
+
+	UPROPERTY(EditAnywhere, Category = Time)
+	float TimeSyncFrequency = 5.f;
+
+	UPROPERTY()
+	float TimeSyncRunningTime = 0.f;
 	
 private:
 
@@ -62,6 +89,6 @@ public:
 
 	virtual void OnPossess(APawn* InPawn) override;
 
-
+	
 	
 };

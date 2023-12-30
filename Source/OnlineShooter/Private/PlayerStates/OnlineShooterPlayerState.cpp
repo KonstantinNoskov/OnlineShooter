@@ -69,19 +69,6 @@ void AOnlineShooterPlayerState::Multicast_SetAttackerName_Implementation(const F
 
 void AOnlineShooterPlayerState::SetAttackerName(FString Name)
 {
-	
-	/*Character = !Character ? Cast<AOnlineShooterCharacter>(GetPawn()) : Character;
-
-	if(Character)
-	{
-		Controller = !Controller ? Cast<AOnlineShooterPlayerController>(Character->Controller) : Controller;
-
-		if (Controller)
-		{
-			Controller->SetHUDElimMessage(KilledBy);
-		}
-	}*/
-
 	Multicast_SetAttackerName(Name);
 }
 

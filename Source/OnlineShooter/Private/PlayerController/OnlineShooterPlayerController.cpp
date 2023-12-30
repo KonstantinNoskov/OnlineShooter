@@ -22,6 +22,8 @@ void AOnlineShooterPlayerController::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	SetHUDTime();
+
+	CheckTimeSync(DeltaSeconds);
 }
 
 void AOnlineShooterPlayerController::OnPossess(APawn* InPawn)
@@ -186,15 +188,59 @@ void AOnlineShooterPlayerController::SetHUDMatchCountdown(float CountdownTime)
 
 void AOnlineShooterPlayerController::SetHUDTime()
 {
-	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetWorld()->GetTimeSeconds());
+	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetServerTime());
 
 	if(CountdownInt != SecondsLeft)
 	{
-		SetHUDMatchCountdown(MatchTime - GetWorld()->GetTimeSeconds());
+		SetHUDMatchCountdown(MatchTime - GetServerTime());
 	}
 	
 	CountdownInt = SecondsLeft;
 }
+
+#pragma region SYNC CLIENT/SERVER TIME
+
+void AOnlineShooterPlayerController::Server_RequestServerTime_Implementation(float TimeOfClientRequest)
+{
+	// Get time on the server
+	float ServerTimeOfReceipt = GetWorld()->GetTimeSeconds();
+	ClientReportServerTime(TimeOfClientRequest, ServerTimeOfReceipt);
+}
+void AOnlineShooterPlayerController::ClientReportServerTime_Implementation(float TimeOfClientRequest,
+	float TimerServerReceivedClientRequest)
+{
+	float RoundTripTime = GetWorld()->GetTimeSeconds() - TimeOfClientRequest;
+	float CurrentServerTime = TimerServerReceivedClientRequest + (.5f * RoundTripTime);
+
+	ClinetServerDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
+}
+float AOnlineShooterPlayerController::GetServerTime() 
+{
+	if(HasAuthority()) return GetWorld()->GetTimeSeconds();
+	
+	else return GetWorld()->GetTimeSeconds() + ClinetServerDelta;
+}
+void AOnlineShooterPlayerController::ReceivedPlayer()
+{
+	Super::ReceivedPlayer();
+
+	if (IsLocalController())
+	{
+		Server_RequestServerTime(GetWorld()->GetTimeSeconds());
+	}
+}
+void AOnlineShooterPlayerController::CheckTimeSync(float DeltaTime)
+{
+	TimeSyncRunningTime += DeltaTime;
+
+	if(IsLocalController() && TimeSyncRunningTime > TimeSyncFrequency)
+	{
+		Server_RequestServerTime(GetWorld()->GetTimeSeconds());
+		TimeSyncRunningTime = 0.f;
+	}
+}
+
+#pragma endregion
 
 
 
