@@ -57,6 +57,11 @@ protected:
 
 #pragma region FIRE
 
+public:
+	
+	UFUNCTION()
+	void FireButtonPressed(bool bPressed);
+	
 private:
 	
 	UPROPERTY()
@@ -92,9 +97,6 @@ private:
 
 	UFUNCTION()
 	void Fire();
-
-	UFUNCTION()
-	void FireButtonPressed(bool bPressed, const FInputActionInstance& InputInstance);
 	
 	UFUNCTION(Server, Reliable)
 	void Server_Fire(const FVector_NetQuantize& TraceHitTarget);

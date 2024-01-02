@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "OnlineShooterPlayerController.generated.h"
 
+class AOnlineShooterGameMode;
 class UCharacterOverlay;
 class AOnlineShooterHUD;
 
@@ -35,11 +36,11 @@ protected:
 private:
 
 	UPROPERTY()
-	AOnlineShooterHUD* OnlineShooterHUD;
-
+	AOnlineShooterGameMode* OnlineShooterGameMode;
+	
 	UPROPERTY()
-	AOnlineShooterPlayerController* PlayerController;
-
+	AOnlineShooterHUD* OnlineShooterHUD;
+	
 	UPROPERTY()
 	float MatchTime = 0.f;
 
@@ -48,6 +49,9 @@ private:
 
 	UPROPERTY()
 	float LevelStartingTime = 0.f;
+
+	UPROPERTY()
+	float CooldownTime = 0.f;
 
 	UPROPERTY()
 	int32 CountdownInt = 0;
@@ -94,7 +98,7 @@ protected:
 	void Server_CheckMatchState();
 
 	UFUNCTION(Client, Reliable)
-	void Client_JoinMidgame(FName StateOfMatch, float Warmup, float Match, float StartingTime);
+	void Client_JoinMidgame(FName StateOfMatch, float Warmup, float Match, float StartingTime, float Cooldown);
 	
 public:
 	
@@ -133,6 +137,9 @@ public:
 
 	UFUNCTION()
 	void HandleMatchHasStarted();
+
+	UFUNCTION()
+	void HandleCooldown();
 
 	virtual void OnPossess(APawn* InPawn) override;
 	

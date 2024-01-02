@@ -184,7 +184,7 @@ void UCombatComponent::OnRep_EquippedWeapon()
 }
 
 // Fire
-void UCombatComponent::FireButtonPressed(bool bPressed, const FInputActionInstance& InputInstance)
+void UCombatComponent::FireButtonPressed(bool bPressed)
 {	
 	bFireButtonPressed = bPressed;
 	

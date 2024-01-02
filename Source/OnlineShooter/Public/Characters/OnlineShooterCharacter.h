@@ -370,6 +370,9 @@ public:
 	UPROPERTY()
 	AOnlineShooterPlayerState* OnlineShooterPlayerState;
 
+	UPROPERTY(Replicated)
+	bool bDisableGameplay = false;
+
 private:
 	
 	UFUNCTION()
@@ -395,6 +398,9 @@ protected:
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser);
 
+	UFUNCTION()
+	void RotateInPlace(float DeltaTime);
+	
 	// Poll for any relevant classes and initialize our HUD 
 	UFUNCTION()
 	void PollInit();
@@ -440,9 +446,11 @@ public:
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE UCombatComponent* GetCombatComponent() const { return Combat; }
 	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
 	FORCEINLINE bool IsEliminated() const { return bEliminated; }
 	FORCEINLINE float GetHealth() const { return Health; }
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	FORCEINLINE bool GetDisableGameplay() const { return bDisableGameplay; }
 	ECombatState GetCombatState() const;
 };

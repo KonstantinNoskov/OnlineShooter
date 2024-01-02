@@ -50,13 +50,13 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	
-	UPROPERTY()
-	UCharacterOverlay* CharacterOverlay;
 
 	UPROPERTY(EditAnywhere, Category = "Player Stats")
 	TSubclassOf<UUserWidget> CharacterOverlayClass;
-
+	
+	UPROPERTY()
+	UCharacterOverlay* CharacterOverlay;
+	
 	UPROPERTY(EditAnywhere, Category = "Announcements")
 	TSubclassOf<UUserWidget> AnnouncementClass;
 

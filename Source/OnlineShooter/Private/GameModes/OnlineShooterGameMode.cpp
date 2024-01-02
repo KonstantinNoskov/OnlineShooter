@@ -8,11 +8,14 @@
 #include "PlayerController/OnlineShooterPlayerController.h"
 #include "PlayerStates/OnlineShooterPlayerState.h"
 
+namespace MatchState
+{
+	const FName Cooldown = FName("Cooldown");
+}
+
 AOnlineShooterGameMode::AOnlineShooterGameMode()
 {
 	bDelayedStart = true;
-
-	
 }
 
 void AOnlineShooterGameMode::BeginPlay()
@@ -35,13 +38,32 @@ void AOnlineShooterGameMode::Tick(float DeltaSeconds)
 			StartMatch();
 		}
 	}
+
+	else if (MatchState == MatchState::InProgress)
+	{
+		CountdownTime = WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+		if(CountdownTime <= 0.f)
+		{
+			SetMatchState(MatchState::Cooldown);
+		}
+	}
+
+	else if (MatchState == MatchState::Cooldown)
+	{
+		CountdownTime = CooldownTime + WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+
+		if(CountdownTime <= 0.f)
+		{
+			RestartGame();
+		}
+	}
 }
 
 void AOnlineShooterGameMode::OnMatchStateSet()
 {
 	Super::OnMatchStateSet();
 	
-	for (auto It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		AOnlineShooterPlayerController* OnlineShooterPlayer = Cast<AOnlineShooterPlayerController>(*It);
 

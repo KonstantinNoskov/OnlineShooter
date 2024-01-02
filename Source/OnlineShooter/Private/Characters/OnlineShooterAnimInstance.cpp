@@ -118,9 +118,9 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	// Use FABRIK all the time except reloading
 	bUseFABRIK = OnlineShooterCharacter->GetCombatState() != ECombatState::ECS_Reloading;
 
-	// Use AimOffsets all the time except reloading
-	bUseAimOffsets = OnlineShooterCharacter->GetCombatState() != ECombatState::ECS_Reloading;
+	// Use AimOffsets all the time except reloading & when the game state is on cooldown
+	bUseAimOffsets = OnlineShooterCharacter->GetCombatState() != ECombatState::ECS_Reloading && !OnlineShooterCharacter->GetDisableGameplay();
 
-	// Use Right hand transform all the time except reloading
-	bTransformRightHand = OnlineShooterCharacter->GetCombatState() != ECombatState::ECS_Reloading;
+	// Use Right hand transform all the time except reloading & when the game state is on cooldown
+	bTransformRightHand = OnlineShooterCharacter->GetCombatState() != ECombatState::ECS_Reloading && !OnlineShooterCharacter->GetDisableGameplay();
 }

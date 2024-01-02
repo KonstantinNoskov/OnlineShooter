@@ -89,6 +89,7 @@ void AOnlineShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	
 	DOREPLIFETIME_CONDITION(AOnlineShooterCharacter, OverlappingWeapon, COND_OwnerOnly);
 	DOREPLIFETIME(AOnlineShooterCharacter, Health);
+	DOREPLIFETIME(AOnlineShooterCharacter, bDisableGameplay);
 }
 
 // Post Initialize Components 
@@ -120,14 +121,23 @@ void AOnlineShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (const ULocalPlayer* Player = (GEngine && GetWorld()) ? GEngine->GetFirstGamePlayer(GetWorld()) : nullptr)
+	{
+		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Player);
+		if (CharacterMappingContext)
+		{
+			Subsystem->AddMappingContext(CharacterMappingContext, 0);
+		}
+	}
+
 	//Add Input Mapping Context
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	/*if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(CharacterMappingContext, 0);
 		}
-	}
+	}*/
 
 	UpdateHUDHealth();
 	
@@ -142,21 +152,7 @@ void AOnlineShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (GetLocalRole() > ROLE_SimulatedProxy && IsLocallyControlled())
-	{
-		AimOffset(DeltaTime);	
-	}
-	else
-	{
-		TimeSinceLastMovementReplication += DeltaTime;
-
-		if (TimeSinceLastMovementReplication > .25f)
-		{
-			OnRep_ReplicatedMovement();
-		}
-
-		CalculateAO_Pitch();
-	}
+	RotateInPlace(DeltaTime);
 	
 	HideMesh();
 
@@ -216,6 +212,8 @@ void AOnlineShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 // Move
 void AOnlineShooterCharacter::Move(const FInputActionValue& Value)
 {
+	if (bDisableGameplay) return;
+	
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -253,23 +251,29 @@ void AOnlineShooterCharacter::Look(const FInputActionValue& Value)
 
 // Jump
 void AOnlineShooterCharacter::Jump()
-{	
+{
+	if (bDisableGameplay) return;
+	
 	bIsCrouched ? UnCrouch() : Super::Jump();
 }
 
 // Crouch
 void AOnlineShooterCharacter::CrouchButtonPressed()
 {
+	if (bDisableGameplay) return;
 	bIsCrouched ? UnCrouch() : Crouch();
 }
 void AOnlineShooterCharacter::CrouchButtonReleased()
 {
+	if (bDisableGameplay) return;
 	UnCrouch();
 }
 
 #pragma region AIM
 void AOnlineShooterCharacter::AimButtonPressed()
 {
+	if (bDisableGameplay) return;
+	
 	if(Combat)
 	{
 		Combat->SetAiming(true);
@@ -277,6 +281,8 @@ void AOnlineShooterCharacter::AimButtonPressed()
 }
 void AOnlineShooterCharacter::AimButtonReleased()
 {
+	if (bDisableGameplay) return;
+	
 	if(Combat)
 	{
 		Combat->SetAiming(false);
@@ -439,11 +445,8 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 	// Disable character movement
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
-	if(OnlineShooterPlayerController)
-	{
-		DisableInput(OnlineShooterPlayerController);
-	}
-
+	bDisableGameplay = true;
+	
 	// Disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -624,23 +627,25 @@ void AOnlineShooterCharacter::SimProxiesTurn()
 // Fire
 void AOnlineShooterCharacter::FireButtonPressed(const FInputActionInstance& InputInstance)
 {
-	
+	if (bDisableGameplay) return;
 	if(Combat && Combat->EquippedWeapon)
 	{
-		Combat->FireButtonPressed(true, InputInstance);
+		Combat->FireButtonPressed(true);
 	}
 }
 
 void AOnlineShooterCharacter::FireButtonReleased(const FInputActionInstance& InputInstance)
 {
+	if (bDisableGameplay) return;
 	if(Combat && Combat->EquippedWeapon)
 	{
-		Combat->FireButtonPressed(false, InputInstance);
+		Combat->FireButtonPressed(false);
 	}
 }
 
 void AOnlineShooterCharacter::ReloadButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if(Combat)
 	{
 		Combat->Reload();
@@ -650,6 +655,8 @@ void AOnlineShooterCharacter::ReloadButtonPressed()
 // Equip weapon
 void AOnlineShooterCharacter::EquipButtonPressed()
 {
+	if (bDisableGameplay) return;
+	
 	// Combat component valid check
 	if(Combat)
 	{
@@ -773,6 +780,32 @@ void AOnlineShooterCharacter::TurnInPlace(float DeltaTime)
 			TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 			StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		}
+	}
+}
+
+void AOnlineShooterCharacter::RotateInPlace(float DeltaTime)
+{
+	if (bDisableGameplay)
+	{
+		bUseControllerRotationYaw = false;
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		return;
+	}
+	
+	if (GetLocalRole() > ROLE_SimulatedProxy && IsLocallyControlled())
+	{
+		AimOffset(DeltaTime);	
+	}
+	else
+	{
+		TimeSinceLastMovementReplication += DeltaTime;
+
+		if (TimeSinceLastMovementReplication > .25f)
+		{
+			OnRep_ReplicatedMovement();
+		}
+
+		CalculateAO_Pitch();
 	}
 }
 

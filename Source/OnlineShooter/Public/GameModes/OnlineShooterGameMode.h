@@ -9,6 +9,10 @@
 class AOnlineShooterPlayerController;
 class AOnlineShooterCharacter;
 
+namespace MatchState
+{
+	extern ONLINESHOOTER_API const FName Cooldown; // Match duration has been reached. Display winner and begin cooldown timer.
+}
 
 UCLASS()
 class ONLINESHOOTER_API AOnlineShooterGameMode : public AGameMode
@@ -24,8 +28,7 @@ public:
 	virtual void RequestRespawn(ACharacter* EliminatedCharacter, AController* EliminatedController);
 	
 	AActor* GetRespawnPoint();
-
-
+	
 	UPROPERTY(EditDefaultsOnly)
 	float WarmupTime = 10.f;
 
@@ -34,6 +37,9 @@ public:
 
 	UPROPERTY()
 	float LevelStartingTime = 0.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float CooldownTime = 10.f;
 
 protected:
 
@@ -44,4 +50,7 @@ private:
 	
 	UPROPERTY()
 	float CountdownTime = 10.f;
+
+public:
+	FORCEINLINE float GetCountdownTime() const { return CooldownTime; }
 };

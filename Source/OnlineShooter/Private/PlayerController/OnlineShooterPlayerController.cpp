@@ -18,10 +18,9 @@
 void AOnlineShooterPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Server_CheckMatchState();
 	
 	OnlineShooterHUD = Cast<AOnlineShooterHUD>(GetHUD());
+	
 	Server_CheckMatchState();
 		
 }
@@ -231,6 +230,12 @@ void AOnlineShooterPlayerController::SetHUDMatchCountdown(float CountdownTime)
 
 	if(bHUDValid)
 	{
+		if(CountdownTime < 0.f)
+		{
+			OnlineShooterHUD->CharacterOverlay->MatchCountdownText->SetText(FText());
+			return;
+		}
+		
 		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
 		int32 Seconds = CountdownTime - Minutes * 60;
 		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
@@ -250,6 +255,12 @@ void AOnlineShooterPlayerController::SetHUDAnnouncementCountdown(float Countdown
 
 	if(bHUDValid)
 	{
+		if(CountdownTime < 0.f)
+		{
+			OnlineShooterHUD->Announcement->WarmupTime->SetText(FText());
+			return;
+		}
+		
 		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
 		int32 Seconds = CountdownTime - Minutes * 60;
 		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
@@ -264,12 +275,22 @@ void AOnlineShooterPlayerController::SetHUDTime()
 
 	if(MatchState == MatchState::WaitingToStart)	TimeLeft = WarmupTime - GetServerTime() + LevelStartingTime;
 	else if (MatchState == MatchState::InProgress)	TimeLeft = WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;
-		
+	else if (MatchState == MatchState::Cooldown)	TimeLeft = CooldownTime + WarmupTime + MatchTime - GetServerTime() + LevelStartingTime; 
 	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
 
+	/*if(HasAuthority())
+	{
+		OnlineShooterGameMode = !OnlineShooterGameMode ? Cast<AOnlineShooterGameMode>(UGameplayStatics::GetGameMode(this)) : OnlineShooterGameMode;
+
+		if(OnlineShooterGameMode)
+		{
+			SecondsLeft = FMath::CeilToInt(OnlineShooterGameMode->GetCountdownTime() + LevelStartingTime);
+		}
+	}*/
+	
 	if(CountdownInt != SecondsLeft)
 	{
-		if(MatchState == MatchState::WaitingToStart)
+		if(MatchState == MatchState::WaitingToStart || MatchState == MatchState::Cooldown)
 		{
 			SetHUDAnnouncementCountdown(TimeLeft);
 		}
@@ -335,6 +356,10 @@ void AOnlineShooterPlayerController::OnMatchStateSet(FName State)
 	{
 		HandleMatchHasStarted();
 	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		HandleCooldown();
+	}
 }
 
 void AOnlineShooterPlayerController::OnRep_MatchState()
@@ -342,6 +367,10 @@ void AOnlineShooterPlayerController::OnRep_MatchState()
 	if(MatchState == MatchState::InProgress)
 	{
 		HandleMatchHasStarted();
+	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		HandleCooldown();
 	}
 }
 
@@ -351,10 +380,41 @@ void AOnlineShooterPlayerController::HandleMatchHasStarted()
 	if(OnlineShooterHUD)
 	{
 		OnlineShooterHUD->AddCharacterOverlay();
+		
 		if(OnlineShooterHUD->Announcement)
 		{
 			OnlineShooterHUD->Announcement->SetVisibility(ESlateVisibility::Hidden);
 		}
+	}
+}
+
+void AOnlineShooterPlayerController::HandleCooldown()
+{
+	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+	if(OnlineShooterHUD)
+	{
+		OnlineShooterHUD->CharacterOverlay->RemoveFromParent();
+
+	bool bHUDValid =
+		OnlineShooterHUD->Announcement &&
+		OnlineShooterHUD->Announcement->AnnouncementText &&
+		OnlineShooterHUD->Announcement->InfoText;
+		
+		if(bHUDValid)
+		{
+			FString AnnouncementText("New match starts in:");
+			OnlineShooterHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
+			OnlineShooterHUD->Announcement->SetVisibility(ESlateVisibility::Visible);
+			OnlineShooterHUD->Announcement->InfoText->SetText(FText());
+		}
+	}
+
+	AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(GetPawn());
+
+	if(OnlineShooterCharacter && OnlineShooterCharacter->GetCombatComponent())
+	{
+		OnlineShooterCharacter->bDisableGameplay = true;
+		OnlineShooterCharacter->GetCombatComponent()->FireButtonPressed(false);	
 	}
 }
 
@@ -368,23 +428,20 @@ void AOnlineShooterPlayerController::Server_CheckMatchState_Implementation()
 		WarmupTime = GameMode->WarmupTime;
 		MatchTime = GameMode->MatchTime;
 		LevelStartingTime = GameMode->LevelStartingTime;
+		CooldownTime = GameMode->CooldownTime;
 		
-		Client_JoinMidgame(MatchState, WarmupTime, MatchTime, LevelStartingTime);
-
-		if(OnlineShooterHUD && MatchState == MatchState::WaitingToStart)
-		{
-			OnlineShooterHUD->AddAnnouncement();
-		}
+		Client_JoinMidgame(MatchState, WarmupTime, MatchTime, LevelStartingTime, CooldownTime);
 	}
 }
 
-void AOnlineShooterPlayerController::Client_JoinMidgame_Implementation(FName StateOfMatch, float Warmup, float Match, float StartingTime)
+void AOnlineShooterPlayerController::Client_JoinMidgame_Implementation(FName StateOfMatch, float Warmup, float Match, float StartingTime, float Cooldown) 
 {
+	OnMatchStateSet(MatchState);
 	MatchState = StateOfMatch;
 	WarmupTime = Warmup;
 	MatchTime = Match;
 	LevelStartingTime = StartingTime;
-	OnMatchStateSet(MatchState);
+	CooldownTime = Cooldown;
 
 	if(OnlineShooterHUD && MatchState == MatchState::WaitingToStart)
 	{

@@ -53,7 +53,6 @@ void AOnlineShooterPlayerState::AddToDefeats(int32 DefeatsAmount)
 
 void AOnlineShooterPlayerState::Multicast_SetAttackerName_Implementation(const FString& Name)
 {
-	
 	Character = !Character ? Cast<AOnlineShooterCharacter>(GetPawn()) : Character;
 
 	if(Character)
@@ -71,7 +70,6 @@ void AOnlineShooterPlayerState::SetAttackerName(FString Name)
 {
 	Multicast_SetAttackerName(Name);
 }
-
 
 #pragma region REPLICATION
 
