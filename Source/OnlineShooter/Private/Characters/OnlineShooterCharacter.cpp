@@ -442,10 +442,16 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 	
 	StartDissolve();
 
+	bDisableGameplay = true;
+	if(Combat)
+	{
+		Combat->FireButtonPressed(false);
+	}
+
 	// Disable character movement
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
-	bDisableGameplay = true;
+	
 	
 	// Disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -547,6 +553,9 @@ void AOnlineShooterCharacter::Destroyed()
 	{
 		ElimBotComponent->DestroyComponent();
 	}
+
+	AOnlineShooterGameMode* OnlineShooterGameMode = Cast<AOnlineShooterGameMode>(UGameplayStatics::GetGameMode(this));
+	bool bMatchNotInProgress = OnlineShooterGameMode && OnlineShooterGameMode->GetMatchState() != MatchState::InProgress;
 }
 
 void AOnlineShooterCharacter::AimOffset(float DeltaTime)

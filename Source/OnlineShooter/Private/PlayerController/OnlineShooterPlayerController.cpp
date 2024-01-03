@@ -8,6 +8,7 @@
 #include "Components/TextBlock.h"
 #include "GameFramework/GameMode.h"
 #include "GameModes/OnlineShooterGameMode.h"
+#include "GameStates/OnlineShooterGameState.h"
 #include "HUD/Announcement.h"
 #include "HUD/CharacterOverlay.h"
 #include "HUD/OnlineShooterHUD.h"
@@ -405,7 +406,43 @@ void AOnlineShooterPlayerController::HandleCooldown()
 			FString AnnouncementText("New match starts in:");
 			OnlineShooterHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
 			OnlineShooterHUD->Announcement->SetVisibility(ESlateVisibility::Visible);
-			OnlineShooterHUD->Announcement->InfoText->SetText(FText());
+			
+			AOnlineShooterGameState* OnlineShooterGameState = Cast<AOnlineShooterGameState>(UGameplayStatics::GetGameState(this));
+			AOnlineShooterPlayerState* OnlineShooterPlayerState = GetPlayerState<AOnlineShooterPlayerState>();
+
+			
+			if(OnlineShooterGameState && OnlineShooterPlayerState)
+			{
+				FString InfoTextStr;
+				
+				TArray<AOnlineShooterPlayerState*> TopPlayers = OnlineShooterGameState->TopScoringPlayers;
+				if(!TopPlayers.Num())
+				{
+					InfoTextStr = FString("There is no winners");
+				}
+
+				else if (TopPlayers.Num() == 1 && TopPlayers[0] == OnlineShooterPlayerState)
+				{
+					InfoTextStr = FString("You won!");
+				}
+
+				else if (TopPlayers.Num() == 1)
+				{
+					InfoTextStr = FString::Printf(TEXT("Winner: \n%s" ), *TopPlayers[0]->GetPlayerName());
+				}
+
+				else if (TopPlayers.Num() > 1)
+				{	
+					InfoTextStr = FString::Printf(TEXT("We have multiple Winners: \n" ));
+
+					for (auto TiedPlayer : TopPlayers)
+					{
+						InfoTextStr.Append(FString::Printf(TEXT("%s\n"), *TiedPlayer->GetPlayerName()));
+					}
+				}
+				
+				OnlineShooterHUD->Announcement->InfoText->SetText(FText::FromString(InfoTextStr));
+			}
 		}
 	}
 

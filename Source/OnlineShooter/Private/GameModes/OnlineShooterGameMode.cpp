@@ -4,6 +4,7 @@
 
 // Add libs
 #include "GameFramework/PlayerStart.h"
+#include "GameStates/OnlineShooterGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerController/OnlineShooterPlayerController.h"
 #include "PlayerStates/OnlineShooterPlayerState.h"
@@ -80,9 +81,15 @@ void AOnlineShooterGameMode::PlayerEliminated(AOnlineShooterCharacter* ElimedCha
 	AOnlineShooterPlayerState* AttackerPlayerState = AttackerController ? Cast<AOnlineShooterPlayerState>(AttackerController->PlayerState) : nullptr;
 	AOnlineShooterPlayerState* VictimPlayerState = VictimController ? Cast<AOnlineShooterPlayerState>(VictimController->PlayerState) : nullptr;
 
-	if(AttackerPlayerState && AttackerPlayerState != VictimPlayerState)
+	AOnlineShooterGameState* OnlineShooterGameState = GetGameState<AOnlineShooterGameState>();
+	
+	if(AttackerPlayerState && AttackerPlayerState != VictimPlayerState && OnlineShooterGameState)
 	{
 		AttackerPlayerState->AddToScore(1.f);
+
+		OnlineShooterGameState->UpdateTopScore(AttackerPlayerState);
+		
+		
 	}
 
 	if(VictimPlayerState)
