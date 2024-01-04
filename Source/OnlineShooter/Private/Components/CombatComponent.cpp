@@ -244,6 +244,7 @@ void UCombatComponent::StartFireTimer()
 void UCombatComponent::InitializeCarriedAmmo()
 {
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_AssaultRifle, StartingARAmmo);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_RocketLauncher, StartingRocketAmmo);
 }
 
 void UCombatComponent::OnFireTimerFinished()
@@ -305,8 +306,6 @@ void UCombatComponent::Reload()
 
 void UCombatComponent::Server_Reload_Implementation()
 {
-	UpdateAmmoValues();
-	
 	CombatState = ECombatState::ECS_Reloading;
 	HandleReload();
 }

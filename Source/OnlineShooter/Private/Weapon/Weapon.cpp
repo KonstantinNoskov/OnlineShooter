@@ -20,7 +20,7 @@ AWeapon::AWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
-	//SetReplicateMovement(true);
+	SetReplicateMovement(true);
 	
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	SetRootComponent(WeaponMesh);
@@ -236,6 +236,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 			FTransform SocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
 			
 			FActorSpawnParameters SpawnParams;
+			
 			UWorld* World = GetWorld();
 
 			if(World)

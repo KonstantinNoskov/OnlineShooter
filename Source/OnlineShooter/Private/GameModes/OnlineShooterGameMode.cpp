@@ -88,15 +88,11 @@ void AOnlineShooterGameMode::PlayerEliminated(AOnlineShooterCharacter* ElimedCha
 		AttackerPlayerState->AddToScore(1.f);
 
 		OnlineShooterGameState->UpdateTopScore(AttackerPlayerState);
-		
-		
 	}
 
 	if(VictimPlayerState)
 	{
 		VictimPlayerState->AddToDefeats(1);
-		
-		UE_LOG(LogTemp, Warning, TEXT("AOnlineShooterGameMode::PlayerEliminated - SUCCESS"))
 	}
 	
 	if (ElimedCharacter)

@@ -70,6 +70,7 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 
 	// Timeline component
 	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
@@ -764,6 +765,7 @@ bool AOnlineShooterCharacter::IsWeaponEquipped() const
 // Returns true if character has a combat component & aiming
 bool AOnlineShooterCharacter::IsAiming() const
 {
+	
 	return (Combat && Combat->bAiming);
 }
 
@@ -856,9 +858,13 @@ void AOnlineShooterCharacter::PlayReloadMontage()
 		switch (Combat->EquippedWeapon->GetWeaponType())
 		{
 			case EWeaponType::EWT_AssaultRifle:
-
 				SectionName = FName("Rifle");
 				break;
+			
+			case EWeaponType::EWT_RocketLauncher:
+				SectionName = FName("Rifle");
+				break;
+				
 			case EWeaponType::EWT_MAX:
 				break;
 			

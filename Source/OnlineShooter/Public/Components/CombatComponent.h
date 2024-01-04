@@ -36,10 +36,7 @@ public:
 protected:
 	
 	virtual void BeginPlay() override;
-
-	UFUNCTION()
-	void SetAiming(bool bIsAiming);
-
+	
 	UFUNCTION(Server, Reliable)
 	void Server_SetAiming(bool bIsAiming);
 
@@ -85,6 +82,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	int32 StartingARAmmo = 30;
 
+	UPROPERTY(EditAnywhere)
+	int32 StartingRocketAmmo = 0;
+	
 	// Ammo for the currently-equipped weapon carried by player
 	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
 	int32 CarriedAmmo;
@@ -193,12 +193,14 @@ private:
 
 	FVector HitTarget;
 
+#pragma region AIM & FOV
+
 	/*
 	 * Aiming and FOV
 	 */
 
 	// Field of view when not aiming; set to the camera's base FOV in BeginPlay
-
+	
 	UPROPERTY()
 	float DefaultFOV;
 
@@ -213,5 +215,12 @@ private:
 
 	UFUNCTION()
 	void InterpFOV(float DeltaTime);
+
+public:
+	
+	UFUNCTION()
+	void SetAiming(bool bIsAiming);
+
+#pragma endregion
 	
 };

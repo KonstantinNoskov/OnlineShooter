@@ -2,7 +2,6 @@
 
 // Components
 #include "Components/BoxComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
 
 // Kismet
 #include "Kismet/GameplayStatics.h"
@@ -17,7 +16,8 @@ AProjectile::AProjectile()
 	PrimaryActorTick.bCanEverTick = true;
 
 	bReplicates = true;
-	
+	SetReplicateMovement(true);
+		
 	// Set collision
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	SetRootComponent(CollisionBox);
@@ -28,8 +28,7 @@ AProjectile::AProjectile()
 	CollisionBox->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECR_Block);
 
-	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
-	ProjectileMovementComponent->bRotationFollowsVelocity = true;
+	
 }
 
 void AProjectile::BeginPlay()

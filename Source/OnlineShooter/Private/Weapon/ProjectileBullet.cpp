@@ -5,10 +5,16 @@
 
 // References
 #include "GameFramework/Character.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 AProjectileBullet::AProjectileBullet()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+
+	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement Component"));
+	ProjectileMovementComponent->bRotationFollowsVelocity = true;
+	ProjectileMovementComponent->SetIsReplicated(true);
+	
 }
 
 void AProjectileBullet::BeginPlay()

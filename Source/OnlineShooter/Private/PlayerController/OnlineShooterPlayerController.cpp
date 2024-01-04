@@ -278,16 +278,6 @@ void AOnlineShooterPlayerController::SetHUDTime()
 	else if (MatchState == MatchState::InProgress)	TimeLeft = WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;
 	else if (MatchState == MatchState::Cooldown)	TimeLeft = CooldownTime + WarmupTime + MatchTime - GetServerTime() + LevelStartingTime; 
 	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
-
-	/*if(HasAuthority())
-	{
-		OnlineShooterGameMode = !OnlineShooterGameMode ? Cast<AOnlineShooterGameMode>(UGameplayStatics::GetGameMode(this)) : OnlineShooterGameMode;
-
-		if(OnlineShooterGameMode)
-		{
-			SecondsLeft = FMath::CeilToInt(OnlineShooterGameMode->GetCountdownTime() + LevelStartingTime);
-		}
-	}*/
 	
 	if(CountdownInt != SecondsLeft)
 	{
@@ -380,7 +370,10 @@ void AOnlineShooterPlayerController::HandleMatchHasStarted()
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
 	if(OnlineShooterHUD)
 	{
-		OnlineShooterHUD->AddCharacterOverlay();
+		if(!OnlineShooterHUD->CharacterOverlay)
+		{
+			OnlineShooterHUD->AddCharacterOverlay();	
+		}
 		
 		if(OnlineShooterHUD->Announcement)
 		{
@@ -451,7 +444,8 @@ void AOnlineShooterPlayerController::HandleCooldown()
 	if(OnlineShooterCharacter && OnlineShooterCharacter->GetCombatComponent())
 	{
 		OnlineShooterCharacter->bDisableGameplay = true;
-		OnlineShooterCharacter->GetCombatComponent()->FireButtonPressed(false);	
+		OnlineShooterCharacter->GetCombatComponent()->FireButtonPressed(false);
+		OnlineShooterCharacter->GetCombatComponent()->SetAiming(false);
 	}
 }
 
