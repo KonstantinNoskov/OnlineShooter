@@ -78,7 +78,6 @@ void AProjectileRocket::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 {	
 	if(OtherActor == GetOwner()) return;
 	
-	
 	APawn* FiringPawn = GetInstigator();
 	
 	if (FiringPawn && HasAuthority())

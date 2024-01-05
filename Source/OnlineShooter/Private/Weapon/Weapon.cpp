@@ -155,6 +155,7 @@ void AWeapon::OnRep_Owner()
 	}
 	
 }
+
 // if player overlap weapon collision sphere, pass this weapon to player's @var OverlapWeapon
 void AWeapon::OnSphereOverlap(UPrimitiveComponent* OvelappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

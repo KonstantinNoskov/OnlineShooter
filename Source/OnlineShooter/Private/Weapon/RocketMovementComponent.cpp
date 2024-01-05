@@ -9,7 +9,6 @@ URocketMovementComponent::URocketMovementComponent()
 void URocketMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void URocketMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
@@ -17,7 +16,6 @@ void URocketMovementComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
-
 
 UProjectileMovementComponent::EHandleBlockingHitResult URocketMovementComponent::HandleBlockingHit(
 	const FHitResult& Hit, float TimeTick, const FVector& MoveDelta, float& SubTickTimeRemaining)
