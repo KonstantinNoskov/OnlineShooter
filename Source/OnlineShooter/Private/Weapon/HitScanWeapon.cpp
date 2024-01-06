@@ -1,13 +1,10 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "Weapon/HitScanWeapon.h"
 
-
-#include "Weapon/HitScanWeapon.h"
-
-#include "BehaviorTree/Blackboard/BlackboardKeyEnums.h"
 #include "Characters/OnlineShooterCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Sound/SoundCue.h"
 
 
 AHitScanWeapon::AHitScanWeapon()
@@ -35,8 +32,8 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 
 	AController* InstigatorController = OwnerPawn->Controller;
 	
-	
 	const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName("MuzzleFlash");
+
 	if(MuzzleFlashSocket)
 	{
 		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
@@ -86,6 +83,16 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 						FireHit.ImpactNormal.Rotation()
 					);
 				}
+
+				if (ImpactSound)
+				{
+					UGameplayStatics::PlaySoundAtLocation(
+						this,
+						ImpactSound,
+						FireHit.ImpactPoint
+					);
+				}
+				
 			}
 
 			if(BeamParticles)
@@ -102,6 +109,24 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 				}
 			}
 		}
+
+		if(MuzzleFlash)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(
+				World,
+				MuzzleFlash,
+				SocketTransform
+			);
+		}
+
+		if(FireSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(
+				this,
+				FireSound,
+				GetActorLocation()
+			);
+		}
 	}
-}
+} 
 

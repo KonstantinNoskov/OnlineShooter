@@ -87,6 +87,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	int32 StartingPistolAmmo = 0;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingSMGAmmo = 0;
 	
 	// Ammo for the currently-equipped weapon carried by player
 	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)

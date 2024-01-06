@@ -25,6 +25,10 @@ AWeapon::AWeapon()
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	SetRootComponent(WeaponMesh);
 
+	WeaponMesh->SetCollisionResponseToAllChannels(ECR_Block);
+	WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
 	AreaSphere->SetupAttachment(RootComponent);
 	AreaSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
@@ -69,43 +73,6 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 
 	DOREPLIFETIME(AWeapon, WeaponState)
 	DOREPLIFETIME(AWeapon, Ammo)
-}
-
-void AWeapon::OnRep_WeaponState() 
-{ 
-	switch (WeaponState) {
-	case EWeaponState::EWS_Initial:
-		break;
-		
-	case EWeaponState::EWS_Equipped:
-		ShowPickupWidget(false);
-
-		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		WeaponMesh->SetSimulatePhysics(false);
-		WeaponMesh->SetEnableGravity(false);
-		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		
-		break;
-		
-	case EWeaponState::EWS_Dropped:
-		
-		WeaponMesh->SetSimulatePhysics(true);
-		WeaponMesh->SetEnableGravity(true);
-		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
-		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-		
-		break;
-		
-	case EWeaponState::EWS_MAX:
-		break;
-		
-	default:
-		break;
-	}
 }
 
 void AWeapon::SetHUDAmmo()
@@ -195,6 +162,13 @@ void AWeapon::SetWeaponState(EWeaponState NewState)
 		WeaponMesh->SetEnableGravity(false);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+		if(WeaponType == EWeaponType::EWT_SubmachineGun)
+		{
+			WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			WeaponMesh->SetEnableGravity(true);
+			WeaponMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+		}
+		
 		break;
 
 	case EWeaponState::EWS_Dropped:
@@ -212,6 +186,50 @@ void AWeapon::SetWeaponState(EWeaponState NewState)
 		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 		
+		break;
+		
+	default:
+		break;
+	}
+}
+
+void AWeapon::OnRep_WeaponState() 
+{ 
+	switch (WeaponState) {
+	case EWeaponState::EWS_Initial:
+		break;
+		
+	case EWeaponState::EWS_Equipped:
+		ShowPickupWidget(false);
+
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		WeaponMesh->SetSimulatePhysics(false);
+		WeaponMesh->SetEnableGravity(false);
+		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		if(WeaponType == EWeaponType::EWT_SubmachineGun)
+		{
+			WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			WeaponMesh->SetEnableGravity(true);
+			WeaponMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+		}
+		
+		break;
+		
+	case EWeaponState::EWS_Dropped:
+		
+		WeaponMesh->SetSimulatePhysics(true);
+		WeaponMesh->SetEnableGravity(true);
+		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+		
+		break;
+		
+	case EWeaponState::EWS_MAX:
 		break;
 		
 	default:
