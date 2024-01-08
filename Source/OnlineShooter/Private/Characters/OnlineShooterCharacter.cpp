@@ -198,7 +198,7 @@ void AOnlineShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &AOnlineShooterCharacter::EquipButtonPressed);
 
 		// Aiming
-		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Triggered, this, &AOnlineShooterCharacter::AimButtonPressed);
+		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &AOnlineShooterCharacter::AimButtonPressed);
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AOnlineShooterCharacter::AimButtonReleased);
 
 		// Fire
@@ -458,16 +458,29 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	// Spawn elim bot
+	// Show elimbot effect
 	if(ElimBotEffect)
 	{
 		FVector ElimBotSpawnPoint(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 200.f);
 		ElimBotComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ElimBotEffect, ElimBotSpawnPoint, GetActorRotation());
 	}
 
+	// Play elimbot sound
 	if(ElimBotSound)
 	{
 		UGameplayStatics::SpawnSoundAtLocation(this, ElimBotSound, GetActorLocation());
+	}
+
+	bool bHideSniperScope =
+		IsLocallyControlled() &&
+		Combat &&
+		Combat->bAiming &&
+		Combat->EquippedWeapon &&
+		Combat->EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle;
+	
+	if(bHideSniperScope)
+	{
+		ShowSniperScopeWidget(false);
 	}
 }
 
@@ -765,7 +778,6 @@ bool AOnlineShooterCharacter::IsWeaponEquipped() const
 // Returns true if character has a combat component & aiming
 bool AOnlineShooterCharacter::IsAiming() const
 {
-	
 	return (Combat && Combat->bAiming);
 }
 
@@ -870,6 +882,10 @@ void AOnlineShooterCharacter::PlayReloadMontage()
 				break;
 
 			case EWeaponType::EWT_Shotgun:
+				SectionName = FName("Rifle");
+				break;
+
+			case EWeaponType::EWT_SniperRifle:
 				SectionName = FName("Rifle");
 				break;
 				

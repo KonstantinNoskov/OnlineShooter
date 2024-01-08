@@ -91,6 +91,14 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ACasing> CasingClass;
 
+public:
+	
+	UPROPERTY(EditAnywhere)
+	USoundCue* ZoomInSound;
+
+	UPROPERTY(EditAnywhere)
+	USoundCue* ZoomOutSound;
+
 #pragma region FOV
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")

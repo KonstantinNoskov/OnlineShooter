@@ -48,4 +48,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "Projectile Properties")
 	float Damage = 10.f;
+
+public:
+
+	UPROPERTY(EditAnywhere)
+	float InitialSpeed = 15000.f;
 };

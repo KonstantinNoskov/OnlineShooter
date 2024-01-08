@@ -61,10 +61,7 @@ private:
 	
 	UPROPERTY()
 	bool bFireButtonPressed;
-
-	UPROPERTY(Replicated)
-	float LastShotTime;
-
+	
 	UPROPERTY()
 	FTimerHandle FireTimer;
 
@@ -91,6 +88,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	int32 StartingShotgunAmmo = 0;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingSniperAmmo = 0;
 	
 	// Ammo for the currently-equipped weapon carried by player
 	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
@@ -169,7 +169,7 @@ private:
 	
 	UPROPERTY(Replicated)
 	bool bAiming;
-
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Walk", meta = (AllowPrivateAccess = "true"))
 	float BaseWalkSpeed;
 	

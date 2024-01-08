@@ -2,8 +2,10 @@
 #include "HUD/OnlineShooterHUD.h"
 
 #include "Blueprint/UserWidget.h"
+#include "Components/Image.h"
 #include "HUD/Announcement.h"
 #include "HUD/CharacterOverlay.h"
+#include "HUD/SniperScopeWidget.h"
 
 void AOnlineShooterHUD::DrawHUD()
 {
@@ -73,6 +75,22 @@ void AOnlineShooterHUD::AddAnnouncement()
 	{
 		Announcement = CreateWidget<UAnnouncement>(PlayerController, AnnouncementClass);
 		Announcement->AddToViewport();
+	}
+}
+
+void AOnlineShooterHUD::AddSniperScope()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+
+	if (PlayerController && SniperScopeClass)
+	{
+		SniperScope = CreateWidget<USniperScopeWidget>(PlayerController, SniperScopeClass);
+		
+		if(SniperScope && SniperScope->ScopeOverlay && SniperScope->Background)
+		{
+			SniperScope->AddToViewport();
+		}
+		
 	}
 }
 

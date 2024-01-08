@@ -20,10 +20,7 @@
 #include "DrawDebugHelpers.h"
 
 // HUD
-#include "InputAction.h"
 #include "HUD/OnlineShooterHUD.h"
-
-
 
 // Constructor
 UCombatComponent::UCombatComponent()
@@ -85,8 +82,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
-	DOREPLIFETIME(UCombatComponent, bAiming);
-	DOREPLIFETIME(UCombatComponent, LastShotTime);
+	DOREPLIFETIME(UCombatComponent, bAiming)
 	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
 	DOREPLIFETIME(UCombatComponent, CombatState);
 }
@@ -94,13 +90,35 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 // Aim
 void UCombatComponent::SetAiming(bool bIsAiming)
 {
+	if(!Character || !EquippedWeapon) return;
+	
+	bAiming = bIsAiming;
+	Server_SetAiming(bIsAiming);
+	
 	if (Character && EquippedWeapon)
 	{
-		bAiming = bIsAiming;
 		Character->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimingWalkSpeed : BaseWalkSpeed;
-
-		Server_SetAiming(bIsAiming);
 	}
+
+	if(Character->IsLocallyControlled() && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
+	{
+		Controller = !Controller ? Cast<AOnlineShooterPlayerController>(Character->Controller) : Controller;
+		if(Controller)
+		{
+			Controller->SetHUDSniperScope(bIsAiming);
+
+			if(bIsAiming && EquippedWeapon->ZoomInSound)
+			{
+				UGameplayStatics::PlaySound2D(this, EquippedWeapon->ZoomInSound);
+			}
+
+			else if (EquippedWeapon->ZoomOutSound)
+			{
+				UGameplayStatics::PlaySound2D(this, EquippedWeapon->ZoomOutSound);
+			}
+		}
+	}
+	
 }
 void UCombatComponent::Server_SetAiming_Implementation(bool bIsAiming)
 {
@@ -221,7 +239,6 @@ void UCombatComponent::Fire()
 }
 void UCombatComponent::Server_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget) 
 {
-	LastShotTime = GetWorld()->GetTimeSeconds();
 	Multicast_Fire(TraceHitTarget);
 }
 void UCombatComponent::Multicast_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget) 
@@ -248,6 +265,7 @@ void UCombatComponent::InitializeCarriedAmmo()
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_Pistol, StartingPistolAmmo);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_SubmachineGun, StartingSMGAmmo);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_Shotgun, StartingShotgunAmmo);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_SniperRifle, StartingSniperAmmo);
 }
 
 void UCombatComponent::OnFireTimerFinished()
@@ -446,7 +464,7 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 
 		if(HUD)
 		{
-			if (EquippedWeapon)
+			if (EquippedWeapon && EquippedWeapon->GetWeaponType() != EWeaponType::EWT_SniperRifle)
 			{
 				HUDPackage.CrosshairCenter	= EquippedWeapon->CrosshairCenter;
 				HUDPackage.CrosshairLeft	= EquippedWeapon->CrosshairLeft;
@@ -462,6 +480,15 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 				HUDPackage.CrosshairTop		= nullptr;
 				HUDPackage.CrosshairBottom	= nullptr;
 			}
+
+			/*if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle && !bShowCrosshair)
+			{
+				HUDPackage.CrosshairCenter	= nullptr;
+				HUDPackage.CrosshairLeft	= nullptr;
+				HUDPackage.CrosshairRight	= nullptr;
+				HUDPackage.CrosshairTop		= nullptr;
+				HUDPackage.CrosshairBottom	= nullptr;
+			}*/
 			
 			// Calculate crosshair spread
 			FVector2d WalkSpeedRange(0.f, Character->GetCharacterMovement()->MaxWalkSpeed);

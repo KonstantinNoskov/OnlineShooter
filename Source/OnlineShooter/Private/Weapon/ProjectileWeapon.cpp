@@ -10,8 +10,6 @@
 AProjectileWeapon::AProjectileWeapon()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-
 }
 
 void AProjectileWeapon::BeginPlay()
@@ -52,7 +50,7 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 			UWorld* World = GetWorld();
 			if(World)
 			{
-				AProjectile* EjectedProjectile = World->SpawnActor<AProjectile>(ProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
+				World->SpawnActor<AProjectile>(ProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
 			}
 		}
 	}

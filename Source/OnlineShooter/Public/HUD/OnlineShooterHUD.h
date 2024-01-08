@@ -6,6 +6,7 @@
 #include "GameFramework/HUD.h"
 #include "OnlineShooterHUD.generated.h"
 
+class USniperScopeWidget;
 class UAnnouncement;
 class UCharacterOverlay;
 
@@ -63,6 +64,12 @@ public:
 	UPROPERTY()
 	UAnnouncement* Announcement;
 
+	UPROPERTY(EditAnywhere, Category = "SniperScope")
+	TSubclassOf<UUserWidget> SniperScopeClass;
+
+	UPROPERTY()
+	USniperScopeWidget* SniperScope;
+
 	UFUNCTION()
 	void DrawCrosshair(UTexture2D* Texture, FVector2D ViewportCenter, FVector2D Spread, FLinearColor CrosshairColor = FLinearColor::White);
 
@@ -71,6 +78,9 @@ public:
 
 	UFUNCTION()
 	void AddAnnouncement();
+
+	UFUNCTION()
+	void AddSniperScope();
 	
 public:
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package) { HUDPackage = Package; }

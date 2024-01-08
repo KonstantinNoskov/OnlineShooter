@@ -9,12 +9,15 @@
 #include "GameFramework/GameMode.h"
 #include "GameModes/OnlineShooterGameMode.h"
 #include "GameStates/OnlineShooterGameState.h"
-#include "HUD/Announcement.h"
-#include "HUD/CharacterOverlay.h"
-#include "HUD/OnlineShooterHUD.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "PlayerStates/OnlineShooterPlayerState.h"
+
+// HUD
+#include "HUD/Announcement.h"
+#include "HUD/CharacterOverlay.h"
+#include "HUD/OnlineShooterHUD.h"
+#include "HUD/SniperScopeWidget.h"
 
 void AOnlineShooterPlayerController::BeginPlay()
 {
@@ -267,6 +270,39 @@ void AOnlineShooterPlayerController::SetHUDAnnouncementCountdown(float Countdown
 		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
 		
 		OnlineShooterHUD->Announcement->WarmupTime->SetText(FText::FromString(CountdownText));
+	}
+}
+
+void AOnlineShooterPlayerController::SetHUDSniperScope(bool bIsAiming) 
+{
+	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+
+	bool bHUDValid =
+		OnlineShooterHUD &&
+		OnlineShooterHUD->SniperScope &&
+		OnlineShooterHUD->SniperScope->ScopeZoomIn;
+
+	if(!OnlineShooterHUD->SniperScope)
+	{
+		OnlineShooterHUD->AddSniperScope();
+	}
+	
+	if(bHUDValid)
+	{
+		if(bIsAiming)
+		{
+			OnlineShooterHUD->SniperScope->PlayAnimation(OnlineShooterHUD->SniperScope->ScopeZoomIn);
+		}
+
+		else
+		{
+			OnlineShooterHUD->SniperScope->PlayAnimation(
+				OnlineShooterHUD->SniperScope->ScopeZoomIn,
+				0.f,
+				1,
+				EUMGSequencePlayMode::Reverse
+			);
+		}
 	}
 }
 

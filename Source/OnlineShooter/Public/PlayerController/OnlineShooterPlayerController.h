@@ -130,6 +130,9 @@ public:
 	void SetHUDAnnouncementCountdown(float CountdownTime);
 
 	UFUNCTION()
+	void SetHUDSniperScope(bool bIsAiming);
+
+	UFUNCTION()
 	void OnMatchStateSet(FName State);
 
 	UFUNCTION()

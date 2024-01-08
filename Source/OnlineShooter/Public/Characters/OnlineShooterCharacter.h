@@ -414,6 +414,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	bool IsAiming() const;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowSniperScopeWidget(bool bShowScope);
 	
 	FRotator StartingAimRotation;
 
