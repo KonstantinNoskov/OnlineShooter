@@ -77,7 +77,6 @@ void AOnlineShooterHUD::AddAnnouncement()
 		Announcement->AddToViewport();
 	}
 }
-
 void AOnlineShooterHUD::AddSniperScope()
 {
 	APlayerController* PlayerController = GetOwningPlayerController();

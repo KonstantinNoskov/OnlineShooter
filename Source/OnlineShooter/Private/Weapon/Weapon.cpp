@@ -245,21 +245,25 @@ void AWeapon::Fire(const FVector& HitTarget)
 		WeaponMesh->PlayAnimation(FireAnimationSequence, false);
 	}
 	
-	// Spawn ejected bullet shells
+	// Casing valid check
 	if(CasingClass)
 	{
+		// check if AmmoEjectSocket is valid
 		const USkeletalMeshSocket* AmmoEjectSocket = GetWeaponMesh()->GetSocketByName(FName("AmmoEject"));
-		
 		if(AmmoEjectSocket)
 		{
+			// Get AmmoEjectSocket transform
 			FTransform SocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
-			
-			FActorSpawnParameters SpawnParams;
-			
-			UWorld* World = GetWorld();
 
+			// Create spawn params 
+			FActorSpawnParameters SpawnParams;
+
+
+			// check if world is valid
+			UWorld* World = GetWorld();
 			if(World)
 			{
+				// Spawn casing 
 				World->SpawnActor<ACasing>(
 					CasingClass,
 					SocketTransform.GetLocation(),
@@ -270,6 +274,8 @@ void AWeapon::Fire(const FVector& HitTarget)
 		}
 	}
 
+
+	// Decrement ammo and update HUD 
 	SpendRound();
 }
 
@@ -281,7 +287,7 @@ void AWeapon::SpendRound()
 
 void AWeapon::Dropped()
 {
-	SetWeaponState(EWeaponState::EWS_Dropped);
+	SetWeaponState(EWeaponState::EWS_Dropped); 
 	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRules);
 	SetOwner(nullptr);
