@@ -66,11 +66,16 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 
 	// Collision preset
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	
 	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+
+	AttachedGrenade = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Attached Grenade"));
+	AttachedGrenade->SetupAttachment(GetMesh(), FName("SKT_Grenade"));
+	AttachedGrenade->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// Timeline component
 	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
@@ -122,6 +127,7 @@ void AOnlineShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Set Enhanced input subsystem
 	if (const ULocalPlayer* Player = (GEngine && GetWorld()) ? GEngine->GetFirstGamePlayer(GetWorld()) : nullptr)
 	{
 		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Player);
@@ -140,11 +146,19 @@ void AOnlineShooterCharacter::BeginPlay()
 		}
 	}*/
 
+	// Set Health at the start of the game
 	UpdateHUDHealth();
 	
+	// Bind delegates only on server
 	if(HasAuthority())
 	{
 		OnTakeAnyDamage.AddDynamic(this, &AOnlineShooterCharacter::ReceiveDamage);
+	}
+
+	// Hide grenade mesh by default
+	if(AttachedGrenade)
+	{
+		AttachedGrenade->SetVisibility(false);
 	}
 }
 
@@ -207,6 +221,9 @@ void AOnlineShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 		// Reload
 		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Triggered, this, &AOnlineShooterCharacter::ReloadButtonPressed);
+
+		// Throw Grenade
+		EnhancedInputComponent->BindAction(ThrowGrenadeAction, ETriggerEvent::Triggered, this, &AOnlineShooterCharacter::GrenadeButtonPressed);
 	}
 }
 
@@ -307,6 +324,8 @@ void AOnlineShooterCharacter::CalculateAO_Pitch()
 
 void AOnlineShooterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
 {
+	if(bEliminated) return;
+	
 	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
 	UpdateHUDHealth();
 	PlayHitReactMontage();
@@ -656,7 +675,6 @@ void AOnlineShooterCharacter::FireButtonPressed(const FInputActionInstance& Inpu
 		Combat->FireButtonPressed(true);
 	}
 }
-
 void AOnlineShooterCharacter::FireButtonReleased(const FInputActionInstance& InputInstance)
 {
 	if (bDisableGameplay) return;
@@ -666,12 +684,22 @@ void AOnlineShooterCharacter::FireButtonReleased(const FInputActionInstance& Inp
 	}
 }
 
+// Reload
 void AOnlineShooterCharacter::ReloadButtonPressed()
 {
 	if (bDisableGameplay) return;
 	if(Combat)
 	{
 		Combat->Reload();
+	}
+}
+
+// Throw grenade
+void AOnlineShooterCharacter::GrenadeButtonPressed()
+{
+	if(Combat)
+	{
+		Combat->ThrowGrenade();
 	}
 }
 
@@ -711,7 +739,7 @@ void AOnlineShooterCharacter::Server_EquipButtonPressed_Implementation()
 void AOnlineShooterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
 	/*
-	 * if OverlappingWeapon not null it means that we already overlapped this weapon once and it also means that player has stopped
+	 * if OverlappingWeapon not null it means that we already overlapped this weapon once and it also means that player has quit
 	 * overlapping weapon and we should hide weapon pick up widget on server.  
 	 */
 	if (OverlappingWeapon) { OverlappingWeapon->ShowPickupWidget(false); }
@@ -746,7 +774,7 @@ void AOnlineShooterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 	}
 }
 
-// Hide camera if character is too close
+// Hide camera if a character is too close
 void AOnlineShooterCharacter::HideMesh()
 {
 	if (!IsLocallyControlled()) return;
@@ -854,7 +882,6 @@ void AOnlineShooterCharacter::PlayFireMontage(bool bAiming)
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
-
 void AOnlineShooterCharacter::PlayReloadMontage()
 {
 	// Play fire montage only if we have a combat component and a weapon
@@ -906,7 +933,6 @@ void AOnlineShooterCharacter::PlayReloadMontage()
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
-
 void AOnlineShooterCharacter::PlayHitReactMontage()
 {
 	// Play hit react montage only if we have a combat component and a weapon
@@ -921,7 +947,6 @@ void AOnlineShooterCharacter::PlayHitReactMontage()
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
-
 void AOnlineShooterCharacter::PlayElimMontage()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -930,7 +955,15 @@ void AOnlineShooterCharacter::PlayElimMontage()
 	{
 		AnimInstance->Montage_Play(EliminatedMontage);
 	}
+}
+void AOnlineShooterCharacter::PlayThrowGrenadeMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	
+	if(AnimInstance && ThrowGrenadeMontage)
+	{
+		AnimInstance->Montage_Play(ThrowGrenadeMontage);
+	}
 }
 
 FVector AOnlineShooterCharacter::GetHitTarget() const

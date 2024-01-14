@@ -10,7 +10,7 @@ AProjectileGrenade::AProjectileGrenade()
 	PrimaryActorTick.bCanEverTick = false;
 
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Grenade Mesh"));
-	ProjectileMesh->SetupAttachment(RootComponent);
+	ProjectileMesh->SetupAttachment(RootComponent); 
 	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement Component"));

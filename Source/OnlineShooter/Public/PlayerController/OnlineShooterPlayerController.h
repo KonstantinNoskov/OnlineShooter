@@ -70,6 +70,7 @@ private:
 	float HUDMaxHealth;
 	float HUDScore;
 	int32 HUDDefeats;
+	int32 HUDGrenades;
 
 protected:
 
@@ -131,6 +132,9 @@ public:
 
 	UFUNCTION()
 	void SetHUDSniperScope(bool bIsAiming);
+
+	UFUNCTION()
+	void SetHUDGrenades(int32 Grenades);
 
 	UFUNCTION()
 	void OnMatchStateSet(FName State);

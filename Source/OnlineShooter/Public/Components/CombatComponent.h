@@ -34,29 +34,7 @@ public:
 protected:
 	
 	virtual void BeginPlay() override;
-	
-	UFUNCTION(Server, Reliable)
-	void Server_SetAiming(bool bIsAiming);
 
-	UFUNCTION()
-	void EquipWeapon(AWeapon* WeaponToEquip);
-
-	UFUNCTION()
-	void OnRep_EquippedWeapon();
-	
-	UFUNCTION()
-	void TraceUnderCrosshair(FHitResult& TraceHitResult);
-
-	UFUNCTION()
-	void SetHUDCrosshair(float DeltaTime);
-
-#pragma region FIRE
-
-public:
-	
-	UFUNCTION()
-	void FireButtonPressed(bool bPressed);
-	
 private:
 	
 	UPROPERTY()
@@ -94,6 +72,12 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	int32 StartingGrenadeLauncherAmmo = 0;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Grenades)
+	int32 Grenades = 3;
+
+	UPROPERTY(EditAnywhere)
+	int32 MaxGrenades = 3;
 	
 	// Ammo for the currently-equipped weapon carried by player
 	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
@@ -102,65 +86,6 @@ private:
 	UPROPERTY()
 	TMap<EWeaponType, int32> CarriedAmmoMap;
 	
-	UFUNCTION()
-	bool CanFire();
-
-	UFUNCTION()
-	void Fire();
-	
-	UFUNCTION(Server, Reliable)
-	void Server_Fire(const FVector_NetQuantize& TraceHitTarget);
-	
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_Fire(const FVector_NetQuantize& TraceHitTarget);
-
-	UFUNCTION()
-	void StartFireTimer();
-	
-	UFUNCTION() 
-	void InitializeCarriedAmmo();
-
-	UFUNCTION()
-	void OnFireTimerFinished();
-
-	UFUNCTION()
-	void OnRep_CarriedAmmo();
-
-	UFUNCTION()
-	void OnRep_CombatState();
-
-#pragma endregion
-
-#pragma region RELOAD
-
-public:
-
-	UFUNCTION()
-	void Reload();
-	
-	UFUNCTION(Server, Reliable)
-	void Server_Reload();
-
-	UFUNCTION()
-	void HandleReload();
-
-	UFUNCTION(BlueprintCallable)
-	void FinishReloading();
-
-protected:
-
-	UFUNCTION()
-	int32 AmountToReload();
-
-private:
-
-	UFUNCTION()
-	void UpdateAmmoValues();
-	
-#pragma endregion
-
-private:
-
 	UPROPERTY()
 	AOnlineShooterCharacter* Character;
 
@@ -169,6 +94,9 @@ private:
 	
 	UPROPERTY(ReplicatedUsing=OnRep_EquippedWeapon)
 	AWeapon* EquippedWeapon;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AProjectile> GrenadeClass;
 	
 	UPROPERTY(Replicated)
 	bool bAiming;
@@ -178,8 +106,6 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Aim", meta = (AllowPrivateAccess = "true"))
 	float AimingWalkSpeed;
-
-#pragma region HUD & CROSSHAIR
 
 	UPROPERTY()
 	AOnlineShooterHUD* HUD;
@@ -199,12 +125,8 @@ private:
 	UPROPERTY()
 	float CrosshairShootFactor;
 
-#pragma endregion
-
 	FVector HitTarget;
-
-#pragma region AIM & FOV
-
+	
 	/*
 	 * Aiming and FOV
 	 */
@@ -226,11 +148,131 @@ private:
 	UFUNCTION()
 	void InterpFOV(float DeltaTime);
 
-public:
+
+private:
+
+	UFUNCTION()
+	void UpdateAmmoValues();
+
+	UFUNCTION()
+	void UpdateShotgunAmmoValues();
+
+	UFUNCTION()
+	void UpdateHUDGrenades();
+
+	UFUNCTION()
+	bool CanFire();
+
+	UFUNCTION()
+	void Fire();
 	
+	UFUNCTION(Server, Reliable)
+	void Server_Fire(const FVector_NetQuantize& TraceHitTarget);
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_Fire(const FVector_NetQuantize& TraceHitTarget);
+
+	UFUNCTION()
+	void StartFireTimer();
+	
+	UFUNCTION() 
+	void InitializeCarriedAmmo();
+
+	UFUNCTION()
+	void ShowAttachedGrenade(bool bShowGrenade);
+
+	UFUNCTION()
+	void OnFireTimerFinished();
+
+	UFUNCTION()
+	void OnRep_CarriedAmmo();
+
+	UFUNCTION()
+	void OnRep_CombatState();
+
+	UFUNCTION()
+	void OnRep_Grenades();
+
+protected:
+
+	UFUNCTION()
+	int32 AmountToReload();
+
+	UFUNCTION(Server, Reliable)
+	void Server_SetAiming(bool bIsAiming);
+	
+	UFUNCTION()
+	void EquipWeapon(AWeapon* WeaponToEquip);
+
+	UFUNCTION()
+	void OnRep_EquippedWeapon();
+
+	UFUNCTION()
+	void DropEquippedWeapon();
+
+	UFUNCTION()
+	void AttachActorToRightHand(AActor* ActorToAttach);
+
+	UFUNCTION()
+	void AttachActorToLeftHand(AActor* ActorToAttach);
+
+	UFUNCTION()
+	void UpdateCarriedAmmo();
+
+	UFUNCTION()
+	void PlayEquippedWeaponSound();
+
+	UFUNCTION()
+	void ReloadEmptyWeapon();
+	
+	UFUNCTION()
+	void TraceUnderCrosshair(FHitResult& TraceHitResult);
+
+	UFUNCTION()
+	void SetHUDCrosshair(float DeltaTime);
+
+	UFUNCTION()
+	void ThrowGrenade();
+
+	UFUNCTION(Server, Reliable)
+	void Server_ThrowGrenade();
+
+public:
+
+	UFUNCTION()
+	void FireButtonPressed(bool bPressed);
+
+	UFUNCTION()
+	void Reload();
+	
+	UFUNCTION(Server, Reliable)
+	void Server_Reload();
+
+	UFUNCTION()
+	void HandleReload();
+
+	UFUNCTION(BlueprintCallable)
+	void FinishReloading();
+
 	UFUNCTION()
 	void SetAiming(bool bIsAiming);
 
-#pragma endregion
+	UFUNCTION(BlueprintCallable)
+	void ShotgunShellReload();
+
+	UFUNCTION()
+	void JumpToShotgunEnd();
+
+	UFUNCTION(BlueprintCallable)
+	void ThrowGrenadeFinished();
+
+	UFUNCTION(BlueprintCallable)
+	void LaunchGrenade();
+
+	UFUNCTION(Server, Reliable)
+	void Server_LaunchGrenade(const FVector_NetQuantize& Target);
+
+
+	FORCEINLINE int32 GetGrenades() const { return Grenades; }
 	
 };

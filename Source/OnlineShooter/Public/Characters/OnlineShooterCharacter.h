@@ -78,6 +78,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	UCombatComponent* Combat;
 
+	// Grenade
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* AttachedGrenade;
+
 #pragma endregion
 
 #pragma region INPUT
@@ -118,6 +122,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ReloadAction;
 
+	/** Throw grenade Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ThrowGrenadeAction;
+
 protected:
 	
 	/** Callback for movement input */
@@ -149,8 +157,7 @@ protected:
 
 	UFUNCTION()
 	void CalculateAO_Pitch();
-
-	/** Callback for Fire input */
+	
 	UFUNCTION()
 	void FireButtonPressed(const FInputActionInstance& InputInstance);
 	
@@ -159,6 +166,9 @@ protected:
 
 	UFUNCTION()
 	void ReloadButtonPressed();
+
+	UFUNCTION()
+	void GrenadeButtonPressed();
 
 private:
 
@@ -231,6 +241,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Montages)
 	UAnimMontage* EliminatedMontage;
+
+	UPROPERTY(EditAnywhere, Category = Montages)
+	UAnimMontage* ThrowGrenadeMontage;
 
 #pragma endregion
 
@@ -434,6 +447,9 @@ public:
 
 	UFUNCTION()
 	void PlayElimMontage();
+
+	UFUNCTION()
+	void PlayThrowGrenadeMontage();
 	
 	UFUNCTION()
 	FVector GetHitTarget() const;
@@ -443,17 +459,22 @@ public:
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_Eliminated();
-	
-	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
-	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
-	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
-	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	FORCEINLINE UCombatComponent* GetCombatComponent() const { return Combat; }
-	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
-	FORCEINLINE bool IsEliminated() const { return bEliminated; }
-	FORCEINLINE float GetHealth() const { return Health; }
-	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
-	FORCEINLINE bool GetDisableGameplay() const { return bDisableGameplay; }
+
+	UFUNCTION()
 	ECombatState GetCombatState() const;
+	
+	FORCEINLINE float GetAO_Yaw() const								{ return AO_Yaw; }
+	FORCEINLINE float GetAO_Pitch() const							{ return AO_Pitch; }
+	FORCEINLINE ETurningInPlace GetTurningInPlace() const			{ return TurningInPlace; }
+	FORCEINLINE UCameraComponent* GetFollowCamera() const			{ return FollowCamera; }
+	FORCEINLINE USpringArmComponent* GetCameraBoom() const			{ return CameraBoom; }
+	FORCEINLINE UCombatComponent* GetCombatComponent() const		{ return Combat; }
+	FORCEINLINE bool ShouldRotateRootBone() const					{ return bRotateRootBone; }
+	FORCEINLINE bool IsEliminated() const							{ return bEliminated; }
+	FORCEINLINE float GetHealth() const								{ return Health; }
+	FORCEINLINE float GetMaxHealth() const							{ return MaxHealth; }
+	FORCEINLINE bool GetDisableGameplay() const						{ return bDisableGameplay; }
+	FORCEINLINE UAnimMontage* GetReloadMontage() const				{ return ReloadMontage; }
+	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const	{ return AttachedGrenade; }
+	
 };

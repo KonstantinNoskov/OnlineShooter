@@ -8,25 +8,11 @@
 #include "OnlineShooterAnimInstance.generated.h"
 
 
+
 class AOnlineShooterCharacter;
 class AWeapon;
 
-/**
- * 
- */
-UCLASS()
-class ONLINESHOOTER_API UOnlineShooterAnimInstance : public UAnimInstance
-{
-	GENERATED_BODY()
-
-public:
-
-	virtual void NativeInitializeAnimation() override;
-	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-
-private:
-
-	/* ANIMATION PROPERTIES
+/* ANIMATION PROPERTIES
 	 * ==============================================================================================================
 	 * 
 	 * Following properties will determine which of character's animation is gonna be played
@@ -45,6 +31,18 @@ private:
 	 * ==============================================================================================================
 	 */
 
+UCLASS()
+class ONLINESHOOTER_API UOnlineShooterAnimInstance : public UAnimInstance
+{
+	GENERATED_BODY()
+
+public:
+
+	virtual void NativeInitializeAnimation() override;
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
+private:
+	
 	UPROPERTY(BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
 	AOnlineShooterCharacter* OnlineShooterCharacter;
 	

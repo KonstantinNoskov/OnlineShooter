@@ -126,8 +126,6 @@ public:
 	UFUNCTION()
 	void OnRep_Ammo();
 	
-public:
-
 	/*
 	 * Textures for the weapon crosshair
 	 */
@@ -169,7 +167,14 @@ public:
 	bool IsEmpty();
 
 	UFUNCTION()
+	bool IsFull();
+
+	UFUNCTION()
 	void AddAmmo(int32 AmmoToAdd);
+
+	UFUNCTION()
+	void EnableCustomDepth(bool bEnable);
+	
 	
 	FORCEINLINE EWeaponState GetWeaponState() const { return WeaponState; }
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }

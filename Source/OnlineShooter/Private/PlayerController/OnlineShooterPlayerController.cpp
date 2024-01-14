@@ -52,6 +52,12 @@ void AOnlineShooterPlayerController::PollInit()
 				SetHUDHealth(HUDHealth, HUDMaxHealth);
 				SetHUDScore(HUDScore);
 				SetHUDDefeats(HUDDefeats);
+
+				AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(GetPawn());
+				if (OnlineShooterCharacter && OnlineShooterCharacter->GetCombatComponent())
+				{
+					SetHUDGrenades(OnlineShooterCharacter->GetCombatComponent()->GetGrenades());	
+				}
 			}
 		}
 	}
@@ -273,7 +279,7 @@ void AOnlineShooterPlayerController::SetHUDAnnouncementCountdown(float Countdown
 	}
 }
 
-void AOnlineShooterPlayerController::SetHUDSniperScope(bool bIsAiming) 
+void AOnlineShooterPlayerController::SetHUDSniperScope(bool bIsAiming)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
 
@@ -303,6 +309,27 @@ void AOnlineShooterPlayerController::SetHUDSniperScope(bool bIsAiming)
 				EUMGSequencePlayMode::Reverse
 			);
 		}
+	}
+}
+
+void AOnlineShooterPlayerController::SetHUDGrenades(int32 Grenades)
+{
+	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+
+	bool bHUDValid =
+		OnlineShooterHUD &&
+		OnlineShooterHUD->CharacterOverlay &&
+		OnlineShooterHUD->CharacterOverlay->GrenadesAmount;
+
+	if(bHUDValid)
+	{
+		FString GrenadesText = FString::Printf(TEXT("%d"), Grenades); 
+		OnlineShooterHUD->CharacterOverlay->GrenadesAmount->SetText(FText::FromString(GrenadesText));
+	}
+
+	else
+	{
+		HUDGrenades = Grenades;
 	}
 }
 
