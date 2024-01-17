@@ -372,13 +372,13 @@ void AOnlineShooterPlayerController::ClientReportServerTime_Implementation(float
 	float RoundTripTime = GetWorld()->GetTimeSeconds() - TimeOfClientRequest;
 	float CurrentServerTime = TimerServerReceivedClientRequest + (.5f * RoundTripTime);
 
-	ClinetServerDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
+	ClientServerDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
 }
 float AOnlineShooterPlayerController::GetServerTime() 
 {
 	if(HasAuthority()) return GetWorld()->GetTimeSeconds();
 	
-	else return GetWorld()->GetTimeSeconds() + ClinetServerDelta;
+	else return GetWorld()->GetTimeSeconds() + ClientServerDelta;
 }
 void AOnlineShooterPlayerController::ReceivedPlayer()
 {

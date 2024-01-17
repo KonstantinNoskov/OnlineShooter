@@ -55,7 +55,7 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 850.f);
-
+	
 	// Create Overhead Widget
 	/*OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	OverheadWidget->SetupAttachment(RootComponent);*/
@@ -66,8 +66,8 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 
 	// Collision preset
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	
-	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
@@ -76,7 +76,7 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 	AttachedGrenade = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Attached Grenade"));
 	AttachedGrenade->SetupAttachment(GetMesh(), FName("SKT_Grenade"));
 	AttachedGrenade->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+	
 	// Timeline component
 	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
 
@@ -88,16 +88,6 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 	MinNetUpdateFrequency = 66.f;
 }
 
-// Replication
-void AOnlineShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
-	DOREPLIFETIME_CONDITION(AOnlineShooterCharacter, OverlappingWeapon, COND_OwnerOnly);
-	DOREPLIFETIME(AOnlineShooterCharacter, Health);
-	DOREPLIFETIME(AOnlineShooterCharacter, bDisableGameplay);
-}
-
 // Post Initialize Components 
 void AOnlineShooterCharacter::PostInitializeComponents()
 {
@@ -107,19 +97,6 @@ void AOnlineShooterCharacter::PostInitializeComponents()
 	{
 		Combat->Character = this;
 	}
-}
-
-// Replicated movement
-void AOnlineShooterCharacter::OnRep_ReplicatedMovement()
-{
-	Super::OnRep_ReplicatedMovement();
-
-	if (GetLocalRole() == ROLE_SimulatedProxy)
-	{
-		SimProxiesTurn();
-	}
-
-	TimeSinceLastMovementReplication = 0.f;
 }
 
 // Begin Play
@@ -173,6 +150,29 @@ void AOnlineShooterCharacter::Tick(float DeltaTime)
 
 	// Try to Initialize relevant classes every tick if it's equal to null 
 	PollInit();
+}
+
+// Replication
+void AOnlineShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME_CONDITION(AOnlineShooterCharacter, OverlappingWeapon, COND_OwnerOnly);
+	DOREPLIFETIME(AOnlineShooterCharacter, Health);
+	DOREPLIFETIME(AOnlineShooterCharacter, bDisableGameplay);
+}
+
+// Replicated movement
+void AOnlineShooterCharacter::OnRep_ReplicatedMovement()
+{
+	Super::OnRep_ReplicatedMovement();
+
+	if (GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		SimProxiesTurn();
+	}
+
+	TimeSinceLastMovementReplication = 0.f;
 }
 
 void AOnlineShooterCharacter::PollInit()
@@ -471,7 +471,6 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 	// Disable character movement
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
-	
 	
 	// Disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);

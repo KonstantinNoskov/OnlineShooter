@@ -3,6 +3,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "Weapon/RocketMovementComponent.h"
 
 
 AProjectileGrenade::AProjectileGrenade()
@@ -13,13 +14,19 @@ AProjectileGrenade::AProjectileGrenade()
 	ProjectileMesh->SetupAttachment(RootComponent); 
 	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement Component"));
+	/*ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement Component"));
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->SetIsReplicated(true);
 	ProjectileMovementComponent->bShouldBounce = true;
-	
 	ProjectileMovementComponent->InitialSpeed = InitialSpeed;
-	ProjectileMovementComponent->MaxSpeed = InitialSpeed;
+	ProjectileMovementComponent->MaxSpeed = InitialSpeed;*/
+
+	RocketMovementComponent = CreateDefaultSubobject<URocketMovementComponent>(TEXT("RocketMovement Component"));
+	RocketMovementComponent->bRotationFollowsVelocity = true;
+	RocketMovementComponent->SetIsReplicated(true);
+	RocketMovementComponent->bShouldBounce = true;
+	RocketMovementComponent->InitialSpeed = InitialSpeed;
+	RocketMovementComponent->MaxSpeed = InitialSpeed;
 
 	ExplosionMinDamage = Damage;
 }
@@ -31,7 +38,9 @@ void AProjectileGrenade::BeginPlay()
 	SpawnTrailSystem();
 	StartDestroyTimer();
 
-	ProjectileMovementComponent->OnProjectileBounce.AddDynamic(this, &AProjectileGrenade::OnBounce);
+	// ProjectileMovementComponent->OnProjectileBounce.AddDynamic(this, &AProjectileGrenade::OnBounce);
+
+	RocketMovementComponent->OnProjectileBounce.AddDynamic(this, &AProjectileGrenade::OnBounce);
 }
 
 void AProjectileGrenade::Tick(float DeltaTime)
@@ -41,6 +50,8 @@ void AProjectileGrenade::Tick(float DeltaTime)
 
 void AProjectileGrenade::OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity)
 {
+
+	UE_LOG(LogTemp, Warning, TEXT("Bounce of: %s"), *ImpactResult.GetComponent()->GetName())
 	if (BounceSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(

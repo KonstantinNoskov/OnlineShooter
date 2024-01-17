@@ -4,6 +4,8 @@
 #include "Projectile.h"
 #include "ProjectileGrenade.generated.h"
 
+class URocketMovementComponent; 
+
 UCLASS()
 class ONLINESHOOTER_API AProjectileGrenade : public AProjectile
 {
@@ -25,6 +27,9 @@ protected:
 		
 private:
 
+	UPROPERTY(VisibleAnywhere)
+	URocketMovementComponent* RocketMovementComponent;
+	
 	UPROPERTY(EditAnywhere)
 	USoundCue* BounceSound;
 };

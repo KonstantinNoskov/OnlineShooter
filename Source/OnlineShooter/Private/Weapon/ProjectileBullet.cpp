@@ -17,7 +17,6 @@ AProjectileBullet::AProjectileBullet()
 
 	ProjectileMovementComponent->InitialSpeed = InitialSpeed;
 	ProjectileMovementComponent->MaxSpeed = InitialSpeed;
-	
 }
 
 void AProjectileBullet::BeginPlay()

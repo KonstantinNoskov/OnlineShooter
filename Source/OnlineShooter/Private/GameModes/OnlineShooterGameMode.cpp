@@ -9,7 +9,7 @@
 #include "PlayerController/OnlineShooterPlayerController.h"
 #include "PlayerStates/OnlineShooterPlayerState.h"
 
-namespace MatchState
+namespace MatchState 
 {
 	const FName Cooldown = FName("Cooldown");
 }

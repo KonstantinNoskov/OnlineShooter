@@ -146,7 +146,7 @@ void AWeapon::OnRep_Owner()
 }
 
 // if player overlap weapon collision sphere, pass this weapon to player's @var OverlapWeapon
-void AWeapon::OnSphereOverlap(UPrimitiveComponent* OvelappedComponent, AActor* OtherActor,
+void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(OtherActor);
@@ -313,8 +313,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 			}
 		}
 	}
-
-
+	
 	// Decrement ammo and update HUD 
 	SpendRound();
 }

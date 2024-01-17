@@ -31,13 +31,15 @@ AProjectile::AProjectile()
 	CollisionBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECR_Block);
-
 	
 }
 
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	CollisionBox->IgnoreActorWhenMoving(Owner, true);
+	//CollisionBox->IgnoreComponentWhenMoving(Character->GetMesh(), true);
 	
 	if(Tracer)
 	{
@@ -104,7 +106,6 @@ void AProjectile::ExplodeDamage()
 			//DrawDebugSphere(GetWorld(), GetActorLocation(), OuterRadius, 16, FColor::Red, false, 2.f);
 		}
 	}
-	
 }
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -112,7 +113,6 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 {
 	Destroy();
 }
-
 
 void AProjectile::StartDestroyTimer()
 {
@@ -123,7 +123,6 @@ void AProjectile::StartDestroyTimer()
 		DestroyTime
 		);
 }
-
 void AProjectile::DestroyTimerFinished()
 {
 	Destroy();

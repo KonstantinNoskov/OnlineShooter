@@ -9,6 +9,7 @@ class UProjectileMovementComponent;
 class UBoxComponent;
 class UNiagaraSystem;
 class UNiagaraComponent;
+class AOnlineShooterCharacter;
 
 UCLASS()
 class ONLINESHOOTER_API AProjectile : public AActor
@@ -25,7 +26,7 @@ protected:
 	
 	UFUNCTION()
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
+	
 private:
 	
 	UPROPERTY(EditAnywhere, Category = "Projectile")

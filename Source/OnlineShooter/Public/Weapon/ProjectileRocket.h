@@ -5,6 +5,7 @@
 #include "ProjectileRocket.generated.h"
 
 class URocketMovementComponent;
+
 UCLASS()
 class ONLINESHOOTER_API AProjectileRocket : public AProjectile
 {

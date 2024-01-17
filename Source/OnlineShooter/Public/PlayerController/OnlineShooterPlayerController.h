@@ -25,7 +25,7 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UPROPERTY()
-	float ClinetServerDelta = 0.f; // difference between client and server time
+	float ClientServerDelta = 0.f; // difference between client and server time
 
 	UPROPERTY(EditAnywhere, Category = Time)
 	float TimeSyncFrequency = 5.f;

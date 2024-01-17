@@ -52,6 +52,16 @@ private:
 	UPROPERTY()
 	bool bCanFire = true;
 
+	// Ammo for the currently-equipped weapon carried by a player
+	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
+	int32 CarriedAmmo;
+
+	UPROPERTY(EditAnywhere)
+	int32 MaxCarriedAmmo = 90.f;
+
+	UPROPERTY()
+	TMap<EWeaponType, int32> CarriedAmmoMap;
+	
 	UPROPERTY(EditAnywhere)
 	int32 StartingARAmmo = 30;
 
@@ -73,18 +83,11 @@ private:
 	UPROPERTY(EditAnywhere)
 	int32 StartingGrenadeLauncherAmmo = 0;
 
-	UPROPERTY(ReplicatedUsing = OnRep_Grenades)
+	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Grenades)
 	int32 Grenades = 3;
 
 	UPROPERTY(EditAnywhere)
 	int32 MaxGrenades = 3;
-	
-	// Ammo for the currently-equipped weapon carried by player
-	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
-	int32 CarriedAmmo;
-
-	UPROPERTY()
-	TMap<EWeaponType, int32> CarriedAmmoMap;
 	
 	UPROPERTY()
 	AOnlineShooterCharacter* Character;
@@ -125,6 +128,7 @@ private:
 	UPROPERTY()
 	float CrosshairShootFactor;
 
+	UPROPERTY()
 	FVector HitTarget;
 	
 	/*
@@ -271,6 +275,9 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void Server_LaunchGrenade(const FVector_NetQuantize& Target);
+
+	UFUNCTION()
+	void PickupAmmo(EWeaponType AmmoWeaponType, int32 AmmoAmount);
 
 
 	FORCEINLINE int32 GetGrenades() const { return Grenades; }

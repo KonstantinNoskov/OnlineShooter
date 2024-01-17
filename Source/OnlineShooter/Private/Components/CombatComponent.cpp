@@ -97,11 +97,10 @@ void UCombatComponent::SetAiming(bool bIsAiming)
 	bAiming = bIsAiming;
 	Server_SetAiming(bIsAiming);
 	
-	if (Character && EquippedWeapon)
-	{
-		Character->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimingWalkSpeed : BaseWalkSpeed;
-	}
+	// Calculate walk speed aiming factor
+	Character->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimingWalkSpeed : BaseWalkSpeed;
 
+	
 	if(Character->IsLocallyControlled() && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
 	{
 		Controller = !Controller ? Cast<AOnlineShooterPlayerController>(Character->Controller) : Controller;
@@ -319,7 +318,6 @@ void UCombatComponent::InitializeCarriedAmmo()
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_SniperRifle, StartingSniperAmmo);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_GrenadeLauncher, StartingGrenadeLauncherAmmo);
 }
-
 void UCombatComponent::OnFireTimerFinished()
 {
 	if(!EquippedWeapon) return;
@@ -333,7 +331,6 @@ void UCombatComponent::OnFireTimerFinished()
 	
 	ReloadEmptyWeapon();
 }
-
 void UCombatComponent::OnRep_CarriedAmmo()
 {
 	Controller = !Controller ? Cast<AOnlineShooterPlayerController>(Character->Controller) : Controller;
@@ -386,15 +383,14 @@ void UCombatComponent::OnRep_CombatState()
 // Reload
 void UCombatComponent::Reload()
 {
-	bool bCanReload =
-		CarriedAmmo > 0 &&
-		CombatState == ECombatState::ECS_Unoccupied &&
-		EquippedWeapon &&
-		EquippedWeapon->IsFull();
 	
-	if (bCanReload)
+	UE_LOG(LogTemp, Warning, TEXT("IsFull:%hhd"), EquippedWeapon->IsFull())
+	
+	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied && EquippedWeapon && !EquippedWeapon->IsFull())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("UCombatComponent::Server_Reload - RELOAD!"))
 		Server_Reload();
+		HandleReload();
 	}
 }
 void UCombatComponent::Server_Reload_Implementation()
@@ -435,6 +431,7 @@ int32 UCombatComponent::AmountToReload()
 void UCombatComponent::HandleReload() 
 {
 	Character->PlayReloadMontage();
+	UE_LOG(LogTemp, Warning, TEXT("UCombatComponent::HandleReload - RELOAD!"))
 }
 void UCombatComponent::UpdateAmmoValues()
 {
@@ -454,7 +451,7 @@ void UCombatComponent::UpdateAmmoValues()
 		Controller->SetHUDCarriedAmmo(CarriedAmmo);
 	}
 	
-	EquippedWeapon->AddAmmo(ReloadAmount);
+	EquippedWeapon->AddAmmo(ReloadAmount);	
 }
 void UCombatComponent::UpdateShotgunAmmoValues()
 {
@@ -480,7 +477,6 @@ void UCombatComponent::UpdateShotgunAmmoValues()
 		JumpToShotgunEnd();
 	}
 }
-
 void UCombatComponent::ShotgunShellReload()
 {
 	if(Character && Character->HasAuthority())
@@ -502,8 +498,14 @@ void UCombatComponent::JumpToShotgunEnd()
 // Throw Grenade
 void UCombatComponent::ThrowGrenade() 
 {
-	// Check for ability to throw grenade 
-	if (CombatState != ECombatState::ECS_Unoccupied || !EquippedWeapon || !Grenades) return;
+	// Check for ability to throw grenade
+	bool bNotAbleToThrow =
+		CombatState != ECombatState::ECS_Unoccupied ||
+		!EquippedWeapon ||
+		!Grenades ||
+		Character->IsEliminated();
+	
+	if (bNotAbleToThrow) return;
 	
 	// Set combat state
 	CombatState = ECombatState::ECS_ThrowingGrenade;
@@ -609,7 +611,6 @@ void UCombatComponent::UpdateHUDGrenades()
 		Controller->SetHUDGrenades(Grenades);
 	}
 }
-
 void UCombatComponent::OnRep_Grenades()
 {
 	// Update HUD
@@ -706,15 +707,6 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 				HUDPackage.CrosshairTop		= nullptr;
 				HUDPackage.CrosshairBottom	= nullptr;
 			}
-
-			/*if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle && !bShowCrosshair)
-			{
-				HUDPackage.CrosshairCenter	= nullptr;
-				HUDPackage.CrosshairLeft	= nullptr;
-				HUDPackage.CrosshairRight	= nullptr;
-				HUDPackage.CrosshairTop		= nullptr;
-				HUDPackage.CrosshairBottom	= nullptr;
-			}*/
 			
 			// Calculate crosshair spread
 			FVector2d WalkSpeedRange(0.f, Character->GetCharacterMovement()->MaxWalkSpeed);
@@ -760,7 +752,6 @@ void UCombatComponent::SetHUDCrosshair(float DeltaTime)
 		}
 	}
 }
-
 void UCombatComponent::InterpFOV(float DeltaTime)
 {
 	if(!EquippedWeapon) return;
@@ -779,6 +770,33 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 		 Character->GetFollowCamera()->SetFieldOfView(CurrentFOV);
 	}
 }
+
+// Pickup Ammo
+void UCombatComponent::PickupAmmo(EWeaponType AmmoWeaponType, int32 AmmoAmount)
+{
+	// Ammo type valid check
+	if (CarriedAmmoMap.Contains(AmmoWeaponType))
+	{
+		// Add the pickup ammo to the carried ammo
+		CarriedAmmoMap[AmmoWeaponType] = FMath::Clamp(CarriedAmmoMap[AmmoWeaponType] + AmmoAmount, 0, MaxCarriedAmmo);
+		CarriedAmmo = CarriedAmmoMap[AmmoWeaponType];
+		
+		// Update carried ammo in HUD if still have ammo.
+		Controller = !Controller ? Cast<AOnlineShooterPlayerController>(Character->Controller) : Controller;
+		if(Controller)
+		{
+			Controller->SetHUDCarriedAmmo(CarriedAmmo);
+		}
+		
+		// Reload immediately if out of ammo
+		if(EquippedWeapon && EquippedWeapon->IsEmpty() && EquippedWeapon->GetWeaponType() == AmmoWeaponType)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("UCombatComponent::PickupAmmo - RELOAD!"))
+			Reload();
+		}
+	}
+}
+
 
 
 
