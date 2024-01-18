@@ -18,6 +18,7 @@
 
 #include "OnlineShooterCharacter.generated.h"
 
+class UBuffComponent;
 class AOnlineShooterPlayerState;
 class USoundCue;
 class UCombatComponent;
@@ -51,6 +52,7 @@ public:
 
 	// Friend Classes
 	friend UCombatComponent;
+	
 
 protected:
 	
@@ -78,6 +80,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	UCombatComponent* Combat;
 
+	// Buff component
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Buff, meta = (AllowPrivateAccess = "true"))
+	UBuffComponent* Buff;
+	
 	// Grenade
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* AttachedGrenade;
@@ -360,13 +366,8 @@ private:
 	float Health = 100.f;
 
 	UFUNCTION()
-	void OnRep_Health();
+	void OnRep_Health(float LastHealth);
 
-protected:
-	
-	UFUNCTION()
-	void UpdateHUDHealth();
-	
 #pragma endregion
 
 public:
@@ -407,7 +408,7 @@ private:
 	void EliminatedTimerFinished();
 
 protected:
-
+	
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser);
 
@@ -419,6 +420,10 @@ protected:
 	void PollInit();
 	
 public:
+
+	UFUNCTION()
+	void UpdateHUDHealth();
+	
 	// Determines whether player overlap weapon
 	void SetOverlappingWeapon(AWeapon* Weapon);
 
@@ -462,13 +467,15 @@ public:
 
 	UFUNCTION()
 	ECombatState GetCombatState() const;
-	
+
+	// Getters
 	FORCEINLINE float GetAO_Yaw() const								{ return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() const							{ return AO_Pitch; }
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const			{ return TurningInPlace; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const			{ return FollowCamera; }
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const			{ return CameraBoom; }
 	FORCEINLINE UCombatComponent* GetCombatComponent() const		{ return Combat; }
+	FORCEINLINE UBuffComponent* GetBuffComponent() const			{ return Buff; }
 	FORCEINLINE bool ShouldRotateRootBone() const					{ return bRotateRootBone; }
 	FORCEINLINE bool IsEliminated() const							{ return bEliminated; }
 	FORCEINLINE float GetHealth() const								{ return Health; }
@@ -476,6 +483,9 @@ public:
 	FORCEINLINE bool GetDisableGameplay() const						{ return bDisableGameplay; }
 	FORCEINLINE UAnimMontage* GetReloadMontage() const				{ return ReloadMontage; }
 	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const	{ return AttachedGrenade; }
+
+	// Setters
+	FORCEINLINE void SetHealth(float NewHealth)						{ Health = NewHealth; }
 	
 	
 };

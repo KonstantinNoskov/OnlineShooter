@@ -32,7 +32,7 @@ void AAmmoPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 		}
 	}
 
-	Destroyed();
+	Destroy();
 }
 
 

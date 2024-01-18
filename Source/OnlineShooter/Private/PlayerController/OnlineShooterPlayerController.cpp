@@ -83,6 +83,7 @@ void AOnlineShooterPlayerController::OnPossess(APawn* InPawn)
 	}
 }
 
+// Set Character Overlay
 void AOnlineShooterPlayerController::SetHUDHealth(float Health, float MaxHealth)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
@@ -110,7 +111,6 @@ void AOnlineShooterPlayerController::SetHUDHealth(float Health, float MaxHealth)
 		HUDMaxHealth = MaxHealth;
 	}
 }
-
 void AOnlineShooterPlayerController::SetHUDScore(float Score)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
@@ -134,7 +134,6 @@ void AOnlineShooterPlayerController::SetHUDScore(float Score)
 		HUDScore = Score;
 	}
 }
-
 void AOnlineShooterPlayerController::SetHUDDefeats(int32 Defeats)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
@@ -157,7 +156,6 @@ void AOnlineShooterPlayerController::SetHUDDefeats(int32 Defeats)
 		HUDDefeats = Defeats;
 	}
 }
-
 void AOnlineShooterPlayerController::SetHUDElimMessage(FString ElimMessage)
 {
 	
@@ -181,7 +179,6 @@ void AOnlineShooterPlayerController::SetHUDElimMessage(FString ElimMessage)
 		
 	}
 }
-
 void AOnlineShooterPlayerController::HideElimMessage()
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
@@ -196,7 +193,6 @@ void AOnlineShooterPlayerController::HideElimMessage()
 		OnlineShooterHUD->CharacterOverlay->ElimText->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
-
 void AOnlineShooterPlayerController::SetHUDWeaponAmmo(int32 Ammo)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
@@ -212,7 +208,6 @@ void AOnlineShooterPlayerController::SetHUDWeaponAmmo(int32 Ammo)
 		OnlineShooterHUD->CharacterOverlay->WeaponAmmoAmount->SetText(FText::FromString(WeaponAmmoText));
 	}
 }
-
 void AOnlineShooterPlayerController::SetHUDCarriedAmmo(int32 Ammo)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
@@ -228,7 +223,28 @@ void AOnlineShooterPlayerController::SetHUDCarriedAmmo(int32 Ammo)
 		OnlineShooterHUD->CharacterOverlay->CarriedAmmoAmount->SetText(FText::FromString(CarriedAmmoText));
 	}
 }
+void AOnlineShooterPlayerController::SetHUDGrenades(int32 Grenades)
+{
+	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
 
+	bool bHUDValid =
+		OnlineShooterHUD &&
+		OnlineShooterHUD->CharacterOverlay &&
+		OnlineShooterHUD->CharacterOverlay->GrenadesAmount;
+
+	if(bHUDValid)
+	{
+		FString GrenadesText = FString::Printf(TEXT("%d"), Grenades); 
+		OnlineShooterHUD->CharacterOverlay->GrenadesAmount->SetText(FText::FromString(GrenadesText));
+	}
+
+	else
+	{
+		HUDGrenades = Grenades;
+	}
+}
+
+// Set Match countdown widget
 void AOnlineShooterPlayerController::SetHUDMatchCountdown(float CountdownTime)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
@@ -253,7 +269,6 @@ void AOnlineShooterPlayerController::SetHUDMatchCountdown(float CountdownTime)
 		OnlineShooterHUD->CharacterOverlay->MatchCountdownText->SetText(FText::FromString(CountdownText));
 	}
 }
-
 void AOnlineShooterPlayerController::SetHUDAnnouncementCountdown(float CountdownTime)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
@@ -278,7 +293,32 @@ void AOnlineShooterPlayerController::SetHUDAnnouncementCountdown(float Countdown
 		OnlineShooterHUD->Announcement->WarmupTime->SetText(FText::FromString(CountdownText));
 	}
 }
+void AOnlineShooterPlayerController::SetHUDTime()
+{
+	float TimeLeft = 0.f;
 
+	if(MatchState == MatchState::WaitingToStart)	TimeLeft = WarmupTime - GetServerTime() + LevelStartingTime;
+	else if (MatchState == MatchState::InProgress)	TimeLeft = WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;
+	else if (MatchState == MatchState::Cooldown)	TimeLeft = CooldownTime + WarmupTime + MatchTime - GetServerTime() + LevelStartingTime; 
+	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
+	
+	if(CountdownInt != SecondsLeft)
+	{
+		if(MatchState == MatchState::WaitingToStart || MatchState == MatchState::Cooldown)
+		{
+			SetHUDAnnouncementCountdown(TimeLeft);
+		}
+
+		if(MatchState == MatchState::InProgress)
+		{
+			SetHUDMatchCountdown(TimeLeft);
+		}
+	}
+	
+	CountdownInt = SecondsLeft;
+}
+
+// Sniper scope
 void AOnlineShooterPlayerController::SetHUDSniperScope(bool bIsAiming)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
@@ -310,52 +350,6 @@ void AOnlineShooterPlayerController::SetHUDSniperScope(bool bIsAiming)
 			);
 		}
 	}
-}
-
-void AOnlineShooterPlayerController::SetHUDGrenades(int32 Grenades)
-{
-	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
-
-	bool bHUDValid =
-		OnlineShooterHUD &&
-		OnlineShooterHUD->CharacterOverlay &&
-		OnlineShooterHUD->CharacterOverlay->GrenadesAmount;
-
-	if(bHUDValid)
-	{
-		FString GrenadesText = FString::Printf(TEXT("%d"), Grenades); 
-		OnlineShooterHUD->CharacterOverlay->GrenadesAmount->SetText(FText::FromString(GrenadesText));
-	}
-
-	else
-	{
-		HUDGrenades = Grenades;
-	}
-}
-
-void AOnlineShooterPlayerController::SetHUDTime()
-{
-	float TimeLeft = 0.f;
-
-	if(MatchState == MatchState::WaitingToStart)	TimeLeft = WarmupTime - GetServerTime() + LevelStartingTime;
-	else if (MatchState == MatchState::InProgress)	TimeLeft = WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;
-	else if (MatchState == MatchState::Cooldown)	TimeLeft = CooldownTime + WarmupTime + MatchTime - GetServerTime() + LevelStartingTime; 
-	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
-	
-	if(CountdownInt != SecondsLeft)
-	{
-		if(MatchState == MatchState::WaitingToStart || MatchState == MatchState::Cooldown)
-		{
-			SetHUDAnnouncementCountdown(TimeLeft);
-		}
-
-		if(MatchState == MatchState::InProgress)
-		{
-			SetHUDMatchCountdown(TimeLeft);
-		}
-	}
-	
-	CountdownInt = SecondsLeft;
 }
 
 #pragma region SYNC CLIENT/SERVER TIME

@@ -28,6 +28,7 @@
 #include "Particles/ParticleSystemComponent.h"
 
 // GameModes
+#include "Components/BuffComponent.h"
 #include "GameModes/OnlineShooterGameMode.h"
 #include "PlayerStates/OnlineShooterPlayerState.h"
 
@@ -64,6 +65,10 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	Combat->SetIsReplicated(true);
 
+	// Buff
+	Buff = CreateDefaultSubobject<UBuffComponent>(TEXT("BuffComponent"));
+	Buff->SetIsReplicated(true);
+
 	// Collision preset
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
@@ -92,10 +97,15 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 void AOnlineShooterCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
+	
 	if (Combat)
 	{
 		Combat->Character = this;
+	}
+
+	if(Buff)
+	{
+		Buff->Character = this;
 	}
 }
 
@@ -343,10 +353,15 @@ void AOnlineShooterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, 
 	}
 }
 
-void AOnlineShooterCharacter::OnRep_Health()
+void AOnlineShooterCharacter::OnRep_Health(float LastHealth)
 {
 	UpdateHUDHealth();
-	PlayHitReactMontage();
+
+	if(Health < LastHealth)
+	{
+		PlayHitReactMontage();	
+	}
+	
 }
 void AOnlineShooterCharacter::UpdateHUDHealth()
 {
@@ -590,6 +605,7 @@ void AOnlineShooterCharacter::Destroyed()
 	bool bMatchNotInProgress = OnlineShooterGameMode && OnlineShooterGameMode->GetMatchState() != MatchState::InProgress;
 }
 
+
 void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 {
 	if (!Combat && !Combat->EquippedWeapon) return; 
@@ -625,7 +641,6 @@ void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 
 	CalculateAO_Pitch();
 }
-
 void AOnlineShooterCharacter::SimProxiesTurn()
 {
 	if(!Combat || !Combat->EquippedWeapon) return;
