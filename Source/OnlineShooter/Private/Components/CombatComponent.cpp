@@ -334,7 +334,7 @@ void UCombatComponent::OnFireTimerFinished()
 void UCombatComponent::OnRep_CarriedAmmo()
 {
 	Controller = !Controller ? Cast<AOnlineShooterPlayerController>(Character->Controller) : Controller;
-	if(Controller)
+	if(Controller && EquippedWeapon)
 	{
 		Controller->SetHUDCarriedAmmo(CarriedAmmo);
 	}
@@ -783,7 +783,7 @@ void UCombatComponent::PickupAmmo(EWeaponType AmmoWeaponType, int32 AmmoAmount)
 		
 		// Update carried ammo in HUD if still have ammo.
 		Controller = !Controller ? Cast<AOnlineShooterPlayerController>(Character->Controller) : Controller;
-		if(Controller)
+		if(Controller && EquippedWeapon && EquippedWeapon->GetWeaponType() == AmmoWeaponType)
 		{
 			Controller->SetHUDCarriedAmmo(CarriedAmmo);
 		}
@@ -796,6 +796,8 @@ void UCombatComponent::PickupAmmo(EWeaponType AmmoWeaponType, int32 AmmoAmount)
 		}
 	}
 }
+
+
 
 
 

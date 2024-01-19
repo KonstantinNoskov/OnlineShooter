@@ -4,6 +4,9 @@
 #include "GameFramework/Actor.h"
 #include "Pickup.generated.h"
 
+class AOnlineShooterCharacter;
+class UNiagaraSystem;
+class UNiagaraComponent;
 class USoundCue;
 class USphereComponent;
 
@@ -29,17 +32,36 @@ protected:
 		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 private:
+
+	UPROPERTY()
+	AOnlineShooterCharacter* OverlapCharacter;
+	
 	UPROPERTY(EditAnywhere)
 	USoundCue* PickupSound;
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* PickupMesh;
+	
+	UPROPERTY(EditAnywhere)
+	UNiagaraSystem* PickupEffect;
 
 protected:
+
+	UPROPERTY(VisibleAnywhere)
+	UNiagaraComponent* PickupEffectComponent;
 	
 	UPROPERTY(EditAnywhere)
 	float BaseTurnRate = 45.f;
 
 public:
+	UPROPERTY()
+	UNiagaraComponent* SideEffect;
+
+private:
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlayEffect(AOnlineShooterCharacter* OverlappedCharacter);
+public:
+	
 	
 };

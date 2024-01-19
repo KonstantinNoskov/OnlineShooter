@@ -279,7 +279,7 @@ public:
 	UFUNCTION()
 	void PickupAmmo(EWeaponType AmmoWeaponType, int32 AmmoAmount);
 
-
+	
 	FORCEINLINE int32 GetGrenades() const { return Grenades; }
 	
 };

@@ -97,15 +97,24 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 void AOnlineShooterCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	
+
+	// Combat component valid check
 	if (Combat)
 	{
 		Combat->Character = this;
 	}
 
+	// Buff component valid check
 	if(Buff)
 	{
+		// Set initial speed
 		Buff->Character = this;
+		Buff->SetInitialSpeeds(
+			GetCharacterMovement()->MaxWalkSpeed,
+			GetCharacterMovement()->MaxWalkSpeedCrouched);
+
+		// Set initial Jump velocity
+		Buff->SetInitialJumpVelocity(GetCharacterMovement()->JumpZVelocity); 
 	}
 }
 
@@ -902,7 +911,6 @@ void AOnlineShooterCharacter::PlayReloadMontage()
 	if (!Combat || !Combat->EquippedWeapon) return;
 	
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	
 	if(AnimInstance && ReloadMontage)
 	{
 		AnimInstance->Montage_Play(ReloadMontage);

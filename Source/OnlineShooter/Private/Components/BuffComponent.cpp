@@ -1,6 +1,8 @@
 ﻿#include "Components/BuffComponent.h"
 
+#include "NiagaraComponent.h"
 #include "Characters/OnlineShooterCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 UBuffComponent::UBuffComponent()
@@ -42,6 +44,96 @@ void UBuffComponent::HealRampUp(float DeltaTime)
 	{
 		bHealing = false;
 		AmountToHeal = 0.f;
-		
 	}
 }
+
+// Pickup Speed
+void UBuffComponent::SetInitialSpeeds(float BaseSpeed, float CrouchSpeed) 
+{
+	InitialBaseSpeed = BaseSpeed;
+	InitialCrouchSpeed = CrouchSpeed;
+}
+void UBuffComponent::BuffSpeed(float BuffBaseSpeed, float BuffCrouchSpeed, float Time)
+{	
+	if(!Character) return;
+
+	Character->GetWorldTimerManager().SetTimer(
+		SpeedBuffTimer,
+		this,
+		&UBuffComponent::ResetSpeeds,
+		Time
+		);
+
+	if(Character->GetCharacterMovement())
+	{
+		Character->GetCharacterMovement()->MaxWalkSpeed = BuffBaseSpeed;
+		Character->GetCharacterMovement()->MaxWalkSpeedCrouched = BuffCrouchSpeed;
+	}
+
+	Multicast_UpdateSpeeds(BuffBaseSpeed, BuffCrouchSpeed);
+}
+void UBuffComponent::ResetSpeeds() 
+{
+	if(!Character || !Character->GetCharacterMovement()) return;
+	
+	Character->GetCharacterMovement()->MaxWalkSpeed = InitialBaseSpeed;
+	Character->GetCharacterMovement()->MaxWalkSpeedCrouched = InitialCrouchSpeed;
+	
+	Multicast_UpdateSpeeds(InitialBaseSpeed, InitialCrouchSpeed);
+}
+void UBuffComponent::Multicast_UpdateSpeeds_Implementation(float BaseSpeed, float CrouchSpeed)
+{
+	Character->GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+	Character->GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchSpeed;
+}
+
+
+// Pickup Jump
+void UBuffComponent::SetInitialJumpVelocity(float Velocity)
+{
+	InitialJumpVelocity = Velocity;
+}
+
+void UBuffComponent::BuffJump(float BuffJumpVelocity, float Time)
+{
+	if(!Character) return;
+
+	Character->GetWorldTimerManager().SetTimer(
+		JumpBuffTimer,
+		this,
+		&UBuffComponent::ResetJump,
+		Time
+		);
+
+	if(Character->GetCharacterMovement())
+	{
+		Character->GetCharacterMovement()->JumpZVelocity = BuffJumpVelocity;
+	}
+
+	Multicast_UpdateJumpVelocity(BuffJumpVelocity);
+}
+void UBuffComponent::Multicast_UpdateJumpVelocity_Implementation(float NewJumpVelocity)
+{
+	Character->GetCharacterMovement()->JumpZVelocity = NewJumpVelocity;
+
+	if (Character->GetCharacterMovement()->JumpZVelocity == InitialJumpVelocity)
+	{
+		BuffEffect->Deactivate();
+	}
+}
+void UBuffComponent::ResetJump()
+{
+	if(!Character || !Character->GetCharacterMovement()) return;
+	
+	Character->GetCharacterMovement()->JumpZVelocity = InitialJumpVelocity;
+
+	if (BuffEffect)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Buff effect deactivated"))
+		BuffEffect->Deactivate();
+	}
+	
+	Multicast_UpdateJumpVelocity(InitialJumpVelocity);
+}
+
+

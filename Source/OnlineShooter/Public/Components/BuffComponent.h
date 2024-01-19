@@ -5,6 +5,7 @@
 #include "BuffComponent.generated.h"
 
 
+class UNiagaraComponent;
 class AOnlineShooterCharacter;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -38,6 +39,41 @@ private:
 	UPROPERTY()
 	float AmountToHeal = 0.f;
 
+	UPROPERTY()
+	float InitialBaseSpeed;
+
+	UPROPERTY()
+	float InitialCrouchSpeed;
+
+	UPROPERTY()
+	float InitialJumpVelocity;
+	
+	UPROPERTY()
+	FTimerHandle SpeedBuffTimer;
+
+	UPROPERTY()
+	FTimerHandle JumpBuffTimer;
+
+	UPROPERTY()
+	float BuffTime;
+
+	UPROPERTY()
+	UNiagaraComponent* BuffEffect;
+
+private:
+
+	UFUNCTION()
+	void ResetSpeeds();
+
+	UFUNCTION()
+	void ResetJump();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_UpdateSpeeds(float BaseSpeed, float CrouchSpeed);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_UpdateJumpVelocity(float NewJumpVelocity);
+
 protected:
 
 	UFUNCTION()
@@ -47,6 +83,21 @@ public:
 
 	UFUNCTION()
 	void Heal(float HealAmount, float HealingTime);
+
+	UFUNCTION()
+	void BuffSpeed(float BuffBaseSpeed, float BuffCrouchSpeed, float Time);
+
+	UFUNCTION()
+	void BuffJump(float BuffJumpVelocity, float Time);
+
+	UFUNCTION()
+	void SetInitialSpeeds(float BaseSpeed, float CrouchSpeed);
+
+	UFUNCTION()
+	void SetInitialJumpVelocity(float Velocity);
+
+	FORCEINLINE void SetBuffEffect(UNiagaraComponent* NewEffect) { BuffEffect = NewEffect; }
+	
 	
 };
 

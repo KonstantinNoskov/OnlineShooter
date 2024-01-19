@@ -175,7 +175,6 @@ public:
 	UFUNCTION()
 	void EnableCustomDepth(bool bEnable);
 	
-	
 	FORCEINLINE EWeaponState GetWeaponState() const { return WeaponState; }
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
