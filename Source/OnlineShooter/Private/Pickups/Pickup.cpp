@@ -61,7 +61,7 @@ void APickup::Tick(float DeltaTime)
 void APickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                               UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	OverlapCharacter = !OverlapCharacter ? Cast<AOnlineShooterCharacter>(OtherActor) : OverlapCharacter;
+	AOnlineShooterCharacter* OverlapCharacter = Cast<AOnlineShooterCharacter>(OtherActor);
 	if(OverlapCharacter)
 	{
 		Multicast_PlayEffect(OverlapCharacter);	
@@ -70,19 +70,17 @@ void APickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	Destroy();
 }
 
-void APickup::Multicast_PlayEffect_Implementation(AOnlineShooterCharacter* OverlappedCharacter)
+void APickup::Multicast_PlayEffect_Implementation(AOnlineShooterCharacter* OverlapCharacter)
 {
-	OverlapCharacter = !OverlapCharacter ? Cast<AOnlineShooterCharacter>(OverlappedCharacter) : OverlapCharacter; 
-	
+	//OverlapCharacter = !OverlapCharacter ? Cast<AOnlineShooterCharacter>(OverlappedCharacter) : OverlapCharacter;
 	
 	if (PickupEffect && OverlapCharacter && OverlapCharacter->GetMesh())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Multicast_PlayEffect"))
-		SideEffect = UNiagaraFunctionLibrary::SpawnSystemAttached(
+		UNiagaraComponent* SideEffect = UNiagaraFunctionLibrary::SpawnSystemAttached(
 		PickupEffect,
 		OverlapCharacter->GetMesh(),
 		FName(),
-		OverlapCharacter->GetActorLocation(),
+		OverlapCharacter->GetActorLocation(), 
 		OverlapCharacter->GetActorRotation(),
 		EAttachLocation::KeepWorldPosition,
 		true
@@ -99,8 +97,7 @@ void APickup::Multicast_PlayEffect_Implementation(AOnlineShooterCharacter* Overl
 		GetActorLocation(),
 		GetActorRotation(),
 		FVector(3.f,3.f,3.f)
-		);*/
-		
+		);*/ 
 	}
 }
 
@@ -122,9 +119,9 @@ void APickup::Destroyed()
 		);*/
 	}
 	
-	if (PickupEffect && OverlapCharacter && OverlapCharacter->GetMesh())
+	/*if (PickupEffect && OverlapCharacter && OverlapCharacter->GetMesh())
 	{
-		/*UNiagaraFunctionLibrary::SpawnSystemAttached(
+		UNiagaraFunctionLibrary::SpawnSystemAttached(
 		PickupEffect,
 		OverlapCharacter->GetMesh(),
 		FName(),
@@ -132,18 +129,18 @@ void APickup::Destroyed()
 		OverlapCharacter->GetActorRotation(),
 		EAttachLocation::KeepWorldPosition,
 		true
-		);*/
+		);
 
 		
-	   	/*UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+	   	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 	   	this,
 	   	PickupEffect,
 	   	GetActorLocation(),
 	   	GetActorRotation(),
 	   	FVector(3.f,3.f,3.f)
-	   	);*/
+	   	);
 		
-	}
+	}*/
 }
 
 

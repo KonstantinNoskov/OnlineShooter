@@ -383,12 +383,9 @@ void UCombatComponent::OnRep_CombatState()
 // Reload
 void UCombatComponent::Reload()
 {
-	
-	UE_LOG(LogTemp, Warning, TEXT("IsFull:%hhd"), EquippedWeapon->IsFull())
-	
-	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied && EquippedWeapon && !EquippedWeapon->IsFull())
+ 	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied && EquippedWeapon && !EquippedWeapon->IsFull())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UCombatComponent::Server_Reload - RELOAD!"))
+		
 		Server_Reload();
 		HandleReload();
 	}
@@ -431,7 +428,7 @@ int32 UCombatComponent::AmountToReload()
 void UCombatComponent::HandleReload() 
 {
 	Character->PlayReloadMontage();
-	UE_LOG(LogTemp, Warning, TEXT("UCombatComponent::HandleReload - RELOAD!"))
+	
 }
 void UCombatComponent::UpdateAmmoValues()
 {
@@ -791,7 +788,7 @@ void UCombatComponent::PickupAmmo(EWeaponType AmmoWeaponType, int32 AmmoAmount)
 		// Reload immediately if out of ammo
 		if(EquippedWeapon && EquippedWeapon->IsEmpty() && EquippedWeapon->GetWeaponType() == AmmoWeaponType)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("UCombatComponent::PickupAmmo - RELOAD!"))
+			
 			Reload();
 		}
 	}

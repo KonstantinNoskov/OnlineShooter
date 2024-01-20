@@ -144,6 +144,9 @@ void AOnlineShooterCharacter::BeginPlay()
 
 	// Set Health at the start of the game
 	UpdateHUDHealth();
+
+	// Set Health at the start of the game
+	UpdateHUDShield();
 	
 	// Bind delegates only on server
 	if(HasAuthority())
@@ -178,6 +181,7 @@ void AOnlineShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	
 	DOREPLIFETIME_CONDITION(AOnlineShooterCharacter, OverlappingWeapon, COND_OwnerOnly);
 	DOREPLIFETIME(AOnlineShooterCharacter, Health);
+	DOREPLIFETIME(AOnlineShooterCharacter, Shield);
 	DOREPLIFETIME(AOnlineShooterCharacter, bDisableGameplay);
 }
 
@@ -339,14 +343,32 @@ void AOnlineShooterCharacter::CalculateAO_Pitch()
 }
 #pragma endregion
 
-#pragma region HEALTH
+#pragma region PLAYER STATS
 
 void AOnlineShooterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
 {
 	if(bEliminated) return;
+
+	float DamageToHealth = Damage;
+
+	if (Shield > 0.f)
+	{
+		if (Shield >= Damage)
+		{
+			Shield = FMath::Clamp(Shield - Damage, 0.f, MaxShield);
+			DamageToHealth = 0.f;
+		}
+		else
+		{
+			DamageToHealth = FMath::Clamp(DamageToHealth - Shield, 0.f, Damage);
+			Shield = 0.f;
+		}
+	}
 	
-	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+	Health = FMath::Clamp(Health - DamageToHealth, 0.f, MaxHealth);
+	
 	UpdateHUDHealth();
+	UpdateHUDShield();
 	PlayHitReactMontage();
 
 	if(Health <= 0.f)
@@ -361,7 +383,6 @@ void AOnlineShooterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, 
 		}	
 	}
 }
-
 void AOnlineShooterCharacter::OnRep_Health(float LastHealth)
 {
 	UpdateHUDHealth();
@@ -372,6 +393,15 @@ void AOnlineShooterCharacter::OnRep_Health(float LastHealth)
 	}
 	
 }
+void AOnlineShooterCharacter::OnRep_Shield(float LastShield)
+{
+	UpdateHUDShield();
+
+	if(Shield < LastShield)
+	{
+		PlayHitReactMontage();	
+	}
+}
 void AOnlineShooterCharacter::UpdateHUDHealth()
 {
 	OnlineShooterPlayerController = !OnlineShooterPlayerController ? Cast<AOnlineShooterPlayerController>(Controller) : OnlineShooterPlayerController;
@@ -381,7 +411,15 @@ void AOnlineShooterCharacter::UpdateHUDHealth()
 		OnlineShooterPlayerController->SetHUDHealth(Health, MaxHealth);
 	}
 }
-
+void AOnlineShooterCharacter::UpdateHUDShield() 
+{
+	OnlineShooterPlayerController = !OnlineShooterPlayerController ? Cast<AOnlineShooterPlayerController>(Controller) : OnlineShooterPlayerController;
+	
+	if(OnlineShooterPlayerController)
+	{
+		OnlineShooterPlayerController->SetHUDShield(Shield, MaxShield);
+	}
+}
 void AOnlineShooterCharacter::Eliminated()
 {
 	if(Combat && Combat->EquippedWeapon)
@@ -392,7 +430,6 @@ void AOnlineShooterCharacter::Eliminated()
 	Multicast_Eliminated();
 	GetWorldTimerManager().SetTimer(EliminatedTimer, this, &AOnlineShooterCharacter::EliminatedTimerFinished, EliminatedDelay);
 }
-
 void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 {
 	if(OnlineShooterPlayerController)
@@ -525,7 +562,6 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 		ShowSniperScopeWidget(false);
 	}
 }
-
 void AOnlineShooterCharacter::EliminatedTimerFinished()
 {
 	AOnlineShooterGameMode* OnlineShooterGameMode = GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>();
@@ -535,6 +571,7 @@ void AOnlineShooterCharacter::EliminatedTimerFinished()
 		OnlineShooterGameMode->RequestRespawn(this, Controller);
 	}
 }
+
 #pragma endregion
 
 #pragma region DISSOLVE EFFECT
@@ -613,7 +650,6 @@ void AOnlineShooterCharacter::Destroyed()
 	AOnlineShooterGameMode* OnlineShooterGameMode = Cast<AOnlineShooterGameMode>(UGameplayStatics::GetGameMode(this));
 	bool bMatchNotInProgress = OnlineShooterGameMode && OnlineShooterGameMode->GetMatchState() != MatchState::InProgress;
 }
-
 
 void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 {

@@ -49,14 +49,15 @@ void AOnlineShooterPlayerController::PollInit()
 			CharacterOverlay = OnlineShooterHUD->CharacterOverlay;
 			if(CharacterOverlay)
 			{
-				SetHUDHealth(HUDHealth, HUDMaxHealth);
-				SetHUDScore(HUDScore);
-				SetHUDDefeats(HUDDefeats);
-
+				if (bInitializeHealth) SetHUDHealth(HUDHealth, HUDMaxHealth);
+				if (bInitializeShield) SetHUDShield(HUDShield, HUDMaxShield);
+				if (bInitializeScore)  SetHUDScore(HUDScore);
+				if (bInitializeDefeats)SetHUDDefeats(HUDDefeats);
+				
 				AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(GetPawn());
 				if (OnlineShooterCharacter && OnlineShooterCharacter->GetCombatComponent())
 				{
-					SetHUDGrenades(OnlineShooterCharacter->GetCombatComponent()->GetGrenades());	
+					if (bInitializeGrenades) SetHUDGrenades(OnlineShooterCharacter->GetCombatComponent()->GetGrenades());	
 				}
 			}
 		}
@@ -106,11 +107,40 @@ void AOnlineShooterPlayerController::SetHUDHealth(float Health, float MaxHealth)
 	}
 	else
 	{
-		bInitializeCharacterOverlay = true;
+		bInitializeHealth = true;
 		HUDHealth = Health;
 		HUDMaxHealth = MaxHealth;
 	}
 }
+void AOnlineShooterPlayerController::SetHUDShield(float Shield, float MaxShield)
+{
+	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+
+	bool bHUDValid =
+		OnlineShooterHUD &&
+		OnlineShooterHUD->CharacterOverlay &&
+		OnlineShooterHUD->CharacterOverlay->ShieldBar &&
+		OnlineShooterHUD->CharacterOverlay->ShieldText;
+		
+	if(bHUDValid)
+	{
+		// Set Health bar Progress in percent 
+		const float ShieldPercent = Shield / MaxShield;
+		OnlineShooterHUD->CharacterOverlay->ShieldBar->SetPercent(ShieldPercent);
+		
+		// Set Health Text
+		FString ShieldText = FString::Printf(TEXT("%d / %d"), FMath::FloorToInt(Shield), FMath::CeilToInt(MaxShield));
+		OnlineShooterHUD->CharacterOverlay->ShieldText->SetText(FText::FromString(ShieldText));
+		
+	}
+	else
+	{
+		bInitializeShield = true;
+		HUDShield = Shield;
+		HUDMaxShield = MaxShield;
+	}
+}
+
 void AOnlineShooterPlayerController::SetHUDScore(float Score)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
@@ -130,7 +160,7 @@ void AOnlineShooterPlayerController::SetHUDScore(float Score)
 
 	else
 	{
-		bInitializeCharacterOverlay = true;
+		bInitializeScore = true;
 		HUDScore = Score;
 	}
 }
@@ -152,7 +182,7 @@ void AOnlineShooterPlayerController::SetHUDDefeats(int32 Defeats)
 	
 	else
 	{
-		bInitializeCharacterOverlay = true;
+		bInitializeDefeats = true;
 		HUDDefeats = Defeats;
 	}
 }
@@ -174,8 +204,6 @@ void AOnlineShooterPlayerController::SetHUDElimMessage(FString ElimMessage)
 		OnlineShooterHUD->CharacterOverlay->ElimText->SetText(FText::FromString(ElimText));
 
 		OnlineShooterHUD->CharacterOverlay->ElimText->SetVisibility(ESlateVisibility::Visible);
-
-		UE_LOG(LogTemp,Warning,TEXT("AOnlineShooterPlayerController::SetHUDElimMessage - SUCCESS: %s"), *OnlineShooterHUD->CharacterOverlay->ElimText->GetText().ToString())
 		
 	}
 }
@@ -230,7 +258,7 @@ void AOnlineShooterPlayerController::SetHUDGrenades(int32 Grenades)
 	bool bHUDValid =
 		OnlineShooterHUD &&
 		OnlineShooterHUD->CharacterOverlay &&
-		OnlineShooterHUD->CharacterOverlay->GrenadesAmount;
+		OnlineShooterHUD->CharacterOverlay->GrenadesAmount; 
 
 	if(bHUDValid)
 	{
@@ -240,6 +268,7 @@ void AOnlineShooterPlayerController::SetHUDGrenades(int32 Grenades)
 
 	else
 	{
+		bInitializeGrenades = true;
 		HUDGrenades = Grenades;
 	}
 }

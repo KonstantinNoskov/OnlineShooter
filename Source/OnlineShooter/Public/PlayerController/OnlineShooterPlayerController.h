@@ -68,9 +68,17 @@ private:
 	// Cache 
 	float HUDHealth;
 	float HUDMaxHealth;
+	float HUDShield;
+	float HUDMaxShield;
 	float HUDScore;
 	int32 HUDDefeats;
 	int32 HUDGrenades;
+
+	bool bInitializeHealth = false;
+	bool bInitializeShield = false;
+	bool bInitializeScore = false;
+	bool bInitializeDefeats = false;
+	bool bInitializeGrenades = false;
 
 protected:
 
@@ -105,6 +113,9 @@ public:
 	
 	UFUNCTION()
 	void SetHUDHealth(float Health, float MaxHealth);
+
+	UFUNCTION()
+	void SetHUDShield(float Shield, float MaxShield);
 
 	UFUNCTION()
 	void SetHUDScore(float Score);

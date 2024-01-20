@@ -32,13 +32,22 @@ private:
 
 	UPROPERTY()
 	bool bHealing = false;
-
+	
 	UPROPERTY()
 	float HealingRate = 0.f;
 	
 	UPROPERTY()
 	float AmountToHeal = 0.f;
 
+	UPROPERTY()
+	bool bReplenishShield = false;
+	
+	UPROPERTY()
+	float ShieldReplenishAmount;
+
+	UPROPERTY()
+	float ShieldReplenishRate = 0.f;
+	
 	UPROPERTY()
 	float InitialBaseSpeed;
 
@@ -78,11 +87,17 @@ protected:
 
 	UFUNCTION()
 	void HealRampUp(float DeltaTime);
+
+	UFUNCTION()
+	void ShieldRampUp(float DeltaTime);
 	
 public:
 
 	UFUNCTION()
 	void Heal(float HealAmount, float HealingTime);
+
+	UFUNCTION()
+	void ReplenishShield(float ShieldAmount, float ReplenishTime);
 
 	UFUNCTION()
 	void BuffSpeed(float BuffBaseSpeed, float BuffCrouchSpeed, float Time);
@@ -97,7 +112,6 @@ public:
 	void SetInitialJumpVelocity(float Velocity);
 
 	FORCEINLINE void SetBuffEffect(UNiagaraComponent* NewEffect) { BuffEffect = NewEffect; }
-	
 	
 };
 

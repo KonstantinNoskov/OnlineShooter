@@ -6,7 +6,6 @@
 AHealthPickup::AHealthPickup()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	bReplicates = true;
 }
 
 void AHealthPickup::BeginPlay()

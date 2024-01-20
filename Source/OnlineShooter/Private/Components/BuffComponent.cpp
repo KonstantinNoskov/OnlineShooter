@@ -20,8 +20,8 @@ void UBuffComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	HealRampUp(DeltaTime);
+	ShieldRampUp(DeltaTime);
 }
-
 
 // Heal
 void UBuffComponent::Heal(float HealAmount, float HealingTime)
@@ -36,7 +36,7 @@ void UBuffComponent::HealRampUp(float DeltaTime)
 	if (!bHealing || !Character || Character->IsEliminated()) return;
 
 	const float HealThisFrame = HealingRate * DeltaTime;
-	Character->SetHealth(FMath::Clamp(Character->GetHealth() + HealThisFrame, 0, Character->GetMaxHealth()));
+	Character->SetHealth(FMath::Clamp(Character->GetHealth() + HealThisFrame, 0.f, Character->GetMaxHealth()));
 	Character->UpdateHUDHealth();
 	AmountToHeal -= HealThisFrame;
 
@@ -45,6 +45,35 @@ void UBuffComponent::HealRampUp(float DeltaTime)
 		bHealing = false;
 		AmountToHeal = 0.f;
 	}
+}
+
+// Shield 
+void UBuffComponent::ReplenishShield(float ShieldAmount, float ReplenishTime)
+{
+	bReplenishShield = true;
+	ShieldReplenishRate = ShieldAmount / ReplenishTime;
+	ShieldReplenishAmount += ShieldAmount;
+	UE_LOG(LogTemp, Warning, TEXT("%f"),ShieldReplenishAmount)
+}
+
+void UBuffComponent::ShieldRampUp(float DeltaTime)
+{
+	if (!bReplenishShield || !Character || Character->IsEliminated()) return;
+
+	const float ReplenishThisFrame = ShieldReplenishRate * DeltaTime;
+	Character->SetShield(FMath::Clamp(Character->GetShield() + ReplenishThisFrame, 0.f, Character->GetMaxShield()));
+	Character->UpdateHUDShield();
+	ShieldReplenishAmount -= ReplenishThisFrame;
+
+	UE_LOG(LogTemp, Warning, TEXT("Shield:%f, ReplenishThisFrame:%f"),Character->GetShield(), ReplenishThisFrame);
+	
+	if (ShieldReplenishAmount <= 0.f || Character->GetShield() >= Character->GetMaxShield()) 
+	{
+		bReplenishShield = false;
+		ShieldReplenishAmount = 0.f;
+	}
+
+	
 }
 
 // Pickup Speed
@@ -87,13 +116,11 @@ void UBuffComponent::Multicast_UpdateSpeeds_Implementation(float BaseSpeed, floa
 	Character->GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchSpeed;
 }
 
-
 // Pickup Jump
 void UBuffComponent::SetInitialJumpVelocity(float Velocity)
 {
 	InitialJumpVelocity = Velocity;
 }
-
 void UBuffComponent::BuffJump(float BuffJumpVelocity, float Time)
 {
 	if(!Character) return;
@@ -116,7 +143,7 @@ void UBuffComponent::Multicast_UpdateJumpVelocity_Implementation(float NewJumpVe
 {
 	Character->GetCharacterMovement()->JumpZVelocity = NewJumpVelocity;
 
-	if (Character->GetCharacterMovement()->JumpZVelocity == InitialJumpVelocity)
+	if (Character->GetCharacterMovement()->JumpZVelocity == InitialJumpVelocity && BuffEffect)
 	{
 		BuffEffect->Deactivate();
 	}
@@ -129,7 +156,6 @@ void UBuffComponent::ResetJump()
 
 	if (BuffEffect)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Buff effect deactivated"))
 		BuffEffect->Deactivate();
 	}
 	

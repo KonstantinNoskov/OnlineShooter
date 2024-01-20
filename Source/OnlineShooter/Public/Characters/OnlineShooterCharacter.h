@@ -357,18 +357,28 @@ private:
 
 #pragma endregion
 
-#pragma region HEALTH
+#pragma region PLAYER STATS
 
-	UPROPERTY(EditAnywhere, Category = Health)
+	UPROPERTY(EditAnywhere, Category = "Player Stats")
 	float MaxHealth = 100.f;
 
-	UPROPERTY(ReplicatedUsing = OnRep_Health ,VisibleAnywhere, Category = Health)
+	UPROPERTY(ReplicatedUsing = OnRep_Health ,VisibleAnywhere, Category = "Player Stats")
 	float Health = 100.f;
 
+	UPROPERTY(EditAnywhere, Category = "Player Stats")
+	float MaxShield = 100.f;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Shield, EditAnywhere, Category = "Player Stats")
+	float Shield = 0.f;
+	
 	UFUNCTION()
 	void OnRep_Health(float LastHealth);
+	
+	UFUNCTION()
+	void OnRep_Shield(float LastShield);
 
 #pragma endregion
+	
 
 public:
 	
@@ -423,6 +433,9 @@ public:
 
 	UFUNCTION()
 	void UpdateHUDHealth();
+
+	UFUNCTION()
+	void UpdateHUDShield();
 	
 	// Determines whether player overlap weapon
 	void SetOverlappingWeapon(AWeapon* Weapon);
@@ -468,24 +481,37 @@ public:
 	UFUNCTION()
 	ECombatState GetCombatState() const;
 
-	// Getters
-	FORCEINLINE float GetAO_Yaw() const								{ return AO_Yaw; }
-	FORCEINLINE float GetAO_Pitch() const							{ return AO_Pitch; }
-	FORCEINLINE ETurningInPlace GetTurningInPlace() const			{ return TurningInPlace; }
+#pragma region GETTERS & SETTERS
+
+	// Components
 	FORCEINLINE UCameraComponent* GetFollowCamera() const			{ return FollowCamera; }
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const			{ return CameraBoom; }
 	FORCEINLINE UCombatComponent* GetCombatComponent() const		{ return Combat; }
 	FORCEINLINE UBuffComponent* GetBuffComponent() const			{ return Buff; }
+	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const	{ return AttachedGrenade; }
+	
+	// Animations
+	FORCEINLINE float GetAO_Yaw() const								{ return AO_Yaw; }
+	FORCEINLINE float GetAO_Pitch() const							{ return AO_Pitch; }
+	FORCEINLINE ETurningInPlace GetTurningInPlace() const			{ return TurningInPlace; }
 	FORCEINLINE bool ShouldRotateRootBone() const					{ return bRotateRootBone; }
+
+	// States
 	FORCEINLINE bool IsEliminated() const							{ return bEliminated; }
+	FORCEINLINE bool GetDisableGameplay() const						{ return bDisableGameplay; }
+
+	// Montages
+	FORCEINLINE UAnimMontage* GetReloadMontage() const				{ return ReloadMontage; }
+	
+	// Health
 	FORCEINLINE float GetHealth() const								{ return Health; }
 	FORCEINLINE float GetMaxHealth() const							{ return MaxHealth; }
-	FORCEINLINE bool GetDisableGameplay() const						{ return bDisableGameplay; }
-	FORCEINLINE UAnimMontage* GetReloadMontage() const				{ return ReloadMontage; }
-	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const	{ return AttachedGrenade; }
+	FORCEINLINE void SetHealth(float NewShield)						{ Health = NewShield; }
 
-	// Setters
-	FORCEINLINE void SetHealth(float NewHealth)						{ Health = NewHealth; }
+	// Shield
+	FORCEINLINE float GetShield() const								{ return Shield; }
+	FORCEINLINE float GetMaxShield() const							{ return MaxShield; }
+	FORCEINLINE void SetShield(float NewShieldAmount)				{ Shield = NewShieldAmount; }
 	
-	
+#pragma endregion
 };

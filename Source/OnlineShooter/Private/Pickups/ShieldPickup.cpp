@@ -1,29 +1,26 @@
-﻿#include "Pickups/SpeedPickup.h"
+﻿#include "Pickups/ShieldPickup.h"
 
-#include "NiagaraComponent.h"
 #include "Characters/OnlineShooterCharacter.h"
 #include "Components/BuffComponent.h"
 
 
-ASpeedPickup::ASpeedPickup()
+AShieldPickup::AShieldPickup()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	PickupMesh->SetRelativeScale3D(FVector(1.f,1.f,1.f));
 }
 
-void ASpeedPickup::BeginPlay()
+void AShieldPickup::BeginPlay()
 {
 	Super::BeginPlay();
+	
 }
 
-void ASpeedPickup::Tick(float DeltaTime)
+void AShieldPickup::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-
-void ASpeedPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+void AShieldPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	Super::OnSphereOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
@@ -34,11 +31,9 @@ void ASpeedPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 		UBuffComponent* Buff = Cast<UBuffComponent>(OnlineShooterCharacter->GetBuffComponent());
 		if(Buff)
 		{
-			Buff->BuffSpeed(BaseSpeedBuff, CrouchSpeedBuff, SpeedBuffTime);
+			Buff->ReplenishShield(ShieldReplenishAmount, ShieldReplenishTime);
 		}
 	}
 
 	Destroy();
 }
-
-
