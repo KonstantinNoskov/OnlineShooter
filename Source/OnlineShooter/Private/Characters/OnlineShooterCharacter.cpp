@@ -73,7 +73,7 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	
-	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
+	GetMesh()->SetCollisionObjectType(UE_ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
@@ -132,7 +132,7 @@ void AOnlineShooterCharacter::BeginPlay()
 			Subsystem->AddMappingContext(CharacterMappingContext, 0);
 		}
 	}
-
+	
 	//Add Input Mapping Context
 	/*if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
@@ -141,11 +141,17 @@ void AOnlineShooterCharacter::BeginPlay()
 			Subsystem->AddMappingContext(CharacterMappingContext, 0);
 		}
 	}*/
+	
+	// Spawn default weapon
+	SpawnDefaultWeapon();
 
-	// Set Health at the start of the game
+	// Set Ammo amount
+	UpdateHUDAmmo();
+	
+	// Set Health amount
 	UpdateHUDHealth();
 
-	// Set Health at the start of the game
+	// Set Shield amount
 	UpdateHUDShield();
 	
 	// Bind delegates only on server
@@ -232,7 +238,7 @@ void AOnlineShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &AOnlineShooterCharacter::CrouchButtonPressed);
 		
 		// Equip
-		EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &AOnlineShooterCharacter::EquipButtonPressed);
+		EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Started, this, &AOnlineShooterCharacter::EquipButtonPressed);
 
 		// Aiming
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &AOnlineShooterCharacter::AimButtonPressed);
@@ -420,12 +426,21 @@ void AOnlineShooterCharacter::UpdateHUDShield()
 		OnlineShooterPlayerController->SetHUDShield(Shield, MaxShield);
 	}
 }
+
+void AOnlineShooterCharacter::UpdateHUDAmmo()
+{
+	// Player controller valid check
+	OnlineShooterPlayerController = !OnlineShooterPlayerController ? Cast<AOnlineShooterPlayerController>(Controller) : OnlineShooterPlayerController;
+	if(OnlineShooterPlayerController && Combat && Combat->EquippedWeapon)
+	{
+		// Update HUD Carried and Weapon ammo
+		OnlineShooterPlayerController->SetHUDCarriedAmmo(Combat->CarriedAmmo);
+		OnlineShooterPlayerController->SetHUDWeaponAmmo(Combat->EquippedWeapon->GetAmmo());
+	}
+}
 void AOnlineShooterCharacter::Eliminated()
 {
-	if(Combat && Combat->EquippedWeapon)
-	{
-		Combat->EquippedWeapon->Dropped();	
-	}
+	DropOrDestroyWeapons();
 	
 	Multicast_Eliminated();
 	GetWorldTimerManager().SetTimer(EliminatedTimer, this, &AOnlineShooterCharacter::EliminatedTimerFinished, EliminatedDelay);
@@ -560,6 +575,34 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 	if(bHideSniperScope)
 	{
 		ShowSniperScopeWidget(false);
+	}
+}
+void AOnlineShooterCharacter::DropOrDestroyWeapons()
+{
+	if(Combat)
+	{
+		if (Combat->EquippedWeapon)
+		{
+			DropOrDestroyWeapon(Combat->EquippedWeapon);	
+		}
+
+		if (Combat->SecondaryWeapon)
+		{
+			DropOrDestroyWeapon(Combat->SecondaryWeapon);
+		}
+	}
+}
+void AOnlineShooterCharacter::DropOrDestroyWeapon(AWeapon* Weapon)
+{
+	if (!Weapon) return;
+	
+	if (Weapon->bDestroyWeapon)
+	{
+		Combat->EquippedWeapon->Destroy();
+	}
+	else
+	{
+		Combat->EquippedWeapon->Dropped();
 	}
 }
 void AOnlineShooterCharacter::EliminatedTimerFinished()
@@ -770,27 +813,24 @@ void AOnlineShooterCharacter::EquipButtonPressed()
 	// Combat component valid check
 	if(Combat)
 	{
-		// if we are server
-		if(HasAuthority())
-		{
-			// call EquipWeapon on Server
-			Combat->EquipWeapon(OverlappingWeapon);
-		}
-		// if we are client
-		else
-		{
-			// call RPC EquipButtonPressed for clients
-			Server_EquipButtonPressed();
-		}
+		// Server Call EquipWeapon
+		Server_EquipButtonPressed();
 	}
 }
 
-// RPC EquipButtonPressed
+// Server EquipButtonPressed
 void AOnlineShooterCharacter::Server_EquipButtonPressed_Implementation()
 {
 	if(Combat)
 	{
-		Combat->EquipWeapon(OverlappingWeapon);
+		if (OverlappingWeapon)
+		{
+			Combat->EquipWeapon(OverlappingWeapon);
+		}
+		else if (Combat->ShouldSwapWeapon())
+		{
+			Combat->SwapWeapon();
+		}
 	}
 }
 
@@ -919,6 +959,22 @@ void AOnlineShooterCharacter::RotateInPlace(float DeltaTime)
 	}
 }
 
+// Spawn default weapon at the start of the game 
+void AOnlineShooterCharacter::SpawnDefaultWeapon()
+{
+	AOnlineShooterGameMode* OnlineShooterGameMode = Cast<AOnlineShooterGameMode>(UGameplayStatics::GetGameMode(this));
+	UWorld* World = GetWorld();
+	if(World && OnlineShooterGameMode && !bEliminated && DefaultWeaponClass)
+	{
+		AWeapon* StartingWeapon = World->SpawnActor<AWeapon>(DefaultWeaponClass);
+		StartingWeapon->bDestroyWeapon = true;
+		if (Combat)
+		{
+			Combat->EquipWeapon(StartingWeapon);
+		}
+	}
+}
+
 // Returns weapon that character has if combat component exists
 AWeapon* AOnlineShooterCharacter::GetEquippedWeapon() const
 {
@@ -1038,10 +1094,4 @@ ECombatState AOnlineShooterCharacter::GetCombatState() const
 
 	return Combat->CombatState;
 }
-
-
-
-
-
-
 

@@ -39,6 +39,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	UNiagaraSystem* PickupEffect;
 
+	UPROPERTY()
+	FTimerHandle BindOverlapTimer;
+
+	UPROPERTY()
+	float BindOverlapTime = .25f;
+
 protected:
 
 	UPROPERTY(VisibleAnywhere)
@@ -54,5 +60,8 @@ private:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_PlayEffect(AOnlineShooterCharacter* OverlappedCharacter);
+
+	UFUNCTION()
+	void BindOverlapTimerFinished();
 	
 };

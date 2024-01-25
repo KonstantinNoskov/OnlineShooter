@@ -9,7 +9,6 @@
 
 AProjectileWeapon::AProjectileWeapon()
 {
-	PrimaryActorTick.bCanEverTick = true;
 }
 
 void AProjectileWeapon::BeginPlay()

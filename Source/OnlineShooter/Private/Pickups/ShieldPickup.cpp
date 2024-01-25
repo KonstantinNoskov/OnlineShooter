@@ -23,17 +23,15 @@ void AShieldPickup::Tick(float DeltaTime)
 void AShieldPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	Super::OnSphereOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
-
 	AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(OtherActor);
 	if (OnlineShooterCharacter)
 	{
 		UBuffComponent* Buff = Cast<UBuffComponent>(OnlineShooterCharacter->GetBuffComponent());
-		if(Buff)
+		if(Buff && OnlineShooterCharacter->GetShield() < OnlineShooterCharacter->GetMaxShield())
 		{
+			UE_LOG(LogTemp, Warning, TEXT("%f"), Buff->GetShieldReplenishAmount())
 			Buff->ReplenishShield(ShieldReplenishAmount, ShieldReplenishTime);
+			Super::OnSphereOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 		}
 	}
-
-	Destroy();
 }

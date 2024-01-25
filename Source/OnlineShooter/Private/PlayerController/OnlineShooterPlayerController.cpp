@@ -51,6 +51,8 @@ void AOnlineShooterPlayerController::PollInit()
 			{
 				if (bInitializeHealth) SetHUDHealth(HUDHealth, HUDMaxHealth);
 				if (bInitializeShield) SetHUDShield(HUDShield, HUDMaxShield);
+				if (bInitializeWeaponAmmo) SetHUDWeaponAmmo(HUDWeaponAmmo);
+				if (bInitializeCarriedAmmo) SetHUDCarriedAmmo(HUDCarriedAmmo);
 				if (bInitializeScore)  SetHUDScore(HUDScore);
 				if (bInitializeDefeats)SetHUDDefeats(HUDDefeats);
 				
@@ -221,7 +223,7 @@ void AOnlineShooterPlayerController::HideElimMessage()
 		OnlineShooterHUD->CharacterOverlay->ElimText->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
-void AOnlineShooterPlayerController::SetHUDWeaponAmmo(int32 Ammo)
+void AOnlineShooterPlayerController::SetHUDWeaponAmmo(int32 WeaponAmmo)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
 
@@ -232,11 +234,16 @@ void AOnlineShooterPlayerController::SetHUDWeaponAmmo(int32 Ammo)
 
 	if(bHUDValid)
 	{
-		FString WeaponAmmoText = FString::Printf(TEXT("%d"), Ammo); 
+		FString WeaponAmmoText = FString::Printf(TEXT("%d"), WeaponAmmo); 
 		OnlineShooterHUD->CharacterOverlay->WeaponAmmoAmount->SetText(FText::FromString(WeaponAmmoText));
 	}
+	else
+	{
+		bInitializeWeaponAmmo = true;
+		HUDWeaponAmmo = WeaponAmmo;
+	}
 }
-void AOnlineShooterPlayerController::SetHUDCarriedAmmo(int32 Ammo)
+void AOnlineShooterPlayerController::SetHUDCarriedAmmo(int32 CarriedAmmo)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
 
@@ -247,8 +254,13 @@ void AOnlineShooterPlayerController::SetHUDCarriedAmmo(int32 Ammo)
 
 	if(bHUDValid)
 	{
-		FString CarriedAmmoText = FString::Printf(TEXT("%d"), Ammo); 
+		FString CarriedAmmoText = FString::Printf(TEXT("%d"), CarriedAmmo); 
 		OnlineShooterHUD->CharacterOverlay->CarriedAmmoAmount->SetText(FText::FromString(CarriedAmmoText));
+	}
+	else
+	{
+		bInitializeWeaponAmmo = true;
+		HUDCarriedAmmo = CarriedAmmo;
 	}
 }
 void AOnlineShooterPlayerController::SetHUDGrenades(int32 Grenades)

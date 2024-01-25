@@ -83,6 +83,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
+	DOREPLIFETIME(UCombatComponent, SecondaryWeapon);
 	DOREPLIFETIME(UCombatComponent, bAiming)
 	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
 	DOREPLIFETIME(UCombatComponent, CombatState);
@@ -133,6 +134,25 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	if (!Character || !WeaponToEquip) return;
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
 
+	// if there's no secondary weapon
+	if (EquippedWeapon && !SecondaryWeapon)
+	{
+		// put equipped weapon to a secondary slot
+		EquipSecondaryWeapon(WeaponToEquip);	
+	}
+	else
+	{
+		EquipPrimaryWeapon(WeaponToEquip);	
+	}
+	
+	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
+	Character->bUseControllerRotationYaw = true;
+	Character->StartingAimRotation = FRotator(0.f, Character->GetBaseAimRotation().Yaw, 0.f);
+}
+void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
+{
+	if (!WeaponToEquip) return;
+	
 	// Drop the current weapon if already have one
 	DropEquippedWeapon();
 
@@ -153,14 +173,27 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	UpdateCarriedAmmo();
 
 	// Play equip weapon sound
-	PlayEquippedWeaponSound();
+	PlayEquippedWeaponSound(WeaponToEquip);
 
 	// Try to reload equipped weapon if it's empty
 	ReloadEmptyWeapon();
+}
+void UCombatComponent::EquipSecondaryWeapon(AWeapon* WeaponToEquip)
+{
+	if (!WeaponToEquip) return;
 	
-	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
-	Character->bUseControllerRotationYaw = true;
-	Character->StartingAimRotation = FRotator(0.f, Character->GetBaseAimRotation().Yaw, 0.f);
+	// Set weapon state to "Equipped"
+	SecondaryWeapon = WeaponToEquip;
+	SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
+
+	// Attach equipped weapon to right hand
+	AttachActorToSecondarySlot(WeaponToEquip);
+	
+	// Play equip weapon sound
+	PlayEquippedWeaponSound(WeaponToEquip);
+
+	// Set new owner for equipped weapon
+	SecondaryWeapon->SetOwner(Character);
 	
 }
 void UCombatComponent::OnRep_EquippedWeapon()
@@ -173,7 +206,19 @@ void UCombatComponent::OnRep_EquippedWeapon()
 		Character->bUseControllerRotationYaw = true;
 
 		AttachActorToRightHand(EquippedWeapon);
-		PlayEquippedWeaponSound();
+		PlayEquippedWeaponSound(EquippedWeapon);
+
+		EquippedWeapon->SetHUDAmmo();
+	}
+}
+void UCombatComponent::OnRep_SecondaryWeapon()
+{
+	if(SecondaryWeapon && Character)
+	{
+		SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
+		
+		AttachActorToSecondarySlot(SecondaryWeapon);
+		PlayEquippedWeaponSound(EquippedWeapon);
 	}
 }
 void UCombatComponent::DropEquippedWeapon()
@@ -207,6 +252,29 @@ void UCombatComponent::AttachActorToLeftHand(AActor* ActorToAttach)
 		WeaponHandSocket->AttachActor(ActorToAttach, Character->GetMesh());
 	}
 }
+void UCombatComponent::AttachActorToSecondarySlot(AActor* ActorToAttach)
+{
+	if (!Character || !Character->GetMesh() || !ActorToAttach) return;
+
+	const USkeletalMeshSocket* SecondarySocket;
+	
+	switch (SecondaryWeapon->GetWeaponType()) {
+	
+		case EWeaponType::EWT_Pistol:
+			SecondarySocket = Character->GetMesh()->GetSocketByName(FName("SKT_Holster"));
+			break;
+		
+		default:
+			SecondarySocket = Character->GetMesh()->GetSocketByName(FName("SKT_Back"));
+			break;
+	}
+	
+	if (SecondarySocket)
+	{	
+		// add equipped weapon to a secondary socket
+		SecondarySocket->AttachActor(ActorToAttach, Character->GetMesh());
+	}
+}
 void UCombatComponent::UpdateCarriedAmmo() 
 {
 	if (!EquippedWeapon) return;
@@ -222,19 +290,44 @@ void UCombatComponent::UpdateCarriedAmmo()
 		Controller->SetHUDCarriedAmmo(CarriedAmmo);
 	}
 }
-void UCombatComponent::PlayEquippedWeaponSound()
+void UCombatComponent::PlayEquippedWeaponSound(AWeapon* WeaponToEquip)
 {
-	if(Character && EquippedWeapon && EquippedWeapon->EquipSound)
+	if(Character && WeaponToEquip && WeaponToEquip->EquipSound)
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, EquippedWeapon->EquipSound, Character->GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(this, WeaponToEquip->EquipSound, Character->GetActorLocation());
 	}
 }
 void UCombatComponent::ReloadEmptyWeapon()
 {
-	if(EquippedWeapon && EquippedWeapon->IsEmpty())
+	if(EquippedWeapon && EquippedWeapon->IsMagEmpty())
 	{
 		Reload();
 	}
+}
+
+// Swap Weapon
+bool UCombatComponent::ShouldSwapWeapon()
+{
+	return (EquippedWeapon && SecondaryWeapon);
+}
+void UCombatComponent::SwapWeapon()
+{
+	UE_LOG(LogTemp, Warning, TEXT("UCombatComponent::SwapWeapon()"))
+	AWeapon* TempWeapon = EquippedWeapon;
+	EquippedWeapon = SecondaryWeapon;
+	SecondaryWeapon = TempWeapon;
+
+	// Set params as secondary weapon become primary
+	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+	AttachActorToRightHand(EquippedWeapon);
+	EquippedWeapon->SetHUDAmmo();
+	UpdateCarriedAmmo();
+	PlayEquippedWeaponSound(EquippedWeapon);
+	ReloadEmptyWeapon();
+	
+	// Set params as primary weapon become secondary 
+	SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
+	AttachActorToSecondarySlot(SecondaryWeapon);
 }
 
 // Fire
@@ -252,7 +345,7 @@ bool UCombatComponent::CanFire()
 	if(!EquippedWeapon) return false;
 
 	bool bShotgunReloading =
-		!EquippedWeapon->IsEmpty() &&
+		!EquippedWeapon->IsMagEmpty() &&
 		bCanFire &&
 		CombatState == ECombatState::ECS_Reloading &&
 		EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun;
@@ -260,7 +353,7 @@ bool UCombatComponent::CanFire()
 	if (bShotgunReloading) return true;
 	
 	return
-	!EquippedWeapon->IsEmpty() &&
+	!EquippedWeapon->IsMagEmpty() &&
 	bCanFire &&
 	CombatState == ECombatState::ECS_Unoccupied;
 }
@@ -383,9 +476,16 @@ void UCombatComponent::OnRep_CombatState()
 // Reload
 void UCombatComponent::Reload()
 {
- 	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied && EquippedWeapon && !EquippedWeapon->IsFull())
+	bool bCanReload =
+		CarriedAmmo > 0
+	&& CombatState == ECombatState::ECS_Unoccupied
+	&& EquippedWeapon
+	&& !EquippedWeapon->IsMagFull()
+	&& Character
+	&& !Character->IsEliminated();
+	
+ 	if (bCanReload)
 	{
-		
 		Server_Reload();
 		HandleReload();
 	}
@@ -469,7 +569,7 @@ void UCombatComponent::UpdateShotgunAmmoValues()
 	EquippedWeapon->AddAmmo(1);
 	bCanFire = true;
 
-	if(EquippedWeapon->IsFull() || CarriedAmmo == 0)
+	if(EquippedWeapon->IsMagFull() || CarriedAmmo == 0)
 	{
 		JumpToShotgunEnd();
 	}
@@ -786,7 +886,7 @@ void UCombatComponent::PickupAmmo(EWeaponType AmmoWeaponType, int32 AmmoAmount)
 		}
 		
 		// Reload immediately if out of ammo
-		if(EquippedWeapon && EquippedWeapon->IsEmpty() && EquippedWeapon->GetWeaponType() == AmmoWeaponType)
+		if(EquippedWeapon && EquippedWeapon->IsMagEmpty() && EquippedWeapon->GetWeaponType() == AmmoWeaponType)
 		{
 			
 			Reload();

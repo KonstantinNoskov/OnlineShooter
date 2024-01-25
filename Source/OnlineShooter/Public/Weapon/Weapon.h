@@ -17,10 +17,11 @@ class USoundCue;
 UENUM()
 enum class EWeaponState : uint8
 {
-	EWS_Initial		UMETA(DisplayName = "Initial State"),
-	EWS_Equipped	UMETA(DisplayName = "Equipped"),
-	EWS_Dropped		UMETA(DisplayName = "Dropped"),
-	EWS_MAX			UMETA(DisplayName = "DefaultMAX")
+	EWS_Initial				UMETA(DisplayName = "Initial State"),
+	EWS_Equipped			UMETA(DisplayName = "Equipped"),
+	EWS_Dropped				UMETA(DisplayName = "Dropped"),
+	EWS_EquippedSecondary	UMETA(DisplayName = "EquippedSecondary"),
+	EWS_MAX					UMETA(DisplayName = "DefaultMAX")
 };
 
 UCLASS()
@@ -44,9 +45,14 @@ protected:
 
 	UFUNCTION()
 	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	
+
 	UFUNCTION()
 	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
+	virtual void OnWeaponStateSet();
+	virtual void HandleWeaponEquipped();
+	virtual void HandleWeaponDropped();
+	virtual void HandleEquippedSecondary();
 	
 private:
 
@@ -60,13 +66,16 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	USkeletalMeshComponent* WeaponMesh;
 
+	UPROPERTY(EditAnywhere)
+	float WeaponMeshTurnRate = 45.f;
+
 	// Overlap Area
 	UPROPERTY(VisibleAnywhere)
 	USphereComponent* AreaSphere;
 
 	// Weapon state
 	UPROPERTY(ReplicatedUsing=OnRep_WeaponState, VisibleAnywhere, Category = "Weapon")
-	EWeaponState WeaponState;
+	EWeaponState WeaponState = EWeaponState::EWS_Initial;
 	
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	EWeaponType WeaponType;
@@ -92,6 +101,9 @@ private:
 	TSubclassOf<ACasing> CasingClass;
 
 public:
+
+	UPROPERTY()
+	bool bDestroyWeapon = false;
 	
 	UPROPERTY(EditAnywhere)
 	USoundCue* ZoomInSound;
@@ -164,10 +176,10 @@ public:
 	void SetHUDAmmo();
 
 	UFUNCTION()
-	bool IsEmpty();
+	bool IsMagEmpty();
 
 	UFUNCTION()
-	bool IsFull();
+	bool IsMagFull();
 
 	UFUNCTION()
 	void AddAmmo(int32 AmmoToAdd);

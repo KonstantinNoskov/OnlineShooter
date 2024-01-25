@@ -65,17 +65,21 @@ private:
 	UPROPERTY()
 	bool bInitializeCharacterOverlay = false;
 	
-	// Cache 
+	// Cached params to safely initialize HUD values 
 	float HUDHealth;
 	float HUDMaxHealth;
 	float HUDShield;
 	float HUDMaxShield;
+	float HUDWeaponAmmo;
+	float HUDCarriedAmmo;
 	float HUDScore;
 	int32 HUDDefeats;
 	int32 HUDGrenades;
 
 	bool bInitializeHealth = false;
 	bool bInitializeShield = false;
+	bool bInitializeWeaponAmmo = false;
+	bool bInitializeCarriedAmmo = false;
 	bool bInitializeScore = false;
 	bool bInitializeDefeats = false;
 	bool bInitializeGrenades = false;
@@ -130,10 +134,10 @@ public:
 	void HideElimMessage();
 
 	UFUNCTION()
-	void SetHUDWeaponAmmo(int32 Ammo);
+	void SetHUDWeaponAmmo(int32 WeaponAmmo);
 
 	UFUNCTION()
-	void SetHUDCarriedAmmo(int32 Ammo);
+	void SetHUDCarriedAmmo(int32 CarriedAmmo);
 
 	UFUNCTION()
 	void SetHUDMatchCountdown(float CountdownTime);

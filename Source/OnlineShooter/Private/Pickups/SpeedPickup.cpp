@@ -9,7 +9,7 @@ ASpeedPickup::ASpeedPickup()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	PickupMesh->SetRelativeScale3D(FVector(1.f,1.f,1.f));
+	//PickupMesh->SetRelativeScale3D(FVector(1.f,1.f,1.f));
 }
 
 void ASpeedPickup::BeginPlay()
@@ -37,8 +37,6 @@ void ASpeedPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 			Buff->BuffSpeed(BaseSpeedBuff, CrouchSpeedBuff, SpeedBuffTime);
 		}
 	}
-
-	Destroy();
 }
 
 

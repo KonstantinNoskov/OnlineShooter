@@ -28,7 +28,7 @@ APickup::APickup()
 	PickupMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickupMesh"));
 	PickupMesh->SetupAttachment(OverlapSphere);
 	PickupMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PickupMesh->SetRelativeScale3D(FVector(5.f,5.f,5.f));
+	PickupMesh->SetRelativeScale3D(FVector(1.f,1.f,1.f));
 	PickupMesh->SetRenderCustomDepth(true);
 	PickupMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_PURPLE);
 
@@ -41,10 +41,9 @@ void APickup::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Delegates server binding
-	if(HasAuthority())
+	if (HasAuthority())
 	{
-		OverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &APickup::OnSphereOverlap);	
+		GetWorldTimerManager().SetTimer(BindOverlapTimer, this, &APickup::BindOverlapTimerFinished, BindOverlapTime);
 	}
 }
 
@@ -68,6 +67,12 @@ void APickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	}
 	
 	Destroy();
+}
+
+void APickup::BindOverlapTimerFinished()
+{
+	// Delegates server binding
+	OverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &APickup::OnSphereOverlap);	
 }
 
 void APickup::Multicast_PlayEffect_Implementation(AOnlineShooterCharacter* OverlapCharacter)

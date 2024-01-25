@@ -21,19 +21,17 @@ void AHealthPickup::Tick(float DeltaTime)
 void AHealthPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	Super::OnSphereOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
-
 	AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(OtherActor);
-	if (OnlineShooterCharacter)
+	if (OnlineShooterCharacter && OnlineShooterCharacter->GetHealth() < OnlineShooterCharacter->GetMaxHealth())
 	{
 		UBuffComponent* Buff = Cast<UBuffComponent>(OnlineShooterCharacter->GetBuffComponent());
 		if(Buff)
 		{
 			Buff->Heal(HealAmount, HealingTime);
 		}
-	}
 
-	Destroy();
+		Super::OnSphereOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+	}
 }
 
 

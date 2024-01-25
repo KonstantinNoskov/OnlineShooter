@@ -12,8 +12,6 @@
 
 AHitScanWeapon::AHitScanWeapon()
 {
-	PrimaryActorTick.bCanEverTick = false;
-	
 }
 
 void AHitScanWeapon::BeginPlay()

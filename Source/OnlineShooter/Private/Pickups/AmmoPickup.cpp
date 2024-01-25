@@ -4,6 +4,8 @@
 AAmmoPickup::AAmmoPickup()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	PickupMesh->SetRelativeScale3D(FVector(5.f,5.f,5.f));
 	
 }
 

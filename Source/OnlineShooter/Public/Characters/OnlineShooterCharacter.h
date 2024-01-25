@@ -203,6 +203,9 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
 	AWeapon* OverlappingWeapon;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AWeapon> DefaultWeaponClass;
 	
 	UPROPERTY(EditAnywhere)
 	float CameraThreshold = 200.f;
@@ -428,9 +431,19 @@ protected:
 	// Poll for any relevant classes and initialize our HUD 
 	UFUNCTION()
 	void PollInit();
-	
-public:
 
+	UFUNCTION()
+	void UpdateHUDAmmo();
+
+	UFUNCTION()
+	void DropOrDestroyWeapons();
+
+	UFUNCTION()
+	void DropOrDestroyWeapon(AWeapon* Weapon);
+
+
+public:
+	
 	UFUNCTION()
 	void UpdateHUDHealth();
 
@@ -450,6 +463,9 @@ public:
 	void ShowSniperScopeWidget(bool bShowScope);
 	
 	FRotator StartingAimRotation;
+
+	UFUNCTION()
+	void SpawnDefaultWeapon();
 
 	UFUNCTION()
 	AWeapon* GetEquippedWeapon() const;

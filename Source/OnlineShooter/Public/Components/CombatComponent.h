@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "InputAction.h"
 #include "Components/ActorComponent.h"
 #include "HUD/OnlineShooterHUD.h"
 #include "OnlineShooter/Data/CombatState.h"
@@ -95,9 +94,12 @@ private:
 	UPROPERTY()
 	AOnlineShooterPlayerController* Controller;
 	
-	UPROPERTY(ReplicatedUsing=OnRep_EquippedWeapon)
+	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	AWeapon* EquippedWeapon;
 
+	UPROPERTY(ReplicatedUsing = OnRep_SecondaryWeapon)
+	AWeapon* SecondaryWeapon;
+	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AProjectile> GrenadeClass;
 	
@@ -130,12 +132,6 @@ private:
 
 	UPROPERTY()
 	FVector HitTarget;
-	
-	/*
-	 * Aiming and FOV
-	 */
-
-	// Field of view when not aiming; set to the camera's base FOV in BeginPlay
 	
 	UPROPERTY()
 	float DefaultFOV;
@@ -209,7 +205,19 @@ protected:
 	void EquipWeapon(AWeapon* WeaponToEquip);
 
 	UFUNCTION()
+	void EquipPrimaryWeapon(AWeapon* WeaponToEquip);
+
+	UFUNCTION()
+	void EquipSecondaryWeapon(AWeapon* WeaponToEquip);
+	
+	UFUNCTION()
+	void SwapWeapon();
+
+	UFUNCTION()
 	void OnRep_EquippedWeapon();
+
+	UFUNCTION()
+	void OnRep_SecondaryWeapon();
 
 	UFUNCTION()
 	void DropEquippedWeapon();
@@ -221,10 +229,13 @@ protected:
 	void AttachActorToLeftHand(AActor* ActorToAttach);
 
 	UFUNCTION()
+	void AttachActorToSecondarySlot(AActor* ActorToAttach);
+
+	UFUNCTION()
 	void UpdateCarriedAmmo();
 
 	UFUNCTION()
-	void PlayEquippedWeaponSound();
+	void PlayEquippedWeaponSound(AWeapon* WeaponToEquip);
 
 	UFUNCTION()
 	void ReloadEmptyWeapon();
@@ -279,7 +290,8 @@ public:
 	UFUNCTION()
 	void PickupAmmo(EWeaponType AmmoWeaponType, int32 AmmoAmount);
 
+	UFUNCTION()
+	bool ShouldSwapWeapon();
 	
 	FORCEINLINE int32 GetGrenades() const { return Grenades; }
-	
 };

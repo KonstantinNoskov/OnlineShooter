@@ -45,7 +45,7 @@ void AOnlineShooterGameMode::Tick(float DeltaSeconds)
 		CountdownTime = WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
 		if(CountdownTime <= 0.f)
 		{
-			SetMatchState(MatchState::Cooldown);
+			SetMatchState(MatchState::Cooldown); 
 		}
 	}
 
@@ -101,57 +101,6 @@ void AOnlineShooterGameMode::PlayerEliminated(AOnlineShooterCharacter* ElimedCha
 	}
 }
 
-AActor* AOnlineShooterGameMode::GetRespawnPoint()
-{	
-	/*
-	 * We want to make eliminated character spawn as far as possible from the all other characters
-	 *
-	 * Most remote spawn point gonna be determined by summarizing magnitudes from all characters to it. 
-	 */
-
-	// Get All respawn points on a map
-	TArray<AActor*> RespawnPoints;
-	UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(),RespawnPoints);
-
-	// Get All characters  on a map
-	TArray<AActor*> AllCharacters;
-	UGameplayStatics::GetAllActorsOfClass(this, AOnlineShooterCharacter::StaticClass(),AllCharacters);
-
-	AActor* MostDistancePoint = nullptr;
-	float MaxDistance = 0.f;
-
-	// Run through all potential spawn points
-	for (AActor* RespawnPoint : RespawnPoints)
-	{
-		// potential spawn point location
-		FVector RespawnPointLocation = RespawnPoint->GetActorLocation();
-
-		// Magnitudes Sum
-		float SumDistance = 0.f;
-
-		// run through all characters on a map
-		for (AActor* Character : AllCharacters)
-		{
-			// get current character location
-			FVector CharacterLocation = Character->GetActorLocation();
-
-			// summarize magnitudes from all character to potential point
-			SumDistance += (RespawnPointLocation - CharacterLocation).Size();
-		}
-
-		// if current magnitude sum higher than max magnitude
-		if(MaxDistance < SumDistance)
-		{
-			MaxDistance = SumDistance; // Override max magnitude
-			MostDistancePoint = RespawnPoint; // Override most remote spawn point
-		}
-	}
-
-	//UE_LOG(LogTemp, Warning, TEXT("MostDistancePoint:%s, MaxDistance:%f"), *MostDistancePoint->GetFName().ToString(), MaxDistance)
-	
-	return MostDistancePoint;
-}
-
 void AOnlineShooterGameMode::RequestRespawn(ACharacter* EliminatedCharacter, AController* EliminatedController)
 {
 	if(EliminatedCharacter)
@@ -159,16 +108,72 @@ void AOnlineShooterGameMode::RequestRespawn(ACharacter* EliminatedCharacter, ACo
 		EliminatedCharacter->Reset();
 		EliminatedCharacter->Destroy();
 	}
-
+	
 	if(EliminatedController)
 	{
-		AActor* MostDistancePoint = GetRespawnPoint();
-		
 		// if remote spawn point is valid 
-		if (MostDistancePoint)
+		AActor* MostRemoteStartPoint = GetRespawnPoint();
+		if (MostRemoteStartPoint)
 		{
 			// Spawn eliminated player
-			RestartPlayerAtPlayerStart(EliminatedController, MostDistancePoint);  
+			RestartPlayerAtPlayerStart(EliminatedController, MostRemoteStartPoint);
 		}
 	}
+}
+
+AActor* AOnlineShooterGameMode::GetRespawnPoint()
+{	
+	/*
+	 * We want to make eliminated character spawn as far as possible from the all other characters
+	 * Most remote spawn point gonna be determined by summarizing magnitudes from all characters to it. 
+	 */
+	
+	AActor* MostDistancePoint = nullptr;
+	float MaxDistance = 0.f;
+	
+	// Get All respawn points on the map
+	TArray<AActor*> RespawnPoints;
+	UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(),RespawnPoints);
+
+	// Return nullptr if there's no respawn points on the map
+	if (RespawnPoints.IsEmpty()) return MostDistancePoint;
+	
+	// Get All characters on the map
+	TArray<AActor*> AllCharacters;
+	UGameplayStatics::GetAllActorsOfClass(this, AOnlineShooterCharacter::StaticClass(),AllCharacters);
+	
+	// Return any random spawn point in case the character is only one on the map
+	if (AllCharacters.IsEmpty()) return MostDistancePoint = RespawnPoints[FMath::RandRange(0, RespawnPoints.Num()-1)];
+	
+	// Run through all potential spawn points
+	for (AActor* RespawnPoint : RespawnPoints)
+	{
+		// Potential spawn point location
+		FVector RespawnPointLocation = RespawnPoint->GetActorLocation();
+
+		// Sum of all magnitudes from potential spawn point to all players on the map 
+		float SumDistance = 0.f;
+
+		// Run through all characters on the map
+		for (AActor* Character : AllCharacters)
+		{
+			// Get current character location
+			FVector CharacterLocation = Character->GetActorLocation();
+
+			// summarize magnitudes from all characters to potential point
+			SumDistance += (RespawnPointLocation - CharacterLocation).Size();
+		}
+
+		// if current magnitude sum greater than max magnitude
+		if(MaxDistance < SumDistance)
+		{
+			// Override max magnitude
+			MaxDistance = SumDistance;
+
+			// Override most remote spawn point
+			MostDistancePoint = RespawnPoint; 
+		}
+	}
+	
+	return MostDistancePoint;
 }

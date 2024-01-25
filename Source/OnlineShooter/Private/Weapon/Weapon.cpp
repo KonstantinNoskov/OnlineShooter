@@ -18,7 +18,7 @@
 
 AWeapon::AWeapon()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 	SetReplicateMovement(true);
 	
@@ -67,6 +67,11 @@ void AWeapon::BeginPlay()
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	if (WeaponMesh && WeaponState == EWeaponState::EWS_Initial)
+	{
+		WeaponMesh->AddWorldRotation(FRotator(0.f, WeaponMeshTurnRate * DeltaTime, 0.f));
+	}
 }
 
 // Replication
@@ -93,12 +98,12 @@ void AWeapon::SetHUDAmmo()
 	}
 }
 
-bool AWeapon::IsEmpty()
+bool AWeapon::IsMagEmpty()
 {
 	return Ammo <= 0; 
 }
 
-bool AWeapon::IsFull()
+bool AWeapon::IsMagFull()
 {
 	return Ammo == MagCapacity;
 }
@@ -120,7 +125,7 @@ void AWeapon::EnableCustomDepth(bool bEnable)
 void AWeapon::OnRep_Ammo()
 {
 	OnlineShooterOwnerCharacter = !OnlineShooterOwnerCharacter ? Cast<AOnlineShooterCharacter>(GetOwner()) : OnlineShooterOwnerCharacter;
-	if(OnlineShooterOwnerCharacter && OnlineShooterOwnerCharacter->GetCombatComponent() && IsFull())
+	if(OnlineShooterOwnerCharacter && OnlineShooterOwnerCharacter->GetCombatComponent() && IsMagFull())
 	{
 		OnlineShooterOwnerCharacter->GetCombatComponent()->JumpToShotgunEnd();
 	}
@@ -170,112 +175,95 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 void AWeapon::SetWeaponState(EWeaponState NewState)
 {
 	WeaponState = NewState;
-	switch (WeaponState) {
+	OnWeaponStateSet();
+}
+void AWeapon::OnWeaponStateSet()
+{
+	switch (WeaponState)
+	{
+		case EWeaponState::EWS_Equipped:
+			HandleWeaponEquipped();
+			break;
 
-	case EWeaponState::EWS_Equipped:
+		case EWeaponState::EWS_EquippedSecondary:
+			HandleEquippedSecondary();
+			break;
 	
-		// Hide Equipped weapon pickup widget because we already have picked it
-		ShowPickupWidget(false);
-		
-		// Disable EquippedWeapon overlap area collision
-		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		WeaponMesh->SetSimulatePhysics(false);
-		WeaponMesh->SetEnableGravity(false);
-		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-
-		// Set physics for SMG strap
-		if(WeaponType == EWeaponType::EWT_SubmachineGun)
-		{
-			WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			WeaponMesh->SetEnableGravity(true);
-			WeaponMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-		}
-
-		// Disable Weapon mesh outline
-		EnableCustomDepth(false);
-		
-		break;
-
-	case EWeaponState::EWS_Dropped:
-
-		if(HasAuthority())
-		{
-			AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		}
-
-		WeaponMesh->SetSimulatePhysics(true);
-		WeaponMesh->SetEnableGravity(true);
-		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
-		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-
-		// Enable Weapon mesh outline
-		WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
-		WeaponMesh->MarkRenderStateDirty();
-		EnableCustomDepth(true);
-		
-		break;
-		
-	default:
-		break;
+		case EWeaponState::EWS_Dropped:
+			HandleWeaponDropped();
+			break;
+				
+		default:
+			break;
 	}
 }
-
 void AWeapon::OnRep_WeaponState() 
 { 
-	switch (WeaponState) {
-	case EWeaponState::EWS_Initial:
-		break;
-		
-	case EWeaponState::EWS_Equipped:
-		ShowPickupWidget(false);
-
-		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		WeaponMesh->SetSimulatePhysics(false);
-		WeaponMesh->SetEnableGravity(false);
-		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		if(WeaponType == EWeaponType::EWT_SubmachineGun)
-		{
-			WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			WeaponMesh->SetEnableGravity(true);
-			WeaponMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-		}
-
-		// Disable Weapon mesh outline
-		EnableCustomDepth(false);
-		
-		break;
-		
-	case EWeaponState::EWS_Dropped:
-		
-		WeaponMesh->SetSimulatePhysics(true);
-		WeaponMesh->SetEnableGravity(true);
-		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
-		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-
-		// Enable Weapon mesh outline
-		WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
-		WeaponMesh->MarkRenderStateDirty();
-		EnableCustomDepth(true);
-		
-		break;
-		
-	case EWeaponState::EWS_MAX:
-		break;
-		
-	default:
-		break;
-	}
+	OnWeaponStateSet();
 }
+
+void AWeapon::HandleWeaponEquipped() 
+{
+	ShowPickupWidget(false);
+
+	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->SetEnableGravity(false);
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	// Keep SMG strap physic when equipped
+	if(WeaponType == EWeaponType::EWT_SubmachineGun)
+	{
+		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		WeaponMesh->SetEnableGravity(true);
+		WeaponMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+	}
+
+	// Disable Weapon mesh outline
+	EnableCustomDepth(false);
+}
+void AWeapon::HandleWeaponDropped() 
+{
+	if(HasAuthority())
+	{
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+	
+	WeaponMesh->SetSimulatePhysics(true);
+	WeaponMesh->SetEnableGravity(true);
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	
+	WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
+	
+	// Enable Weapon mesh outline
+	WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
+	WeaponMesh->MarkRenderStateDirty();
+	EnableCustomDepth(true);
+}
+void AWeapon::HandleEquippedSecondary()
+{
+	ShowPickupWidget(false);
+
+	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->SetEnableGravity(false);
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	// Keep SMG strap physic when equipped
+	if(WeaponType == EWeaponType::EWT_SubmachineGun)
+	{
+		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		WeaponMesh->SetEnableGravity(true);
+		WeaponMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+	}
+
+	// Disable Weapon mesh outline
+	EnableCustomDepth(false);
+}
+
 
 void AWeapon::Fire(const FVector& HitTarget)
 {

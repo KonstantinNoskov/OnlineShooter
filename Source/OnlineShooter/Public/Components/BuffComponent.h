@@ -44,7 +44,7 @@ private:
 	
 	UPROPERTY()
 	float ShieldReplenishAmount;
-
+	
 	UPROPERTY()
 	float ShieldReplenishRate = 0.f;
 	
@@ -112,6 +112,7 @@ public:
 	void SetInitialJumpVelocity(float Velocity);
 
 	FORCEINLINE void SetBuffEffect(UNiagaraComponent* NewEffect) { BuffEffect = NewEffect; }
+	FORCEINLINE float GetShieldReplenishAmount() const { return ShieldReplenishAmount; }
 	
 };
 
