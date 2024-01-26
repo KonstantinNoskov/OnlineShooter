@@ -10,4 +10,5 @@ void UCharacterOverlay::NativeOnInitialized()
 	Super::NativeOnInitialized();
 
 	ElimText->SetVisibility(ESlateVisibility::Collapsed);
+	
 }

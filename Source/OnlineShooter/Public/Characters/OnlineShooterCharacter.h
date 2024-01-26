@@ -39,7 +39,7 @@ class ONLINESHOOTER_API AOnlineShooterCharacter : public ACharacter, public IInt
 
 public:
 
-	// Constructors
+	// Constructor
 	AOnlineShooterCharacter();
 
 	// Basic overrides
@@ -434,6 +434,9 @@ protected:
 
 	UFUNCTION()
 	void UpdateHUDAmmo();
+
+	UFUNCTION()
+	void UpdateHUDGrenades();
 
 	UFUNCTION()
 	void DropOrDestroyWeapons();

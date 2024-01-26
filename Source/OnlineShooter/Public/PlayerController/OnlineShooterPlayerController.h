@@ -25,14 +25,14 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UPROPERTY()
-	float ClientServerDelta = 0.f; // difference between client and server time
+	float ClientServerDeltaTime = 0.f; // difference between client and server time
 
 	UPROPERTY(EditAnywhere, Category = Time)
 	float TimeSyncFrequency = 5.f;
 
 	UPROPERTY()
 	float TimeSyncRunningTime = 0.f;
-	
+
 private:
 
 	UPROPERTY()
@@ -84,14 +84,44 @@ private:
 	bool bInitializeDefeats = false;
 	bool bInitializeGrenades = false;
 
+
+#pragma region HIGH PING WARNING
+	
+	UPROPERTY()
+	float HighPingRunningTime = 0.f;
+
+	UPROPERTY()
+	float PingAnimationRunningTime = 0.f;
+
+	UPROPERTY(EditAnywhere)
+	float HighPingDuration = 5.f;
+
+	UPROPERTY(EditAnywhere)
+	float CheckPingFrequency = 20.f;
+
+	UPROPERTY(EditAnywhere)
+	float HighPingThreshold = 50.f;
+
+#pragma endregion
+
 protected:
 
 	virtual float GetServerTime(); // Synced with server world clock
 	virtual void ReceivedPlayer() override; // Sync with server clock as soon as possible
-	
+
+	UFUNCTION()
 	void SetHUDTime();
-	
-	// Sync time between client and server
+
+	UFUNCTION()
+	void HighPingWarning();
+
+	UFUNCTION()
+	void StopHighPingWarning();
+
+	UFUNCTION()
+	void CheckPing(float DeltaTime);
+
+#pragma region SYNC SERVER/CLIENT TIME
 	
 	// Requests the current server time, passing in the client's time when the request was sent
 	UFUNCTION(Server, Reliable)
@@ -112,6 +142,8 @@ protected:
 
 	UFUNCTION(Client, Reliable)
 	void Client_JoinMidgame(FName StateOfMatch, float Warmup, float Match, float StartingTime, float Cooldown);
+
+#pragma endregion
 	
 public:
 	

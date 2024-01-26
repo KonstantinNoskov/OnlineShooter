@@ -14,6 +14,7 @@
 #include "PlayerStates/OnlineShooterPlayerState.h"
 
 // HUD
+#include "Components/Image.h"
 #include "HUD/Announcement.h"
 #include "HUD/CharacterOverlay.h"
 #include "HUD/OnlineShooterHUD.h"
@@ -33,11 +34,17 @@ void AOnlineShooterPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	// Update Time
 	SetHUDTime();
-
+	
+	// Sync with server
 	CheckTimeSync(DeltaSeconds);
 
+	// Make sure all HUD values are initialized correctly
 	PollInit();
+
+	// Check Ping
+	CheckPing(DeltaSeconds);
 }
 
 void AOnlineShooterPlayerController::PollInit()
@@ -49,12 +56,12 @@ void AOnlineShooterPlayerController::PollInit()
 			CharacterOverlay = OnlineShooterHUD->CharacterOverlay;
 			if(CharacterOverlay)
 			{
-				if (bInitializeHealth) SetHUDHealth(HUDHealth, HUDMaxHealth);
-				if (bInitializeShield) SetHUDShield(HUDShield, HUDMaxShield);
-				if (bInitializeWeaponAmmo) SetHUDWeaponAmmo(HUDWeaponAmmo);
+				if (bInitializeHealth)		SetHUDHealth(HUDHealth, HUDMaxHealth);
+				if (bInitializeShield)		SetHUDShield(HUDShield, HUDMaxShield);
+				if (bInitializeWeaponAmmo)	SetHUDWeaponAmmo(HUDWeaponAmmo);
 				if (bInitializeCarriedAmmo) SetHUDCarriedAmmo(HUDCarriedAmmo);
-				if (bInitializeScore)  SetHUDScore(HUDScore);
-				if (bInitializeDefeats)SetHUDDefeats(HUDDefeats);
+				if (bInitializeScore)		SetHUDScore(HUDScore);
+				if (bInitializeDefeats)		SetHUDDefeats(HUDDefeats);
 				
 				AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(GetPawn());
 				if (OnlineShooterCharacter && OnlineShooterCharacter->GetCombatComponent())
@@ -142,7 +149,6 @@ void AOnlineShooterPlayerController::SetHUDShield(float Shield, float MaxShield)
 		HUDMaxShield = MaxShield;
 	}
 }
-
 void AOnlineShooterPlayerController::SetHUDScore(float Score)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
@@ -359,6 +365,84 @@ void AOnlineShooterPlayerController::SetHUDTime()
 	CountdownInt = SecondsLeft;
 }
 
+// Set HighPingWarning
+void AOnlineShooterPlayerController::HighPingWarning()
+{
+	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+
+	bool bHUDValid =
+		OnlineShooterHUD &&
+		OnlineShooterHUD->CharacterOverlay &&
+		OnlineShooterHUD->CharacterOverlay->HighPingImage &&
+		OnlineShooterHUD->CharacterOverlay->HighPingAnimation;
+		
+	if(bHUDValid)
+	{
+		OnlineShooterHUD->CharacterOverlay->HighPingImage->SetOpacity(1.f);
+
+		UWidgetAnimation* HighPingAnimation = OnlineShooterHUD->CharacterOverlay->HighPingAnimation;
+		OnlineShooterHUD->CharacterOverlay->PlayAnimation(HighPingAnimation, 0.f, 5);
+	} 
+}
+void AOnlineShooterPlayerController::StopHighPingWarning()
+{
+	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+
+	bool bHUDValid =
+		OnlineShooterHUD &&
+		OnlineShooterHUD->CharacterOverlay &&
+		OnlineShooterHUD->CharacterOverlay->HighPingImage &&
+		OnlineShooterHUD->CharacterOverlay->HighPingAnimation;
+	
+	if(bHUDValid)
+	{
+		OnlineShooterHUD->CharacterOverlay->HighPingImage->SetOpacity(0.f);
+
+		UWidgetAnimation* HighPingAnimation = OnlineShooterHUD->CharacterOverlay->HighPingAnimation;
+		
+		if(OnlineShooterHUD->CharacterOverlay->IsAnimationPlaying(HighPingAnimation))
+		{
+			OnlineShooterHUD->CharacterOverlay->StopAnimation(HighPingAnimation);
+		}
+	} 
+}
+void AOnlineShooterPlayerController::CheckPing(float DeltaTime) 
+{
+	HighPingRunningTime += DeltaTime;
+
+	if(HighPingRunningTime > CheckPingFrequency)
+	{
+		PlayerState = !PlayerState ? GetPlayerState<APlayerState>() : PlayerState;
+
+		if (PlayerState)
+		{
+			if (PlayerState->GetPingInMilliseconds() > HighPingThreshold)
+			{
+				HighPingWarning();
+				PingAnimationRunningTime = 0.f;
+			};
+		}
+
+		HighPingRunningTime = 0.f;
+	}
+	
+	bool bHighPingAnimationPlaying =
+		OnlineShooterHUD
+		&& OnlineShooterHUD->CharacterOverlay
+		&& OnlineShooterHUD->CharacterOverlay->HighPingAnimation
+		&& OnlineShooterHUD->CharacterOverlay->IsAnimationPlaying(OnlineShooterHUD->CharacterOverlay->HighPingAnimation);
+
+	if (bHighPingAnimationPlaying)
+	{
+		PingAnimationRunningTime += DeltaTime;
+
+		if (PingAnimationRunningTime > HighPingDuration)
+		{
+			StopHighPingWarning();
+		}
+	}
+}
+
 // Sniper scope
 void AOnlineShooterPlayerController::SetHUDSniperScope(bool bIsAiming)
 {
@@ -393,27 +477,34 @@ void AOnlineShooterPlayerController::SetHUDSniperScope(bool bIsAiming)
 	}
 }
 
-#pragma region SYNC CLIENT/SERVER TIME
+#pragma region  SYNC CLIENT/SERVER TIME
 
 void AOnlineShooterPlayerController::Server_RequestServerTime_Implementation(float TimeOfClientRequest)
 {
 	// Get time on the server
 	float ServerTimeOfReceipt = GetWorld()->GetTimeSeconds();
+
+	// Pass back to client ClientRequestTime and current server time
 	ClientReportServerTime(TimeOfClientRequest, ServerTimeOfReceipt);
 }
-void AOnlineShooterPlayerController::ClientReportServerTime_Implementation(float TimeOfClientRequest,
-	float TimerServerReceivedClientRequest)
+void AOnlineShooterPlayerController::ClientReportServerTime_Implementation(float TimeOfClientRequest, float TimerServerReceivedClientRequest)
 {
+	// Getting delta between client request time and current client time. 
 	float RoundTripTime = GetWorld()->GetTimeSeconds() - TimeOfClientRequest;
+
+	// Client gets current server time by summing server time we've just passed in and the client request time divided by 2. 
 	float CurrentServerTime = TimerServerReceivedClientRequest + (.5f * RoundTripTime);
 
-	ClientServerDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
+	// Delta between current client and current server time
+	ClientServerDeltaTime = CurrentServerTime - GetWorld()->GetTimeSeconds();
 }
 float AOnlineShooterPlayerController::GetServerTime() 
 {
+	// On Server we just getting it's current time we want to sync with.
 	if(HasAuthority()) return GetWorld()->GetTimeSeconds();
-	
-	else return GetWorld()->GetTimeSeconds() + ClientServerDelta;
+
+	// Client should sync it's time with server by adding delta time which we've calculated earlier to client current time.
+	return GetWorld()->GetTimeSeconds() + ClientServerDeltaTime; 
 }
 void AOnlineShooterPlayerController::ReceivedPlayer()
 {
@@ -421,6 +512,7 @@ void AOnlineShooterPlayerController::ReceivedPlayer()
 
 	if (IsLocalController())
 	{
+		// Pass Current client time to server
 		Server_RequestServerTime(GetWorld()->GetTimeSeconds());
 	}
 }

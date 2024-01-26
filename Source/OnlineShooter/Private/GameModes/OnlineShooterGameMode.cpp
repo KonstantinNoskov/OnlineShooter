@@ -100,7 +100,6 @@ void AOnlineShooterGameMode::PlayerEliminated(AOnlineShooterCharacter* ElimedCha
 		ElimedCharacter->Eliminated();
 	}
 }
-
 void AOnlineShooterGameMode::RequestRespawn(ACharacter* EliminatedCharacter, AController* EliminatedController)
 {
 	if(EliminatedCharacter)

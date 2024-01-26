@@ -154,6 +154,9 @@ void AOnlineShooterCharacter::BeginPlay()
 	// Set Shield amount
 	UpdateHUDShield();
 	
+	// Set Grenades amount
+	UpdateHUDGrenades();
+	
 	// Bind delegates only on server
 	if(HasAuthority())
 	{
@@ -426,18 +429,41 @@ void AOnlineShooterCharacter::UpdateHUDShield()
 		OnlineShooterPlayerController->SetHUDShield(Shield, MaxShield);
 	}
 }
-
 void AOnlineShooterCharacter::UpdateHUDAmmo()
 {
 	// Player controller valid check
 	OnlineShooterPlayerController = !OnlineShooterPlayerController ? Cast<AOnlineShooterPlayerController>(Controller) : OnlineShooterPlayerController;
-	if(OnlineShooterPlayerController && Combat && Combat->EquippedWeapon)
+	if(OnlineShooterPlayerController && Combat)
 	{
-		// Update HUD Carried and Weapon ammo
-		OnlineShooterPlayerController->SetHUDCarriedAmmo(Combat->CarriedAmmo);
-		OnlineShooterPlayerController->SetHUDWeaponAmmo(Combat->EquippedWeapon->GetAmmo());
+
+		// Character has weapon 
+		if (Combat->EquippedWeapon)
+		{
+			// Set Carried and Weapon ammo accordingly
+			OnlineShooterPlayerController->SetHUDCarriedAmmo(Combat->CarriedAmmo);
+			OnlineShooterPlayerController->SetHUDWeaponAmmo(Combat->EquippedWeapon->GetAmmo());
+		}
+
+		// Character has no weapon
+		else 
+		{
+			// Set Carried and Weapon ammo to 0
+			OnlineShooterPlayerController->SetHUDCarriedAmmo(uint32(0));
+			OnlineShooterPlayerController->SetHUDWeaponAmmo(uint32(0));
+		}
 	}
 }
+void AOnlineShooterCharacter::UpdateHUDGrenades()
+{
+	// Player controller valid check
+	OnlineShooterPlayerController = !OnlineShooterPlayerController ? Cast<AOnlineShooterPlayerController>(Controller) : OnlineShooterPlayerController;
+	if(OnlineShooterPlayerController && Combat /*&& Combat->GetGrenades()*/)
+	{
+		// Update HUD Carried and Weapon ammo
+		OnlineShooterPlayerController->SetHUDGrenades(Combat->GetGrenades());
+	}
+}
+
 void AOnlineShooterCharacter::Eliminated()
 {
 	DropOrDestroyWeapons();
