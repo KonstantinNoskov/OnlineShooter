@@ -14,7 +14,7 @@ class UAnimationAsset;
 class UAnimSequence;
 class USoundCue;
 
-UENUM()
+UENUM(BlueprintType)
 enum class EWeaponState : uint8
 {
 	EWS_Initial				UMETA(DisplayName = "Initial State"),
@@ -22,6 +22,15 @@ enum class EWeaponState : uint8
 	EWS_Dropped				UMETA(DisplayName = "Dropped"),
 	EWS_EquippedSecondary	UMETA(DisplayName = "EquippedSecondary"),
 	EWS_MAX					UMETA(DisplayName = "DefaultMAX")
+};
+
+UENUM(BlueprintType)
+enum class EFireType : uint8
+{
+	EFT_HitScan		UMETA(DisplayName = "HitScan Weapon"),
+	EFT_Projectile	UMETA(DisplayName = "Projectile Weapon"),
+	EFT_Shotgun		UMETA(DisplayName = "Shotgun Weapon"),
+	EFT_MAX			UMETA(DisplayName = "DefaultMAX")
 };
 
 UCLASS()
@@ -100,6 +109,17 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ACasing> CasingClass;
 
+	UPROPERTY(EditAnywhere, Category = "Weapon Scatter")
+	float SphereRadius = 75.f;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Scatter")
+	float DistanceToSphere = 800.f;
+
+protected:
+	
+	UPROPERTY(EditAnywhere)
+	bool bDebug = false;
+
 public:
 
 	UPROPERTY()
@@ -131,12 +151,6 @@ public:
 
 #pragma endregion
 	
-	// Replication
-	UFUNCTION()
-	void OnRep_WeaponState();
-	
-	UFUNCTION()
-	void OnRep_Ammo();
 	
 	/*
 	 * Textures for the weapon crosshair
@@ -158,7 +172,13 @@ public:
 	UTexture2D* CrosshairBottom;
 
 	UPROPERTY(EditAnywhere, Category = Weapon)
-	USoundCue* EquipSound; 
+	USoundCue* EquipSound;
+
+	UPROPERTY(EditAnywhere)
+	EFireType FireType;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Scatter")
+	bool bUseScatter = false;
 
 	UFUNCTION()
 	void SetWeaponState(EWeaponState NewState);
@@ -186,6 +206,16 @@ public:
 
 	UFUNCTION()
 	void EnableCustomDepth(bool bEnable);
+
+	UFUNCTION()
+	FVector TraceEndWithScatter( const FVector& HitTarget);
+
+	// Replication
+	UFUNCTION()
+	void OnRep_WeaponState();
+	
+	UFUNCTION()
+	void OnRep_Ammo();
 	
 	FORCEINLINE EWeaponState GetWeaponState() const { return WeaponState; }
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }

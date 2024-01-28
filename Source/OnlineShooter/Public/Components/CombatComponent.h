@@ -165,6 +165,18 @@ private:
 
 	UFUNCTION()
 	void Fire();
+
+	UFUNCTION()
+	void FireProjectileWeapon();
+
+	UFUNCTION()
+	void FireHitScanWeapon();
+
+	UFUNCTION()
+	void FireShotgunWeapon();
+
+	UFUNCTION()
+	void LocalFire(const FVector_NetQuantize& TraceHitTarget);
 	
 	UFUNCTION(Server, Reliable)
 	void Server_Fire(const FVector_NetQuantize& TraceHitTarget);

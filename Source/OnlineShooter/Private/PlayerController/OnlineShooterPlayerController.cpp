@@ -592,7 +592,6 @@ void AOnlineShooterPlayerController::HandleCooldown()
 			
 			AOnlineShooterGameState* OnlineShooterGameState = Cast<AOnlineShooterGameState>(UGameplayStatics::GetGameState(this));
 			AOnlineShooterPlayerState* OnlineShooterPlayerState = GetPlayerState<AOnlineShooterPlayerState>();
-
 			
 			if(OnlineShooterGameState && OnlineShooterPlayerState)
 			{
@@ -603,17 +602,14 @@ void AOnlineShooterPlayerController::HandleCooldown()
 				{
 					InfoTextStr = FString("There is no winners");
 				}
-
 				else if (TopPlayers.Num() == 1 && TopPlayers[0] == OnlineShooterPlayerState)
 				{
 					InfoTextStr = FString("You won!");
 				}
-
 				else if (TopPlayers.Num() == 1)
 				{
 					InfoTextStr = FString::Printf(TEXT("Winner: \n%s" ), *TopPlayers[0]->GetPlayerName());
 				}
-
 				else if (TopPlayers.Num() > 1)
 				{	
 					InfoTextStr = FString::Printf(TEXT("We have multiple Winners: \n" ));

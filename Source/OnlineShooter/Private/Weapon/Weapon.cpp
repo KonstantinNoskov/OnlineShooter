@@ -12,8 +12,10 @@
 #include "Components/WidgetComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "PlayerController/OnlineShooterPlayerController.h"
 #include "Weapon/Casing.h"
+#include "D"
 
 
 AWeapon::AWeapon()
@@ -54,14 +56,17 @@ void AWeapon::BeginPlay()
 	// Server logic
 	if(HasAuthority())
 	{
-		// Set default collision settings
-		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		AreaSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-
-		// Bind overlap delegates
-		AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);
-		AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);
+		
 	}
+
+	// Set default collision settings
+	AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	AreaSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	
+	// Bind overlap delegates
+	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);
+	AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);
+	
 }
 
 void AWeapon::Tick(float DeltaTime)
@@ -106,6 +111,39 @@ bool AWeapon::IsMagEmpty()
 bool AWeapon::IsMagFull()
 {
 	return Ammo == MagCapacity;
+}
+
+// Defines pellets scatter 
+FVector AWeapon::TraceEndWithScatter(const FVector& HitTarget)
+{
+
+	const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName("MuzzleFlash");
+	if(!MuzzleFlashSocket) return FVector();
+	
+	FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+	FVector TraceStart = SocketTransform.GetLocation();
+	
+	FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
+	FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
+	FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SphereRadius);
+	FVector EndLoc = SphereCenter + RandVec;
+	FVector ToEndLoc = EndLoc - TraceStart;
+
+	// DEBUG
+	if (bDebug)
+	{
+		DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Red, true);
+		DrawDebugSphere(GetWorld(), EndLoc, 4.f, 12, FColor::Orange, true);
+		DrawDebugLine(
+			GetWorld(),
+			TraceStart,
+			FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size()),
+			FColor::Cyan,
+			true
+				);	
+	}
+	
+	return FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size());
 }
 
 void AWeapon::AddAmmo(int32 AmmoToAdd)
@@ -264,7 +302,6 @@ void AWeapon::HandleEquippedSecondary()
 	EnableCustomDepth(false);
 }
 
-
 void AWeapon::Fire(const FVector& HitTarget)
 {
 	// Play fire animation
@@ -302,8 +339,11 @@ void AWeapon::Fire(const FVector& HitTarget)
 		}
 	}
 	
-	// Decrement ammo and update HUD 
-	SpendRound();
+	// Decrement ammo and update HUD
+	if (HasAuthority())
+	{
+		SpendRound();
+	}
 }
 
 void AWeapon::SpendRound()

@@ -11,16 +11,12 @@ class ONLINESHOOTER_API AHitScanWeapon : public AWeapon
 
 public:
 	
-	AHitScanWeapon();
 	virtual void Tick(float DeltaTime) override;
 	virtual void Fire(const FVector& HitTarget) override;
 
 protected:
 	virtual void BeginPlay() override;
-
-	UFUNCTION()
-	FVector TraceEndWithScatter(const FVector& TraceStart, const FVector& HitTarget);
-
+	
 	UFUNCTION()
 	void WeaponTraceHit(const FVector& TraceStart, const FVector& HitTarget, FHitResult& OutHit);
 
@@ -34,15 +30,6 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	USoundCue* FireSound;
-	
-	UPROPERTY(EditAnywhere, Category = "Weapon Scatter")
-	float DistanceToSphere = 800.f;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Scatter")
-	float SphereRadius = 75.f;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Scatter")
-	bool bUseScatter = false;
 
 protected:
 
@@ -55,8 +42,11 @@ protected:
 	UPROPERTY(EditAnywhere)
 	USoundCue* ImpactSound;
 	
-
 public:
+	
+	
+	
+protected:
 	
 	
 };

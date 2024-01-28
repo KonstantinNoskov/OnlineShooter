@@ -11,7 +11,6 @@ class ONLINESHOOTER_API AProjectileWeapon : public AWeapon
 
 public:
 	AProjectileWeapon();
-	
 
 protected:
 	virtual void BeginPlay() override;

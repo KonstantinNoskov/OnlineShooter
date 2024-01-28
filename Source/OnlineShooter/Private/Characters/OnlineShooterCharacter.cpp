@@ -32,7 +32,6 @@
 #include "GameModes/OnlineShooterGameMode.h"
 #include "PlayerStates/OnlineShooterPlayerState.h"
 
-
 // Constructor
 AOnlineShooterCharacter::AOnlineShooterCharacter()
 {
@@ -864,7 +863,7 @@ void AOnlineShooterCharacter::Server_EquipButtonPressed_Implementation()
 void AOnlineShooterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
 	/*
-	 * if OverlappingWeapon not null it means that we already overlapped this weapon once and it also means that player has quit
+	 * if OverlappingWeapon not null it means that we already overlapped this weapon once and it also means that the player has quit
 	 * overlapping weapon and we should hide weapon pick up widget on server.  
 	 */
 	if (OverlappingWeapon) { OverlappingWeapon->ShowPickupWidget(false); }
@@ -872,9 +871,9 @@ void AOnlineShooterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 	// It's triggers OnRep_OverlappingWeapon logic to call on owner only client (check out GetLifetimeReplicatedProps)
 	OverlappingWeapon = Weapon;
 
-	// if player controller is a host  on server
+	// if player controller is a host on server
 	if(IsLocallyControlled())
-	{   
+	{
 		if(OverlappingWeapon) { OverlappingWeapon->ShowPickupWidget(true); }
 	}
 }

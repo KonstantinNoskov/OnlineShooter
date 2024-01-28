@@ -312,7 +312,8 @@ bool UCombatComponent::ShouldSwapWeapon()
 }
 void UCombatComponent::SwapWeapon()
 {
-	UE_LOG(LogTemp, Warning, TEXT("UCombatComponent::SwapWeapon()"))
+	if (CombatState != ECombatState::ECS_Unoccupied) return;
+	
 	AWeapon* TempWeapon = EquippedWeapon;
 	EquippedWeapon = SecondaryWeapon;
 	SecondaryWeapon = TempWeapon;
@@ -362,21 +363,55 @@ void UCombatComponent::Fire()
 	if (CanFire())
 	{
 		bCanFire = false;
-		Server_Fire(HitTarget);
 		
 		if(EquippedWeapon)
 		{
 			CrosshairShootFactor = .75f;
+
+			switch (EquippedWeapon->FireType) {
+
+				case EFireType::EFT_HitScan:
+					FireHitScanWeapon();
+				break;
+				
+				case EFireType::EFT_Projectile:
+					FireProjectileWeapon();
+				break;
+				
+				case EFireType::EFT_Shotgun:
+					FireShotgunWeapon();
+				break;
+			
+				default: ;
+			}
 		}
 		
 		StartFireTimer();
 	}
 }
-void UCombatComponent::Server_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget) 
+
+void UCombatComponent::FireProjectileWeapon()
 {
-	Multicast_Fire(TraceHitTarget);
+	LocalFire(HitTarget);
+	Server_Fire(HitTarget);
 }
-void UCombatComponent::Multicast_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget) 
+
+void UCombatComponent::FireHitScanWeapon()
+{
+	if (EquippedWeapon)
+	{	
+		HitTarget  = EquippedWeapon->bUseScatter ? EquippedWeapon->TraceEndWithScatter(HitTarget) : HitTarget;
+		LocalFire(HitTarget);
+		Server_Fire(HitTarget);
+	}
+}
+
+void UCombatComponent::FireShotgunWeapon()
+{
+	
+}
+
+void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceHitTarget)
 {
 	if(!EquippedWeapon) return;
 
@@ -393,6 +428,18 @@ void UCombatComponent::Multicast_Fire_Implementation(const FVector_NetQuantize& 
 	{
 		Character->PlayFireMontage(bAiming);
 		EquippedWeapon->Fire(TraceHitTarget);
+	}
+}
+
+void UCombatComponent::Server_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget) 
+{
+	Multicast_Fire(TraceHitTarget);
+}
+void UCombatComponent::Multicast_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget) 
+{
+	if (Character && Character->IsLocallyControlled() && !Character->HasAuthority()) return;
+	{
+		LocalFire(TraceHitTarget);
 	}
 }
 void UCombatComponent::StartFireTimer()
