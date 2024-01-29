@@ -4,6 +4,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Sound/SoundCue.h"
 
 AShotgun::AShotgun()
@@ -16,30 +17,30 @@ void AShotgun::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AShotgun::Fire(const FVector& HitTarget)
+void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 {
-	AWeapon::Fire(HitTarget);
-	
-	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	AWeapon::Fire(FVector());
+
+	const APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	if (!OwnerPawn) return;
 	AController* InstigatorController = OwnerPawn->Controller;
-	
+
 	const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName("MuzzleFlash");
 	if (MuzzleFlashSocket)
 	{
-		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
-		FVector Start = SocketTransform.GetLocation();
-		
+		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+		const FVector Start = SocketTransform.GetLocation();
+
+		// The map stores all character's that were hit as a key and amount of hits as a value 
 		TMap<AOnlineShooterCharacter*, uint32> HitMap;
-		
-		for (uint32 i = 0; i < NumberOfPellets; i++)
+		for (FVector_NetQuantize HitTarget : HitTargets)
 		{
 			FHitResult FireHit;
 			WeaponTraceHit(Start, HitTarget, FireHit);
 
 			// check if hit actor and Instigator controller is valid; also do server check 
 			AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(FireHit.GetActor());
-			if (OnlineShooterCharacter && HasAuthority() && InstigatorController)
+			if (OnlineShooterCharacter)
 			{
 				if (HitMap.Contains(OnlineShooterCharacter))
 				{
@@ -50,37 +51,29 @@ void AShotgun::Fire(const FVector& HitTarget)
 				{
 					HitMap.Emplace(OnlineShooterCharacter, 1);
 				}
-				
-				/*UGameplayStatics::ApplyDamage(
-				OnlineShooterCharacter,
-				Damage,
-				InstigatorController,
-				this,
-				UDamageType::StaticClass()
-				);*/
-			}
-			
-			// Play impact particles at the impact point
-			if(ImpactParticles)
-			{
-				UGameplayStatics::SpawnEmitterAtLocation(
-					GetWorld(),
-					ImpactParticles,
-					FireHit.ImpactPoint,
-					FireHit.ImpactNormal.Rotation()
-				);
-			}
 
-			// Play impact sound at the impact point
-			if (ImpactSound)
-			{
-				UGameplayStatics::PlaySoundAtLocation(
-					this,
-					ImpactSound,
-					FireHit.ImpactPoint,
-					.5f,
-					FMath::FRandRange(-5.f, .5f)
-				);
+				// Play impact particles at the impact point
+				if(ImpactParticles)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(
+						GetWorld(),
+						ImpactParticles,
+						FireHit.ImpactPoint,
+						FireHit.ImpactNormal.Rotation() 
+					);
+				}
+
+				// Play impact sound at the impact point
+				if (ImpactSound)
+				{
+					UGameplayStatics::PlaySoundAtLocation(
+						this,
+						ImpactSound,
+						FireHit.ImpactPoint,
+						.5f,
+						FMath::FRandRange(-5.f, .5f)
+					);
+				}
 			}
 		}
 
@@ -90,15 +83,44 @@ void AShotgun::Fire(const FVector& HitTarget)
 			if(HitPair.Key && HasAuthority() && InstigatorController)
 			{
 				UGameplayStatics::ApplyDamage(
-				HitPair.Key,
-				Damage * HitPair.Value,
+				HitPair.Key, // Character that was hit
+				Damage * HitPair.Value, // Multiply Damage by number of times hit
 				InstigatorController,
 				this,
 				UDamageType::StaticClass()
 				);
 			}
 		}
-	}	
+	}
+}
+
+void AShotgun::ShotgunTraceEndWithScatter(const FVector& HitTarget, TArray<FVector_NetQuantize>& HitTargets)
+{
+	// Get Muzzle flash socket
+	const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName("MuzzleFlash");
+	if(!MuzzleFlashSocket) return;
+
+	// Get Muzzle flash socket location
+	const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+	const FVector TraceStart = SocketTransform.GetLocation();
+
+	// Get normalized vector from muzzle to aiming point
+	const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
+
+	// Get location of scatter sphere 
+	const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
+
+	// Shoot random lines from scatter sphere center to perform scatter
+	for (uint32 i = 0; i < NumberOfPellets; i++)
+	{
+		const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SphereRadius);
+		const FVector EndLoc = SphereCenter + RandVec;
+		FVector ToEndLoc = EndLoc - TraceStart;
+		
+		ToEndLoc = TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size();
+		
+		HitTargets.Add(ToEndLoc);
+	}
 }
 
 void AShotgun::Tick(float DeltaTime)

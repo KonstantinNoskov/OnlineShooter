@@ -15,7 +15,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "PlayerController/OnlineShooterPlayerController.h"
 #include "Weapon/Casing.h"
-#include "D"
+
 
 
 AWeapon::AWeapon()
@@ -52,13 +52,7 @@ void AWeapon::BeginPlay()
 	{
 		PickupWidget->SetVisibility(false);
 	}
-
-	// Server logic
-	if(HasAuthority())
-	{
-		
-	}
-
+	
 	// Set default collision settings
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	AreaSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
@@ -66,7 +60,6 @@ void AWeapon::BeginPlay()
 	// Bind overlap delegates
 	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);
 	AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);
-	
 }
 
 void AWeapon::Tick(float DeltaTime)
@@ -87,7 +80,6 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	DOREPLIFETIME(AWeapon, WeaponState)
 	DOREPLIFETIME(AWeapon, Ammo)
 }
-
 void AWeapon::SetHUDAmmo()
 {
 	OnlineShooterOwnerCharacter = !OnlineShooterOwnerCharacter ? Cast<AOnlineShooterCharacter>(GetOwner()) : OnlineShooterOwnerCharacter;
@@ -102,12 +94,10 @@ void AWeapon::SetHUDAmmo()
 		}
 	}
 }
-
 bool AWeapon::IsMagEmpty()
 {
 	return Ammo <= 0; 
 }
-
 bool AWeapon::IsMagFull()
 {
 	return Ammo == MagCapacity;
@@ -116,22 +106,23 @@ bool AWeapon::IsMagFull()
 // Defines pellets scatter 
 FVector AWeapon::TraceEndWithScatter(const FVector& HitTarget)
 {
-
 	const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName("MuzzleFlash");
 	if(!MuzzleFlashSocket) return FVector();
 	
-	FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
-	FVector TraceStart = SocketTransform.GetLocation();
+	const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
+	const FVector TraceStart = SocketTransform.GetLocation();
 	
-	FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
-	FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
-	FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SphereRadius);
-	FVector EndLoc = SphereCenter + RandVec;
-	FVector ToEndLoc = EndLoc - TraceStart;
+	const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
+	const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
+	
+	const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SphereRadius);
+	const FVector EndLoc = SphereCenter + RandVec;
+	const FVector ToEndLoc = EndLoc - TraceStart;
 
 	// DEBUG
 	if (bDebug)
 	{
+		
 		DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Red, true);
 		DrawDebugSphere(GetWorld(), EndLoc, 4.f, 12, FColor::Orange, true);
 		DrawDebugLine(
@@ -145,13 +136,11 @@ FVector AWeapon::TraceEndWithScatter(const FVector& HitTarget)
 	
 	return FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size());
 }
-
 void AWeapon::AddAmmo(int32 AmmoToAdd)
 {
 	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MagCapacity);
 	SetHUDAmmo();
 }
-
 void AWeapon::EnableCustomDepth(bool bEnable)
 {
 	if(WeaponMesh)
@@ -159,7 +148,6 @@ void AWeapon::EnableCustomDepth(bool bEnable)
 		WeaponMesh->SetRenderCustomDepth(bEnable);
 	}
 }
-
 void AWeapon::OnRep_Ammo()
 {
 	OnlineShooterOwnerCharacter = !OnlineShooterOwnerCharacter ? Cast<AOnlineShooterCharacter>(GetOwner()) : OnlineShooterOwnerCharacter;
@@ -170,7 +158,6 @@ void AWeapon::OnRep_Ammo()
 	
 	SetHUDAmmo();
 }
-
 void AWeapon::OnRep_Owner()
 {
 	Super::OnRep_Owner();
@@ -322,8 +309,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 
 			// Create spawn params 
 			FActorSpawnParameters SpawnParams;
-
-
+			
 			// check if world is valid
 			UWorld* World = GetWorld();
 			if(World)

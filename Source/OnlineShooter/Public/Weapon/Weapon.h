@@ -109,13 +109,13 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ACasing> CasingClass;
 
-	UPROPERTY(EditAnywhere, Category = "Weapon Scatter")
-	float SphereRadius = 75.f;
-
-	UPROPERTY(EditAnywhere, Category = "Weapon Scatter")
-	float DistanceToSphere = 800.f;
-
 protected:
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Scatter", meta = (EditCondition = "bUseScatter"))
+	float DistanceToSphere = 800.f;
+	
+	UPROPERTY(EditAnywhere, Category = "Weapon Scatter", meta = (EditCondition = "bUseScatter"))
+	float SphereRadius = 75.f;
 	
 	UPROPERTY(EditAnywhere)
 	bool bDebug = false;

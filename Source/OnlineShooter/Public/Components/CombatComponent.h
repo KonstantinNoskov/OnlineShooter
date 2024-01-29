@@ -177,12 +177,21 @@ private:
 
 	UFUNCTION()
 	void LocalFire(const FVector_NetQuantize& TraceHitTarget);
+
+	UFUNCTION()
+	void ShotgunLocalFire(const TArray<FVector_NetQuantize>& TraceHitTargets);
 	
 	UFUNCTION(Server, Reliable)
 	void Server_Fire(const FVector_NetQuantize& TraceHitTarget);
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_Fire(const FVector_NetQuantize& TraceHitTarget);
+
+	UFUNCTION(Server, Reliable)
+	void Server_ShotgunFire(const TArray<FVector_NetQuantize>& TraceHitTargets);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_ShotgunFire(const TArray<FVector_NetQuantize>& TraceHitTargets);
 
 	UFUNCTION()
 	void StartFireTimer();
