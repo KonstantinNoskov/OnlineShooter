@@ -13,7 +13,6 @@ void UOverheadWidget::SetDisplayText(FString TextToDisplay)
 	{
 		DisplayText->SetText(FText::FromString(TextToDisplay));
 	}
-	
 }
 
 void UOverheadWidget::ShowPlayerInfo(APawn* InPawn)

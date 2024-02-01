@@ -369,7 +369,7 @@ void AOnlineShooterPlayerController::SetHUDTime()
 void AOnlineShooterPlayerController::HighPingWarning()
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
-
+	
 	bool bHUDValid =
 		OnlineShooterHUD &&
 		OnlineShooterHUD->CharacterOverlay &&
@@ -416,7 +416,7 @@ void AOnlineShooterPlayerController::CheckPing(float DeltaTime)
 
 		if (PlayerState)
 		{
-			if (PlayerState->GetPingInMilliseconds() > HighPingThreshold)
+			if (PlayerState->GetPingInMilliseconds() > HighPingThreshold) 
 			{
 				HighPingWarning();
 				PingAnimationRunningTime = 0.f;

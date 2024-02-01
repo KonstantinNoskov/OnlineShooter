@@ -115,12 +115,19 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		
 	}
 	
-	// Use FABRIK all the time except reloading
+	// Use FABRIK all the time except reloading. FABRIK used to always place left hand on weapon 
 	bUseFABRIK = OnlineShooterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;
 
-	// Use AimOffsets all the time except reloading & when the game state is on cooldown
+	// Stop using FABRIK if Reload starts on Client to prevent 
+	if (OnlineShooterCharacter->IsLocallyControlled() && OnlineShooterCharacter->GetCombatState() != ECombatState::ECS_ThrowingGrenade)
+	{
+		bUseFABRIK = !OnlineShooterCharacter->IsLocallyReloading();
+	}
+	
+	// Use AimOffsets all the time except reloading & when the game state is on cooldown. 
 	bUseAimOffsets = OnlineShooterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied && !OnlineShooterCharacter->GetDisableGameplay();
 
-	// Use Right hand transform all the time except reloading & when the game state is on cooldown
+	// Use Right hand transform all the time except reloading & when the game state is on cooldown.
+	// Right hand transform used to aim weapon mesh towards to hit target.
 	bTransformRightHand = OnlineShooterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied && !OnlineShooterCharacter->GetDisableGameplay();
 }

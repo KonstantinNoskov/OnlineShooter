@@ -444,7 +444,6 @@ protected:
 	UFUNCTION()
 	void DropOrDestroyWeapon(AWeapon* Weapon);
 
-
 public:
 	
 	UFUNCTION()
@@ -514,6 +513,7 @@ public:
 	FORCEINLINE float GetAO_Pitch() const							{ return AO_Pitch; }
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const			{ return TurningInPlace; }
 	FORCEINLINE bool ShouldRotateRootBone() const					{ return bRotateRootBone; }
+	FORCEINLINE bool IsLocallyReloading() const						{ return (!Combat) ? false : Combat->bLocallyReloading; }
 
 	// States
 	FORCEINLINE bool IsEliminated() const							{ return bEliminated; }

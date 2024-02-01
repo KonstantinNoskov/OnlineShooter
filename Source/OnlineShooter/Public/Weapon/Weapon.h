@@ -143,12 +143,23 @@ public:
 	
 #pragma region AMMO
 	
-	UPROPERTY(ReplicatedUsing = OnRep_Ammo, EditAnywhere, Category = "Weapon")
+	UPROPERTY(EditAnywhere, Category = "Weapon")
 	int32 Ammo;
 	
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	int32 MagCapacity;
 
+	// The nu,bet of unprocessed server requests for ammo.
+	// Incremented in SpendRound(), decremented in ClientUpdateAmmo()
+	UPROPERTY()
+	int32 Sequence = 0;
+
+	UFUNCTION(Client, Reliable)
+	void Client_UpdateAmmo(int32 ServerAmmo);
+	
+	UFUNCTION(Client, Reliable)
+	void Client_AddAmmo(int32 AmmoToAdd);
+	
 #pragma endregion
 	
 	
@@ -213,9 +224,6 @@ public:
 	// Replication
 	UFUNCTION()
 	void OnRep_WeaponState();
-	
-	UFUNCTION()
-	void OnRep_Ammo();
 	
 	FORCEINLINE EWeaponState GetWeaponState() const { return WeaponState; }
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }

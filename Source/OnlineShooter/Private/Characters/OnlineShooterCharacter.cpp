@@ -233,9 +233,10 @@ void AOnlineShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AOnlineShooterCharacter::Look);
 		
 		// Jumping
+		
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AOnlineShooterCharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AOnlineShooterCharacter::StopJumping);
-
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AOnlineShooterCharacter::StopJumping);	
+		
 		// Crouching
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &AOnlineShooterCharacter::CrouchButtonPressed);
 		
@@ -957,7 +958,6 @@ void AOnlineShooterCharacter::TurnInPlace(float DeltaTime)
 		}
 	}
 }
-
 void AOnlineShooterCharacter::RotateInPlace(float DeltaTime)
 {
 	if (bDisableGameplay)
@@ -1119,4 +1119,5 @@ ECombatState AOnlineShooterCharacter::GetCombatState() const
 
 	return Combat->CombatState;
 }
+
 

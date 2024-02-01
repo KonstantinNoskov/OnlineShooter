@@ -51,6 +51,9 @@ private:
 	UPROPERTY()
 	bool bCanFire = true;
 
+	UPROPERTY()
+	bool bLocallyReloading = false;
+
 	// Ammo for the currently-equipped weapon carried by a player
 	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
 	int32 CarriedAmmo;
@@ -103,8 +106,14 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AProjectile> GrenadeClass;
 	
-	UPROPERTY(Replicated)
-	bool bAiming;
+	UPROPERTY(ReplicatedUsing = OnRep_Aiming)
+	bool bAiming = false;
+
+	UPROPERTY()
+	bool bAimingButtonPressed = false;
+
+	UFUNCTION()
+	void OnRep_Aiming();
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Walk", meta = (AllowPrivateAccess = "true"))
 	float BaseWalkSpeed;

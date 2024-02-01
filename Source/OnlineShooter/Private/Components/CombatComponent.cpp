@@ -58,6 +58,8 @@ void UCombatComponent::BeginPlay()
 		{
 			InitializeCarriedAmmo();
 		}
+		InitializeCarriedAmmo();
+	
 	}
 }
 
@@ -95,44 +97,6 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
 	DOREPLIFETIME(UCombatComponent, CombatState);
 	DOREPLIFETIME(UCombatComponent, Grenades);
-}
-
-// Aim
-void UCombatComponent::SetAiming(bool bIsAiming)
-{
-	if(!Character || !EquippedWeapon) return;
-	
-	bAiming = bIsAiming;
-	Server_SetAiming(bIsAiming);
-	
-	// Calculate walk speed aiming factor
-	Character->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimingWalkSpeed : BaseWalkSpeed;
-
-	
-	if(Character->IsLocallyControlled() && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
-	{
-		Controller = !Controller ? Cast<AOnlineShooterPlayerController>(Character->Controller) : Controller;
-		if(Controller)
-		{
-			Controller->SetHUDSniperScope(bIsAiming);
-
-			if(bIsAiming && EquippedWeapon->ZoomInSound)
-			{
-				UGameplayStatics::PlaySound2D(this, EquippedWeapon->ZoomInSound);
-			}
-
-			else if (EquippedWeapon->ZoomOutSound)
-			{
-				UGameplayStatics::PlaySound2D(this, EquippedWeapon->ZoomOutSound);
-			}
-		}
-	}
-	
-}
-void UCombatComponent::Server_SetAiming_Implementation(bool bIsAiming)
-{
-	bAiming = bIsAiming;
-	Character->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimingWalkSpeed : BaseWalkSpeed;
 }
 
 // Equip weapon
@@ -304,13 +268,6 @@ void UCombatComponent::PlayEquippedWeaponSound(AWeapon* WeaponToEquip)
 		UGameplayStatics::PlaySoundAtLocation(this, WeaponToEquip->EquipSound, Character->GetActorLocation());
 	}
 }
-void UCombatComponent::ReloadEmptyWeapon()
-{
-	if(EquippedWeapon && EquippedWeapon->IsMagEmpty())
-	{
-		Reload();
-	}
-}
 
 // Swap Weapon
 bool UCombatComponent::ShouldSwapWeapon()
@@ -351,7 +308,8 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 bool UCombatComponent::CanFire()
 {
 	if(!EquippedWeapon) return false;
-
+	if(bLocallyReloading) return false;
+	
 	bool bShotgunReloading =
 		!EquippedWeapon->IsMagEmpty() &&
 		bCanFire &&
@@ -490,7 +448,6 @@ void UCombatComponent::Multicast_ShotgunFire_Implementation(const TArray<FVector
 	ShotgunLocalFire(TraceHitTargets);
 }
 
-
 void UCombatComponent::StartFireTimer()
 {
 	if (!EquippedWeapon || !Character) return;
@@ -551,7 +508,11 @@ void UCombatComponent::OnRep_CombatState()
 			break;
 		
 		case ECombatState::ECS_Reloading:
-			HandleReload();
+			
+			if (Character && !Character->IsLocallyControlled())
+			{
+				HandleReload();	
+			}
 			break;
 
 		case ECombatState::ECS_ThrowingGrenade:
@@ -562,10 +523,8 @@ void UCombatComponent::OnRep_CombatState()
 			}
 			break;
 		
-		case ECombatState::ECS_MAX:
+		default:
 			break;
-		
-		default: ;
 	}
 }
 
@@ -578,28 +537,46 @@ void UCombatComponent::Reload()
 	&& EquippedWeapon
 	&& !EquippedWeapon->IsMagFull()
 	&& Character
-	&& !Character->IsEliminated();
+	&& !Character->IsEliminated()
+	&& !bLocallyReloading;
 	
  	if (bCanReload)
 	{
+ 		bLocallyReloading = true;
 		Server_Reload();
 		HandleReload();
 	}
+	
 }
 void UCombatComponent::Server_Reload_Implementation()
 {
+	if (!Character || !EquippedWeapon) return;
+	
 	CombatState = ECombatState::ECS_Reloading;
-	HandleReload();
+	
+	if (!Character->IsLocallyControlled())
+	{
+		HandleReload();
+	}
+}
+void UCombatComponent::ReloadEmptyWeapon()
+{
+	if(EquippedWeapon && EquippedWeapon->IsMagEmpty())
+	{
+		Reload();
+	}
 }
 void UCombatComponent::FinishReloading()
 {
 	if(!Character) return;
+
+	bLocallyReloading = false;
+	
 	if(Character->HasAuthority())
 	{
 		CombatState = ECombatState::ECS_Unoccupied;
 		UpdateAmmoValues();
 	}
-
 	if(bFireButtonPressed)
 	{
 		Fire();
@@ -623,7 +600,10 @@ int32 UCombatComponent::AmountToReload()
 }
 void UCombatComponent::HandleReload() 
 {
-	Character->PlayReloadMontage();
+	if (Character)
+	{
+		Character->PlayReloadMontage();
+	}
 	
 }
 void UCombatComponent::UpdateAmmoValues()
@@ -811,6 +791,52 @@ void UCombatComponent::OnRep_Grenades()
 }
 
 // Crosshair & Aiming
+void UCombatComponent::SetAiming(bool bIsAiming)
+{
+	if(!Character || !EquippedWeapon) return;
+	
+	bAiming = bIsAiming;
+	Server_SetAiming(bIsAiming);
+	
+	// Calculate walk speed aiming factor
+	Character->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimingWalkSpeed : BaseWalkSpeed;
+	
+	if(Character->IsLocallyControlled() && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
+	{
+		Controller = !Controller ? Cast<AOnlineShooterPlayerController>(Character->Controller) : Controller;
+		if(Controller)
+		{
+			Controller->SetHUDSniperScope(bIsAiming);
+
+			if(bIsAiming && EquippedWeapon->ZoomInSound)
+			{
+				UGameplayStatics::PlaySound2D(this, EquippedWeapon->ZoomInSound);
+			}
+
+			else if (EquippedWeapon->ZoomOutSound)
+			{
+				UGameplayStatics::PlaySound2D(this, EquippedWeapon->ZoomOutSound);
+			}
+		}
+	}
+	
+	if (Character->IsLocallyControlled())
+	{
+		bAimingButtonPressed = bIsAiming;
+	}
+}
+void UCombatComponent::OnRep_Aiming()
+{
+	if (Character && Character->IsLocallyControlled())
+	{
+		bAiming = bAimingButtonPressed;
+	}
+}
+void UCombatComponent::Server_SetAiming_Implementation(bool bIsAiming)
+{
+	bAiming = bIsAiming;
+	Character->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimingWalkSpeed : BaseWalkSpeed;
+}
 void UCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
 {
 	FVector2D ViewportSize;
@@ -978,13 +1004,12 @@ void UCombatComponent::PickupAmmo(EWeaponType AmmoWeaponType, int32 AmmoAmount)
 		Controller = !Controller ? Cast<AOnlineShooterPlayerController>(Character->Controller) : Controller;
 		if(Controller && EquippedWeapon && EquippedWeapon->GetWeaponType() == AmmoWeaponType)
 		{
-			Controller->SetHUDCarriedAmmo(CarriedAmmo);
+			//Controller->SetHUDCarriedAmmo(CarriedAmmo);
 		}
 		
 		// Reload immediately if out of ammo
 		if(EquippedWeapon && EquippedWeapon->IsMagEmpty() && EquippedWeapon->GetWeaponType() == AmmoWeaponType)
 		{
-			
 			Reload();
 		}
 	}

@@ -78,21 +78,6 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeapon, WeaponState)
-	DOREPLIFETIME(AWeapon, Ammo)
-}
-void AWeapon::SetHUDAmmo()
-{
-	OnlineShooterOwnerCharacter = !OnlineShooterOwnerCharacter ? Cast<AOnlineShooterCharacter>(GetOwner()) : OnlineShooterOwnerCharacter;
-
-	if(OnlineShooterOwnerCharacter)
-	{
-		OnlineShooterOwnerController = !OnlineShooterOwnerController ? Cast<AOnlineShooterPlayerController>(OnlineShooterOwnerCharacter->Controller) : OnlineShooterOwnerController;
-
-		if(OnlineShooterOwnerController)
-		{
-			OnlineShooterOwnerController->SetHUDWeaponAmmo(Ammo);
-		}
-	}
 }
 bool AWeapon::IsMagEmpty()
 {
@@ -122,24 +107,22 @@ FVector AWeapon::TraceEndWithScatter(const FVector& HitTarget)
 	// DEBUG
 	if (bDebug)
 	{
-		
-		DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Red, true);
-		DrawDebugSphere(GetWorld(), EndLoc, 4.f, 12, FColor::Orange, true);
-		DrawDebugLine(
-			GetWorld(),
-			TraceStart,
-			FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size()),
-			FColor::Cyan,
-			true
-				);	
+		// SCATTER
+		if(bUseScatter)
+		{
+			DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Red, true);
+			DrawDebugSphere(GetWorld(), EndLoc, 4.f, 12, FColor::Orange, true);
+			DrawDebugLine(
+				GetWorld(),
+				TraceStart,
+				FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size()),
+				FColor::Cyan,
+				true
+					);	
+		}	
 	}
 	
 	return FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size());
-}
-void AWeapon::AddAmmo(int32 AmmoToAdd)
-{
-	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MagCapacity);
-	SetHUDAmmo();
 }
 void AWeapon::EnableCustomDepth(bool bEnable)
 {
@@ -148,16 +131,7 @@ void AWeapon::EnableCustomDepth(bool bEnable)
 		WeaponMesh->SetRenderCustomDepth(bEnable);
 	}
 }
-void AWeapon::OnRep_Ammo()
-{
-	OnlineShooterOwnerCharacter = !OnlineShooterOwnerCharacter ? Cast<AOnlineShooterCharacter>(GetOwner()) : OnlineShooterOwnerCharacter;
-	if(OnlineShooterOwnerCharacter && OnlineShooterOwnerCharacter->GetCombatComponent() && IsMagFull())
-	{
-		OnlineShooterOwnerCharacter->GetCombatComponent()->JumpToShotgunEnd();
-	}
-	
-	SetHUDAmmo();
-}
+
 void AWeapon::OnRep_Owner()
 {
 	Super::OnRep_Owner();
@@ -324,20 +298,68 @@ void AWeapon::Fire(const FVector& HitTarget)
 			}
 		}
 	}
-	
+
 	// Decrement ammo and update HUD
-	if (HasAuthority())
+	SpendRound();
+}
+void AWeapon::AddAmmo(int32 AmmoToAdd)
+{
+	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MagCapacity);
+	SetHUDAmmo();
+	Client_AddAmmo(AmmoToAdd);
+}
+void AWeapon::SetHUDAmmo()
+{
+	OnlineShooterOwnerCharacter = !OnlineShooterOwnerCharacter ? Cast<AOnlineShooterCharacter>(GetOwner()) : OnlineShooterOwnerCharacter;
+
+	if(OnlineShooterOwnerCharacter)
 	{
-		SpendRound();
+		OnlineShooterOwnerController = !OnlineShooterOwnerController ? Cast<AOnlineShooterPlayerController>(OnlineShooterOwnerCharacter->Controller) : OnlineShooterOwnerController;
+
+		if(OnlineShooterOwnerController)
+		{
+			OnlineShooterOwnerController->SetHUDWeaponAmmo(Ammo);
+		}
 	}
 }
 
+void AWeapon::Client_AddAmmo_Implementation(int32 AmmoToAdd)
+{
+	if (HasAuthority()) return;
+	
+	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MagCapacity);
+
+	OnlineShooterOwnerCharacter = !OnlineShooterOwnerCharacter ? Cast<AOnlineShooterCharacter>(GetOwner()) : OnlineShooterOwnerCharacter;
+	if (OnlineShooterOwnerCharacter && OnlineShooterOwnerCharacter->GetCombatComponent() && IsMagFull())
+	{
+		OnlineShooterOwnerCharacter->GetCombatComponent()->JumpToShotgunEnd();
+	}
+
+	SetHUDAmmo();
+}
 void AWeapon::SpendRound()
 {
 	Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
+	SetHUDAmmo(); 
+
+	if(HasAuthority())
+	{
+		Client_UpdateAmmo(Ammo);
+	}
+	else if (OnlineShooterOwnerCharacter && OnlineShooterOwnerCharacter->IsLocallyControlled())
+	{
+		++Sequence;
+	}
+}
+void AWeapon::Client_UpdateAmmo_Implementation(int32 ServerAmmo)
+{
+	if (HasAuthority()) return;
+	
+	Ammo = ServerAmmo;
+	--Sequence;
+	Ammo -= Sequence;
 	SetHUDAmmo();
 }
-
 void AWeapon::Dropped()
 {
 	SetWeaponState(EWeaponState::EWS_Dropped); 
