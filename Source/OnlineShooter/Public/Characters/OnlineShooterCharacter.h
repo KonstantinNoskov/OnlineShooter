@@ -18,6 +18,7 @@
 
 #include "OnlineShooterCharacter.generated.h"
 
+class ULagCompensationComponent;
 class UBoxComponent;
 class UBuffComponent;
 class UWidgetComponent;
@@ -88,6 +89,10 @@ private:
 	// Grenade
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* AttachedGrenade;
+
+	// Lag Compensation
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	ULagCompensationComponent* LagCompensation;
 
 #pragma endregion
 
