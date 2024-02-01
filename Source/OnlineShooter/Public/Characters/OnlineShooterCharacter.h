@@ -18,14 +18,15 @@
 
 #include "OnlineShooterCharacter.generated.h"
 
+class UBoxComponent;
 class UBuffComponent;
-class AOnlineShooterPlayerState;
-class USoundCue;
-class UCombatComponent;
-class AWeapon;
 class UWidgetComponent;
 class USpringArmComponent;
 class UCameraComponent;
+class UCombatComponent;
+class AOnlineShooterPlayerState;
+class USoundCue;
+class AWeapon;
 
 // INPUT
 class UInputMappingContext;
@@ -531,6 +532,59 @@ public:
 	FORCEINLINE float GetShield() const								{ return Shield; }
 	FORCEINLINE float GetMaxShield() const							{ return MaxShield; }
 	FORCEINLINE void SetShield(float NewShieldAmount)				{ Shield = NewShieldAmount; }
+	
+#pragma endregion
+
+#pragma region SERVER-SIDE REWIND BOXES
+public:
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* head;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* pelvis;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* spine_02;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* spine_03;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* upperarm_l;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* upperarm_r;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* lowerarm_l;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* lowerarm_r;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* hand_l;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* hand_r;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* thigh_l;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* thigh_r;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* calf_l;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* calf_r;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* foot_l;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* foot_r;
 	
 #pragma endregion
 };

@@ -28,6 +28,7 @@
 #include "Particles/ParticleSystemComponent.h"
 
 // GameModes
+#include "Components/BoxComponent.h"
 #include "Components/BuffComponent.h"
 #include "GameModes/OnlineShooterGameMode.h"
 #include "PlayerStates/OnlineShooterPlayerState.h"
@@ -90,6 +91,92 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 	// Net update settings
 	NetUpdateFrequency = 120.f;
 	MinNetUpdateFrequency = 66.f;
+	
+	// Initializing server-side rewind boxes
+	#pragma region SERVER-SIDE REWIND BOXES
+	
+	// head
+	head = CreateDefaultSubobject<UBoxComponent>(TEXT("head"));
+	head->SetupAttachment(GetMesh(), FName("head"));
+	head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// pelvis
+	head = CreateDefaultSubobject<UBoxComponent>(TEXT("pelvis"));
+	head->SetupAttachment(GetMesh(), FName("pelvis"));
+	head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// spine_02
+	head = CreateDefaultSubobject<UBoxComponent>(TEXT("spine_02"));
+	head->SetupAttachment(GetMesh(), FName("spine_02"));
+	head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// spine_03
+	head = CreateDefaultSubobject<UBoxComponent>(TEXT("spine_03"));
+	head->SetupAttachment(GetMesh(), FName("spine_03"));
+	head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// upperarm_l
+	head = CreateDefaultSubobject<UBoxComponent>(TEXT("upperarm_l"));
+	head->SetupAttachment(GetMesh(), FName("upperarm_l"));
+	head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// upperarm_r
+	head = CreateDefaultSubobject<UBoxComponent>(TEXT("upperarm_r"));
+	head->SetupAttachment(GetMesh(), FName("upperarm_r"));
+	head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// lowerarm_l
+	head = CreateDefaultSubobject<UBoxComponent>(TEXT("lowerarm_l"));
+	head->SetupAttachment(GetMesh(), FName("lowerarm_l"));
+	head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	// lowerarm_r
+	head = CreateDefaultSubobject<UBoxComponent>(TEXT("lowerarm_r"));
+	head->SetupAttachment(GetMesh(), FName("lowerarm_r"));
+	head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// hand_l
+	head = CreateDefaultSubobject<UBoxComponent>(TEXT("hand_l"));
+	head->SetupAttachment(GetMesh(), FName("hand_l"));
+	head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// hand_r
+	head = CreateDefaultSubobject<UBoxComponent>(TEXT("hand_r"));
+	head->SetupAttachment(GetMesh(), FName("hand_r"));
+	head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// thigh_l
+	head = CreateDefaultSubobject<UBoxComponent>(TEXT("thigh_l"));
+	head->SetupAttachment(GetMesh(), FName("thigh_l"));
+	head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// thigh_r
+	head = CreateDefaultSubobject<UBoxComponent>(TEXT("thigh_r"));
+	head->SetupAttachment(GetMesh(), FName("thigh_r"));
+	head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// calf_l
+	head = CreateDefaultSubobject<UBoxComponent>(TEXT("calf_l"));
+	head->SetupAttachment(GetMesh(), FName("calf_l"));
+	head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// calf_r
+	head = CreateDefaultSubobject<UBoxComponent>(TEXT("calf_r"));
+	head->SetupAttachment(GetMesh(), FName("calf_r"));
+	head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// foot_l
+	head = CreateDefaultSubobject<UBoxComponent>(TEXT("foot_l"));
+	head->SetupAttachment(GetMesh(), FName("foot_l"));
+	head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// foot_r
+	head = CreateDefaultSubobject<UBoxComponent>(TEXT("foot_r"));
+	head->SetupAttachment(GetMesh(), FName("foot_r"));
+	head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+#pragma endregion
+	
 }
 
 // Post Initialize Components 
@@ -1119,5 +1206,10 @@ ECombatState AOnlineShooterCharacter::GetCombatState() const
 
 	return Combat->CombatState;
 }
+
+#pragma region SERVER-SIDE REWIND
+
+
+#pragma endregion
 
 
