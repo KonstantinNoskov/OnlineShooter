@@ -82,12 +82,16 @@ protected:
 	UFUNCTION()
 	void SaveFramePackage(FFramePackage& Package);
 
-	
+	UFUNCTION()
+	FFramePackage InterpBetweenFrames(const FFramePackage& OlderFrame, const FFramePackage& YoungerFrame, float HitTime);
 
 public:
 
 	UFUNCTION()
 	void ShowFramePackage(const FFramePackage& Package, const FColor& Color, float DeltaTime);
+
+	UFUNCTION()
+	void ServerSideRewind(AOnlineShooterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, float HitTime);
 
 	
 };

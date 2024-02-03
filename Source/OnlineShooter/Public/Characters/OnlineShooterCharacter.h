@@ -537,6 +537,10 @@ public:
 	FORCEINLINE float GetShield() const								{ return Shield; }
 	FORCEINLINE float GetMaxShield() const							{ return MaxShield; }
 	FORCEINLINE void SetShield(float NewShieldAmount)				{ Shield = NewShieldAmount; }
+
+	// Lag Compensation
+	FORCEINLINE ULagCompensationComponent* GetLagCompensation() const{ return LagCompensation; }
+	
 	
 #pragma endregion
 
