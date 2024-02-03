@@ -541,7 +541,8 @@ public:
 #pragma endregion
 
 #pragma region SERVER-SIDE REWIND BOXES
-public:
+
+protected:
 
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* head;
@@ -590,6 +591,11 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* foot_r;
+
+public:
+
+	UPROPERTY()
+	TMap<FName, UBoxComponent*> HitCollisionBoxes;
 	
 #pragma endregion
 };

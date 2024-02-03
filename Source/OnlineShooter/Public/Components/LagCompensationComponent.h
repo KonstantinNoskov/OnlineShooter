@@ -48,13 +48,46 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
+	void SaveFrameHistory(float DeltaTime);
 
 private:
-
+	
 	UPROPERTY()
 	AOnlineShooterCharacter* Character;
 
 	UPROPERTY()
 	AOnlineShooterPlayerController* Controller;
+	
+	TDoubleLinkedList<FFramePackage> FrameHistory;
+
+	UPROPERTY(EditAnywhere)
+	float MaxRecordTime = 4.f;
+	
+	float DrawHitBoxTime = 0.f;
+
+	UPROPERTY(EditAnywhere, Category = "Debug", meta = (EditCondition = "bDebug"))
+	float DrawHitBoxFrequency = .5f;
+
+	UPROPERTY(EditAnywhere, Category = "Debug", meta = (EditCondition = "bDebug"))
+	float DrawHitBoxLifeTime = .5f;
+
+	UPROPERTY(EditAnywhere, Category = "Debug")
+	bool bDebug = false;
+
+	UPROPERTY()
+	uint32 DeletedPackagesCount = 0;
+
+protected:
+
+	UFUNCTION()
+	void SaveFramePackage(FFramePackage& Package);
+
+	
+
+public:
+
+	UFUNCTION()
+	void ShowFramePackage(const FFramePackage& Package, const FColor& Color, float DeltaTime);
+
 	
 };
