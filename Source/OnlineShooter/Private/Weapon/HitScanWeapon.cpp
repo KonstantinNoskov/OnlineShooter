@@ -5,6 +5,8 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "Components/LagCompensationComponent.h"
+#include "PlayerController/OnlineShooterPlayerController.h"
 #include "Sound/SoundCue.h"
 
 
@@ -38,15 +40,35 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 
 		// check if hit actor and Instigator controller is valid; also do server check 
 		AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(FireHit.GetActor());
-		if(OnlineShooterCharacter && HasAuthority() && InstigatorController)
+		if(OnlineShooterCharacter && InstigatorController)
 		{
-			UGameplayStatics::ApplyDamage(
-			OnlineShooterCharacter,
-			Damage,
-			InstigatorController,
-			this,
-			UDamageType::StaticClass()
-			);
+			if (HasAuthority() && !bUseServerSideRewind)
+			{
+				UGameplayStatics::ApplyDamage(
+				OnlineShooterCharacter,
+				Damage,
+				InstigatorController,
+				this,
+				UDamageType::StaticClass()
+				);
+			}
+
+			if (!HasAuthority() && bUseServerSideRewind)
+			{
+				OnlineShooterOwnerCharacter = !OnlineShooterOwnerCharacter ? Cast<AOnlineShooterCharacter>(OwnerPawn) : OnlineShooterOwnerCharacter;
+				OnlineShooterOwnerController = !OnlineShooterOwnerController ? Cast<AOnlineShooterPlayerController>(InstigatorController) : OnlineShooterOwnerController;
+				
+				if (OnlineShooterOwnerCharacter && OnlineShooterOwnerController && OnlineShooterOwnerCharacter->GetLagCompensation())
+				{
+					OnlineShooterOwnerCharacter->GetLagCompensation()->ServerScoreRequest(
+						OnlineShooterCharacter,
+						Start,
+						HitTarget,
+						OnlineShooterOwnerController->GetServerTime() - OnlineShooterOwnerController->GetSingleTripTime(),
+						this
+					);
+				}
+			}
 		}
 
 		// Play impact particles at the impact point

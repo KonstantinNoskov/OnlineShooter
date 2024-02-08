@@ -67,6 +67,13 @@ void UCombatComponent::BeginPlay()
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (!Character->HasAuthority() && Character->IsLocallyControlled())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("bLOcallyReloaded:%hd"), bLocallyReloading)	
+	}
+	
+	
 	
 	if (Character && Character->IsLocallyControlled())
 	{
@@ -104,7 +111,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 {
 	if (!Character || !WeaponToEquip) return;
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
-
+	
 	// if there's no secondary weapon
 	if (EquippedWeapon && !SecondaryWeapon)
 	{
@@ -123,6 +130,19 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
 {
 	if (!WeaponToEquip) return;
+
+	/*if(SecondaryWeapon && SecondaryWeapon->GetWeaponType() == WeaponToEquip->GetWeaponType())
+	{
+		SecondaryWeapon->AddAmmo(WeaponToEquip->Ammo);
+		CarriedAmmoMap[SecondaryWeapon->GetWeaponType()] +=  WeaponToEquip->Ammo;
+		
+		WeaponToEquip->Destroy();
+
+		// Play equip weapon sound
+		PlayEquippedWeaponSound(WeaponToEquip);
+		
+		return;
+	}*/
 	
 	// Drop the current weapon if already have one
 	DropEquippedWeapon();
@@ -152,12 +172,26 @@ void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
 void UCombatComponent::EquipSecondaryWeapon(AWeapon* WeaponToEquip)
 {
 	if (!WeaponToEquip) return;
+
+	
+	if (EquippedWeapon->GetWeaponType() == WeaponToEquip->GetWeaponType())
+	{
+		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] += WeaponToEquip->Ammo;
+		UpdateCarriedAmmo();
+
+		// Play equip weapon sound
+		PlayEquippedWeaponSound(WeaponToEquip);
+		
+		WeaponToEquip->Destroy();
+		
+		return;
+	}
 	
 	// Set weapon state to "Equipped"
 	SecondaryWeapon = WeaponToEquip;
 	SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
 
-	// Attach equipped weapon to right hand
+	// Attach picked up weapon to the Secondary Slot
 	AttachActorToSecondarySlot(WeaponToEquip);
 	
 	// Play equip weapon sound
@@ -234,6 +268,10 @@ void UCombatComponent::AttachActorToSecondarySlot(AActor* ActorToAttach)
 		case EWeaponType::EWT_Pistol:
 			SecondarySocket = Character->GetMesh()->GetSocketByName(FName("SKT_Holster"));
 			break;
+
+		case EWeaponType::EWT_RocketLauncher:
+			SecondarySocket = Character->GetMesh()->GetSocketByName(FName("SKT_Pelvis"));
+			break;
 		
 		default:
 			SecondarySocket = Character->GetMesh()->GetSocketByName(FName("SKT_Back"));
@@ -266,6 +304,33 @@ void UCombatComponent::PlayEquippedWeaponSound(AWeapon* WeaponToEquip)
 	if(Character && WeaponToEquip && WeaponToEquip->EquipSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, WeaponToEquip->EquipSound, Character->GetActorLocation());
+	}
+}
+
+// Pickup Ammo
+void UCombatComponent::PickupAmmo(EWeaponType AmmoWeaponType, int32 AmmoAmount)
+{
+	// Ammo type valid check
+	if (CarriedAmmoMap.Contains(AmmoWeaponType))
+	{
+		// Add the pickup ammo to the carried ammo
+		CarriedAmmoMap[AmmoWeaponType] = FMath::Clamp(CarriedAmmoMap[AmmoWeaponType] + AmmoAmount, 0, MaxCarriedAmmo);
+
+		//CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+		CarriedAmmo = CarriedAmmoMap[AmmoWeaponType];
+		
+		// Update carried ammo in HUD if still have ammo.
+		Controller = !Controller ? Cast<AOnlineShooterPlayerController>(Character->Controller) : Controller;
+		if(Controller && EquippedWeapon && EquippedWeapon->GetWeaponType() == AmmoWeaponType)
+		{
+			Controller->SetHUDCarriedAmmo(CarriedAmmo);	
+		}
+		
+		// Reload immediately if out of ammo
+		if(EquippedWeapon && EquippedWeapon->IsMagEmpty() && EquippedWeapon->GetWeaponType() == AmmoWeaponType)
+		{
+			Reload();
+		}
 	}
 }
 
@@ -347,7 +412,8 @@ void UCombatComponent::Fire()
 					FireShotgunWeapon();
 				break;
 			
-				default: ;
+				default:
+				break;
 			}
 		}
 		
@@ -509,8 +575,9 @@ void UCombatComponent::OnRep_CombatState()
 		
 		case ECombatState::ECS_Reloading:
 			
-			if (Character && !Character->IsLocallyControlled())
+			if (Character && Character->IsLocallyControlled())
 			{
+				UE_LOG(LogTemp, Warning, TEXT("UCombatComponent::HandleReload() - OnREP"))
 				HandleReload();	
 			}
 			break;
@@ -539,12 +606,15 @@ void UCombatComponent::Reload()
 	&& Character
 	&& !Character->IsEliminated()
 	&& !bLocallyReloading;
+
 	
  	if (bCanReload)
 	{
- 		bLocallyReloading = true;
 		Server_Reload();
+ 		
 		HandleReload();
+ 		
+ 		bLocallyReloading = true;
 	}
 	
 }
@@ -987,31 +1057,6 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 	if (Character && Character->GetFollowCamera())
 	{
 		 Character->GetFollowCamera()->SetFieldOfView(CurrentFOV);
-	}
-}
-
-// Pickup Ammo
-void UCombatComponent::PickupAmmo(EWeaponType AmmoWeaponType, int32 AmmoAmount)
-{
-	// Ammo type valid check
-	if (CarriedAmmoMap.Contains(AmmoWeaponType))
-	{
-		// Add the pickup ammo to the carried ammo
-		CarriedAmmoMap[AmmoWeaponType] = FMath::Clamp(CarriedAmmoMap[AmmoWeaponType] + AmmoAmount, 0, MaxCarriedAmmo);
-		CarriedAmmo = CarriedAmmoMap[AmmoWeaponType];
-		
-		// Update carried ammo in HUD if still have ammo.
-		Controller = !Controller ? Cast<AOnlineShooterPlayerController>(Character->Controller) : Controller;
-		if(Controller && EquippedWeapon && EquippedWeapon->GetWeaponType() == AmmoWeaponType)
-		{
-			//Controller->SetHUDCarriedAmmo(CarriedAmmo);
-		}
-		
-		// Reload immediately if out of ammo
-		if(EquippedWeapon && EquippedWeapon->IsMagEmpty() && EquippedWeapon->GetWeaponType() == AmmoWeaponType)
-		{
-			Reload();
-		}
 	}
 }
 

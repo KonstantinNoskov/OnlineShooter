@@ -45,6 +45,9 @@ private:
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
 	AOnlineShooterCharacter* OnlineShooterCharacter;
+
+	UPROPERTY(EditAnywhere)
+	bool bDebug = false;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float Speed;

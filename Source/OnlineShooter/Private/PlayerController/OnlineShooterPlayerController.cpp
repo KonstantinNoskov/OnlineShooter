@@ -265,7 +265,7 @@ void AOnlineShooterPlayerController::SetHUDCarriedAmmo(int32 CarriedAmmo)
 	}
 	else
 	{
-		bInitializeWeaponAmmo = true;
+		bInitializeCarriedAmmo = true;
 		HUDCarriedAmmo = CarriedAmmo;
 	}
 }
@@ -492,6 +492,8 @@ void AOnlineShooterPlayerController::ClientReportServerTime_Implementation(float
 	// Getting delta between client request time and current client time. 
 	float RoundTripTime = GetWorld()->GetTimeSeconds() - TimeOfClientRequest;
 
+	SingleTripTime = RoundTripTime * .5f;
+	
 	// Client gets current server time by summing server time we've just passed in and the client request time divided by 2. 
 	float CurrentServerTime = TimerServerReceivedClientRequest + (.5f * RoundTripTime);
 

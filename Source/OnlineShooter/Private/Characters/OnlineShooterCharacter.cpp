@@ -346,6 +346,7 @@ void AOnlineShooterCharacter::PollInit()
 // Binding inputs
 void AOnlineShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+	
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
@@ -356,7 +357,6 @@ void AOnlineShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AOnlineShooterCharacter::Look);
 		
 		// Jumping
-		
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AOnlineShooterCharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AOnlineShooterCharacter::StopJumping);	
 		
@@ -371,7 +371,7 @@ void AOnlineShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AOnlineShooterCharacter::AimButtonReleased);
 
 		// Fire
-		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AOnlineShooterCharacter::FireButtonPressed);
+		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &AOnlineShooterCharacter::FireButtonPressed);
 		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &AOnlineShooterCharacter::FireButtonReleased);
 
 		// Reload
@@ -414,11 +414,19 @@ void AOnlineShooterCharacter::Look(const FInputActionValue& Value)
 	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
+	bool bScopeLook =
+		Combat &&
+		Combat->bAiming &&
+		GetEquippedWeapon() &&
+		GetEquippedWeapon()->GetWeaponType() == EWeaponType::EWT_SniperRifle;
+
+	float MouseSensitivity = bScopeLook ? .1f : 1.f;
+	
 	if (Controller != nullptr)
 	{
 		// add yaw and pitch input to controller
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
+	 	AddControllerYawInput(LookAxisVector.X * MouseSensitivity);
+		AddControllerPitchInput(LookAxisVector.Y * MouseSensitivity);
 	}
 }
 
@@ -1146,7 +1154,7 @@ void AOnlineShooterCharacter::PlayFireMontage(bool bAiming)
 	}
 }
 void AOnlineShooterCharacter::PlayReloadMontage()
-{
+{	
 	// Play fire montage only if we have a combat component and a weapon
 	if (!Combat || !Combat->EquippedWeapon) return;
 	
@@ -1244,9 +1252,11 @@ ECombatState AOnlineShooterCharacter::GetCombatState() const
 	return Combat->CombatState;
 }
 
-#pragma region SERVER-SIDE REWIND
-
-
-#pragma endregion
+bool AOnlineShooterCharacter::IsLocallyReloading() const
+{
+	if (!Combat) return false;
+	
+	return Combat->bLocallyReloading;
+}
 
 

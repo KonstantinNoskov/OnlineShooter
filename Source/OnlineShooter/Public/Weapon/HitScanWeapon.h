@@ -32,9 +32,6 @@ private:
 	USoundCue* FireSound;
 
 protected:
-
-	UPROPERTY(EditAnywhere)
-	float Damage = 5.f;
 	
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* ImpactParticles;

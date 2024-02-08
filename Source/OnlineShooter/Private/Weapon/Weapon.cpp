@@ -142,7 +142,7 @@ void AWeapon::OnRep_Owner()
 		OnlineShooterOwnerController = nullptr;
 	}
 
-	else
+	else if (WeaponState != EWeaponState::EWS_EquippedSecondary)
 	{
 		SetHUDAmmo();
 	}

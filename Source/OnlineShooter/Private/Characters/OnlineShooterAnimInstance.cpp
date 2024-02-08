@@ -109,17 +109,24 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		FTransform MuzzleTipTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"), RTS_World);
 		FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
 
-		// Debug Lines for correcting muzzle rotation towards to crosshair
-		//DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), MuzzleTipTransform.GetLocation() + MuzzleX * 1000.f, FColor::Red);
-		//DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), OnlineShooterCharacter->GetHitTarget(), FColor::Yellow);
-		
+
+		if (bDebug)
+		{
+			// Debug Lines for correcting muzzle rotation towards to crosshair
+			DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), MuzzleTipTransform.GetLocation() + MuzzleX * 1000.f, FColor::Red);
+			DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), OnlineShooterCharacter->GetHitTarget(), FColor::Yellow);	
+		}
 	}
 	
 	// Use FABRIK all the time except reloading. FABRIK used to always place left hand on weapon 
 	bUseFABRIK = OnlineShooterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;
 
+	bool bFABRIKOverride =
+		OnlineShooterCharacter->IsLocallyControlled() &&
+		OnlineShooterCharacter->GetCombatState() != ECombatState::ECS_ThrowingGrenade;
+
 	// Stop using FABRIK if Reload starts on Client to prevent 
-	if (OnlineShooterCharacter->IsLocallyControlled() && OnlineShooterCharacter->GetCombatState() != ECombatState::ECS_ThrowingGrenade)
+	if (bFABRIKOverride)
 	{
 		bUseFABRIK = !OnlineShooterCharacter->IsLocallyReloading();
 	}

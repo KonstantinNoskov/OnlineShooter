@@ -101,12 +101,14 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float HighPingThreshold = 50.f;
+	
+	UPROPERTY()
+	float SingleTripTime = 0.f;
 
 #pragma endregion
 
 protected:
-
-	virtual float GetServerTime(); // Synced with server world clock
+	
 	virtual void ReceivedPlayer() override; // Sync with server clock as soon as possible
 
 	UFUNCTION()
@@ -122,6 +124,10 @@ protected:
 	void CheckPing(float DeltaTime);
 
 #pragma region SYNC SERVER/CLIENT TIME
+
+public:
+
+	virtual float GetServerTime(); // Synced with server world clock
 	
 	// Requests the current server time, passing in the client's time when the request was sent
 	UFUNCTION(Server, Reliable)
@@ -197,4 +203,5 @@ public:
 
 	virtual void OnPossess(APawn* InPawn) override;
 	
+	FORCEINLINE float GetSingleTripTime() const { return SingleTripTime; }
 };

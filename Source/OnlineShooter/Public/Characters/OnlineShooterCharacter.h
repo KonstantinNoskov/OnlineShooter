@@ -406,6 +406,65 @@ public:
 	UPROPERTY(Replicated)
 	bool bDisableGameplay = false;
 
+#pragma region SERVER-SIDE REWIND BOXES
+
+protected:
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* head;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* pelvis;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* spine_02;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* spine_03;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* upperarm_l;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* upperarm_r;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* lowerarm_l;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* lowerarm_r;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* hand_l;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* hand_r;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* thigh_l;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* thigh_r;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* calf_l;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* calf_r;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* foot_l;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* foot_r;
+
+public:
+
+	UPROPERTY()
+	TMap<FName, UBoxComponent*> HitCollisionBoxes;
+	
+#pragma endregion
+
 private:
 	
 	UFUNCTION()
@@ -505,6 +564,8 @@ public:
 	UFUNCTION()
 	ECombatState GetCombatState() const;
 
+	
+
 #pragma region GETTERS & SETTERS
 
 	// Components
@@ -519,7 +580,7 @@ public:
 	FORCEINLINE float GetAO_Pitch() const							{ return AO_Pitch; }
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const			{ return TurningInPlace; }
 	FORCEINLINE bool ShouldRotateRootBone() const					{ return bRotateRootBone; }
-	FORCEINLINE bool IsLocallyReloading() const						{ return (!Combat) ? false : Combat->bLocallyReloading; }
+	bool IsLocallyReloading() const;
 
 	// States
 	FORCEINLINE bool IsEliminated() const							{ return bEliminated; }
@@ -544,62 +605,5 @@ public:
 	
 #pragma endregion
 
-#pragma region SERVER-SIDE REWIND BOXES
 
-protected:
-
-	UPROPERTY(EditAnywhere)
-	UBoxComponent* head;
-
-	UPROPERTY(EditAnywhere)
-	UBoxComponent* pelvis;
-
-	UPROPERTY(EditAnywhere)
-	UBoxComponent* spine_02;
-
-	UPROPERTY(EditAnywhere)
-	UBoxComponent* spine_03;
-
-	UPROPERTY(EditAnywhere)
-	UBoxComponent* upperarm_l;
-
-	UPROPERTY(EditAnywhere)
-	UBoxComponent* upperarm_r;
-
-	UPROPERTY(EditAnywhere)
-	UBoxComponent* lowerarm_l;
-
-	UPROPERTY(EditAnywhere)
-	UBoxComponent* lowerarm_r;
-
-	UPROPERTY(EditAnywhere)
-	UBoxComponent* hand_l;
-
-	UPROPERTY(EditAnywhere)
-	UBoxComponent* hand_r;
-
-	UPROPERTY(EditAnywhere)
-	UBoxComponent* thigh_l;
-
-	UPROPERTY(EditAnywhere)
-	UBoxComponent* thigh_r;
-
-	UPROPERTY(EditAnywhere)
-	UBoxComponent* calf_l;
-
-	UPROPERTY(EditAnywhere)
-	UBoxComponent* calf_r;
-
-	UPROPERTY(EditAnywhere)
-	UBoxComponent* foot_l;
-
-	UPROPERTY(EditAnywhere)
-	UBoxComponent* foot_r;
-
-public:
-
-	UPROPERTY()
-	TMap<FName, UBoxComponent*> HitCollisionBoxes;
-	
-#pragma endregion
 };

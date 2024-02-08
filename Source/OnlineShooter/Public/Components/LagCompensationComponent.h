@@ -4,20 +4,21 @@
 #include "Components/ActorComponent.h"
 #include "LagCompensationComponent.generated.h"
 
+class AWeapon;
 class AOnlineShooterPlayerController;
 
 USTRUCT(BlueprintType)
-struct FBoxInformation
+struct FBoxInformation 
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(meta = (IgnoreForMemberInitializationTest))
 	FVector Location;
 
-	UPROPERTY()
+	UPROPERTY(meta = (IgnoreForMemberInitializationTest))
 	FRotator Rotation;
 
-	UPROPERTY()
+	UPROPERTY(meta = (IgnoreForMemberInitializationTest))
 	FVector BoxExtent;
 };
 
@@ -26,11 +27,23 @@ struct FFramePackage
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(meta = (IgnoreForMemberInitializationTest))
 	float Time;
 
-	UPROPERTY()
+	UPROPERTY(meta = (IgnoreForMemberInitializationTest))
 	TMap<FName, FBoxInformation> HitBoxInfo;
+};
+
+USTRUCT(BlueprintType)
+struct FServerSideRewindResult
+{
+	GENERATED_BODY()
+
+	UPROPERTY(meta = (IgnoreForMemberInitializationTest))
+	bool bHitConfirmed;
+
+	UPROPERTY(meta = (IgnoreForMemberInitializationTest))
+	bool bHeadShot;
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -84,14 +97,41 @@ protected:
 
 	UFUNCTION()
 	FFramePackage InterpBetweenFrames(const FFramePackage& OlderFrame, const FFramePackage& YoungerFrame, float HitTime);
-
-public:
-
+	
 	UFUNCTION()
 	void ShowFramePackage(const FFramePackage& Package, const FColor& Color, float DeltaTime);
 
 	UFUNCTION()
-	void ServerSideRewind(AOnlineShooterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, float HitTime);
+	FServerSideRewindResult ConfirmHit(const FFramePackage& Package, AOnlineShooterCharacter* HitCharacter,
+		const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation);
+
+	UFUNCTION()
+	void CacheBoxPositions(AOnlineShooterCharacter* HitCharacter, FFramePackage& OutFramePackage);
+
+	UFUNCTION()
+	void MoveBoxes(AOnlineShooterCharacter* HitCharacter, const FFramePackage& InPackage);
+
+	UFUNCTION()
+	void ResetHitBoxes(AOnlineShooterCharacter* HitCharacter, const FFramePackage& InPackage);
+
+	UFUNCTION()
+	void EnableCharacterMeshCollision(AOnlineShooterCharacter* HitCharacter, ECollisionEnabled::Type CollisionEnabled);
+	
+public:
+	
+	UFUNCTION()
+	FServerSideRewindResult ServerSideRewind(AOnlineShooterCharacter* HitCharacter,const FVector_NetQuantize& TraceStart,
+		const FVector_NetQuantize& HitLocation, float HitTime);
+
+	UFUNCTION(Server, Reliable)
+	void ServerScoreRequest(AOnlineShooterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart,
+		const FVector_NetQuantize& HitLocation, float HitTime, AWeapon* DamageCauser );
 
 	
 };
+
+
+
+
+
+

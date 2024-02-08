@@ -64,12 +64,6 @@ protected:
 	virtual void HandleEquippedSecondary();
 	
 private:
-
-	UPROPERTY()
-	AOnlineShooterCharacter* OnlineShooterOwnerCharacter;
-
-	UPROPERTY()
-	AOnlineShooterPlayerController* OnlineShooterOwnerController;
 	
 	// Weapon mesh
 	UPROPERTY(VisibleAnywhere)
@@ -111,6 +105,12 @@ private:
 
 protected:
 
+	UPROPERTY()
+	AOnlineShooterCharacter* OnlineShooterOwnerCharacter;
+
+	UPROPERTY()
+	AOnlineShooterPlayerController* OnlineShooterOwnerController;
+
 	UPROPERTY(EditAnywhere, Category = "Weapon Scatter", meta = (EditCondition = "bUseScatter"))
 	float DistanceToSphere = 800.f;
 	
@@ -119,6 +119,12 @@ protected:
 	
 	UPROPERTY(EditAnywhere)
 	bool bDebug = false;
+
+	UPROPERTY(EditAnywhere)
+	float Damage = 5.f;
+
+	UPROPERTY(EditAnywhere)
+	bool bUseServerSideRewind = false;
 
 public:
 
@@ -161,7 +167,6 @@ public:
 	void Client_AddAmmo(int32 AmmoToAdd);
 	
 #pragma endregion
-	
 	
 	/*
 	 * Textures for the weapon crosshair
@@ -235,4 +240,5 @@ public:
 	FORCEINLINE EWeaponType GetWeaponType() const { return  WeaponType; }
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
+	FORCEINLINE float GetDamage() const { return Damage; }
 };

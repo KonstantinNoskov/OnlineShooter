@@ -77,7 +77,6 @@ void APickup::BindOverlapTimerFinished()
 
 void APickup::Multicast_PlayEffect_Implementation(AOnlineShooterCharacter* OverlapCharacter)
 {
-	//OverlapCharacter = !OverlapCharacter ? Cast<AOnlineShooterCharacter>(OverlappedCharacter) : OverlapCharacter;
 	
 	if (PickupEffect && OverlapCharacter && OverlapCharacter->GetMesh())
 	{
@@ -96,13 +95,6 @@ void APickup::Multicast_PlayEffect_Implementation(AOnlineShooterCharacter* Overl
 		{
 			BuffComponent->SetBuffEffect(SideEffect);
 		}
-		/*UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-		this,
-		PickupEffect,
-		GetActorLocation(),
-		GetActorRotation(),
-		FVector(3.f,3.f,3.f)
-		);*/ 
 	}
 }
 
@@ -116,36 +108,7 @@ void APickup::Destroyed()
 			this,
 			PickupSound
 			);
-		
-		/*UGameplayStatics::PlaySoundAtLocation(
-			this,
-			PickupSound,
-			GetActorLocation()
-		);*/
 	}
-	
-	/*if (PickupEffect && OverlapCharacter && OverlapCharacter->GetMesh())
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAttached(
-		PickupEffect,
-		OverlapCharacter->GetMesh(),
-		FName(),
-		OverlapCharacter->GetActorLocation(),
-		OverlapCharacter->GetActorRotation(),
-		EAttachLocation::KeepWorldPosition,
-		true
-		);
-
-		
-	   	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-	   	this,
-	   	PickupEffect,
-	   	GetActorLocation(),
-	   	GetActorRotation(),
-	   	FVector(3.f,3.f,3.f)
-	   	);
-		
-	}*/
 }
 
 
