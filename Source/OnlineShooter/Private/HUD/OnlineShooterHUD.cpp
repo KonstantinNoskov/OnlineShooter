@@ -89,7 +89,6 @@ void AOnlineShooterHUD::AddSniperScope()
 		{
 			SniperScope->AddToViewport();
 		}
-		
 	}
 }
 

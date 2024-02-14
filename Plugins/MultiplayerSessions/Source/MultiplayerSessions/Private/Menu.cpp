@@ -143,8 +143,6 @@ void UMenu::SetQuitButtonColor()
 }
 
 
-
-
 /* BUTTONS FUNCTIONS
  * ====================================================================================================================
  * 
@@ -183,6 +181,7 @@ void UMenu::JoinButtonClicked()
 		MultiplayerSessionsSubsystem->FindSessions(10000);
 	}
 }
+
 void UMenu::QuitButtonClicked()
 {
 	// Get references to world and player controller instances

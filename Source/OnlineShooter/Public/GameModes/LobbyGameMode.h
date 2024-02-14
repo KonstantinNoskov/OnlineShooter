@@ -12,6 +12,11 @@ class ONLINESHOOTER_API ALobbyGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
+private:
+
+	UPROPERTY(EditAnywhere, Category = "Network")
+	uint32 PlayersAmountToStart = 2;
+
 public:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 

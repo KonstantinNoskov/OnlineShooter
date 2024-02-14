@@ -9,7 +9,7 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 	 int32 NumberOfPlayers = GameState.Get()->PlayerArray.Num();
 
 	// Travel listen server to chosen level map when lobby is full 
-	if(NumberOfPlayers == 2)
+	if(NumberOfPlayers == PlayersAmountToStart)
 	{
 		FString PathToGameReady = FString::Printf(TEXT("%s?listen"), *MapToTravel);
 		UWorld* World = GetWorld();

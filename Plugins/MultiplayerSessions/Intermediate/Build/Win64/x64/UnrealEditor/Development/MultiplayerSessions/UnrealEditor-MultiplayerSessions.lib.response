@@ -8,5 +8,7 @@
 /NODEFAULTLIB
 "C:\UnrealEngine\Projects\OnlineShooter\Intermediate\Build\Win64\x64\OnlineShooterEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.InclOrderUnreal5_1.h.obj"
 "C:\UnrealEngine\Projects\OnlineShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\MultiplayerSessions\Module.MultiplayerSessions.cpp.obj"
+"C:\UnrealEngine\Projects\OnlineShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\MultiplayerSessions\Menu.cpp.obj"
+"C:\UnrealEngine\Projects\OnlineShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\MultiplayerSessions\MultiplayerSessionsSubsystem.cpp.obj"
 "C:\UnrealEngine\Projects\OnlineShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\MultiplayerSessions\Default.rc2.res"
 /OUT:"C:\UnrealEngine\Projects\OnlineShooter\Plugins\MultiplayerSessions\Intermediate\Build\Win64\x64\UnrealEditor\Development\MultiplayerSessions\UnrealEditor-MultiplayerSessions.lib"
