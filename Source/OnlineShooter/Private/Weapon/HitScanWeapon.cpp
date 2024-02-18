@@ -58,7 +58,7 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 				OnlineShooterOwnerCharacter = !OnlineShooterOwnerCharacter ? Cast<AOnlineShooterCharacter>(OwnerPawn) : OnlineShooterOwnerCharacter;
 				OnlineShooterOwnerController = !OnlineShooterOwnerController ? Cast<AOnlineShooterPlayerController>(InstigatorController) : OnlineShooterOwnerController;
 				
-				if (OnlineShooterOwnerCharacter && OnlineShooterOwnerController && OnlineShooterOwnerCharacter->GetLagCompensation())
+				if (OnlineShooterOwnerCharacter && OnlineShooterOwnerController && OnlineShooterOwnerCharacter->GetLagCompensation() && OnlineShooterOwnerCharacter->IsLocallyControlled())
 				{
 					OnlineShooterOwnerCharacter->GetLagCompensation()->ServerScoreRequest(
 						OnlineShooterCharacter,

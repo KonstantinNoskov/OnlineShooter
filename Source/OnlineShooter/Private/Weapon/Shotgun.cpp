@@ -1,10 +1,12 @@
 ﻿#include "Weapon/Shotgun.h"
 
 #include "Characters/OnlineShooterCharacter.h"
+#include "Components/LagCompensationComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "PlayerController/OnlineShooterPlayerController.h"
 #include "Sound/SoundCue.h"
 
 AShotgun::AShotgun()
@@ -21,7 +23,7 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 {
 	AWeapon::Fire(FVector());
 
-	const APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	if (!OwnerPawn) return;
 	AController* InstigatorController = OwnerPawn->Controller;
 
@@ -77,17 +79,41 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 			}
 		}
 
+		TArray<AOnlineShooterCharacter*> HitCharacters;
+		
 		for (auto HitPair : HitMap)
 		{
 			// check if hit actor and Instigator controller is valid; also do server check 
-			if(HitPair.Key && HasAuthority() && InstigatorController)
+			if(HitPair.Key && InstigatorController )
 			{
-				UGameplayStatics::ApplyDamage(
-				HitPair.Key, // Character that was hit
-				Damage * HitPair.Value, // Multiply Damage by number of times hit
-				InstigatorController,
-				this,
-				UDamageType::StaticClass()
+				if (HasAuthority() && !bUseServerSideRewind)
+				{
+					UGameplayStatics::ApplyDamage(
+						HitPair.Key, // Character that was hit
+						Damage * HitPair.Value, // Multiply Damage by number of times hit
+						InstigatorController,
+						this,
+						UDamageType::StaticClass()
+					);
+				}
+				
+				HitCharacters.Add(HitPair.Key);
+				}
+			}
+
+		if (!HasAuthority() && bUseServerSideRewind)
+		{
+			OnlineShooterOwnerCharacter = !OnlineShooterOwnerCharacter ? Cast<AOnlineShooterCharacter>(OwnerPawn) : OnlineShooterOwnerCharacter;
+			OnlineShooterOwnerController = !OnlineShooterOwnerController ? Cast<AOnlineShooterPlayerController>(InstigatorController) : OnlineShooterOwnerController;
+				
+			if (OnlineShooterOwnerCharacter && OnlineShooterOwnerController && OnlineShooterOwnerCharacter->GetLagCompensation() && OnlineShooterOwnerCharacter->IsLocallyControlled())
+			{
+				OnlineShooterOwnerCharacter->GetLagCompensation()->ShotgunServerScoreRequest(
+					HitCharacters,
+					Start,
+					HitTargets,
+					OnlineShooterOwnerController->GetServerTime() - OnlineShooterOwnerController->GetSingleTripTime(),
+					this
 				);
 			}
 		}

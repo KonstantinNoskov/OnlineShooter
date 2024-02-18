@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "LagCompensationComponent.generated.h"
 
+class AOnlineShooterCharacter;
 class AWeapon;
 class AOnlineShooterPlayerController;
 
@@ -32,6 +33,9 @@ struct FFramePackage
 
 	UPROPERTY(meta = (IgnoreForMemberInitializationTest))
 	TMap<FName, FBoxInformation> HitBoxInfo;
+
+	UPROPERTY(meta = (IgnoreForMemberInitializationTest))
+	AOnlineShooterCharacter* Character;
 };
 
 USTRUCT(BlueprintType)
@@ -45,6 +49,19 @@ struct FServerSideRewindResult
 	UPROPERTY(meta = (IgnoreForMemberInitializationTest))
 	bool bHeadShot;
 };
+
+USTRUCT(BlueprintType)
+struct FShotgunServerSideRewindResult
+{
+	GENERATED_BODY()
+
+	UPROPERTY(meta = (IgnoreForMemberInitializationTest))
+	TMap<AOnlineShooterCharacter*, uint32> HeadShots;
+
+	UPROPERTY(meta = (IgnoreForMemberInitializationTest))
+	TMap<AOnlineShooterCharacter*, uint32> BodyShots;
+};
+
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class ONLINESHOOTER_API ULagCompensationComponent : public UActorComponent
@@ -95,6 +112,10 @@ protected:
 	UFUNCTION()
 	void SaveFramePackage(FFramePackage& Package);
 
+	// Shotgun
+
+	FFramePackage GetFrameToCheck(AOnlineShooterCharacter* HitCharacter, float HitTime);
+
 	UFUNCTION()
 	FFramePackage InterpBetweenFrames(const FFramePackage& OlderFrame, const FFramePackage& YoungerFrame, float HitTime);
 	
@@ -102,8 +123,17 @@ protected:
 	void ShowFramePackage(const FFramePackage& Package, const FColor& Color, float DeltaTime);
 
 	UFUNCTION()
-	FServerSideRewindResult ConfirmHit(const FFramePackage& Package, AOnlineShooterCharacter* HitCharacter,
-		const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation);
+	FServerSideRewindResult ConfirmHit(
+		const FFramePackage& Package,
+		AOnlineShooterCharacter* HitCharacter,
+		const FVector_NetQuantize& TraceStart,
+		const FVector_NetQuantize& HitLocation);
+
+	UFUNCTION()
+	FShotgunServerSideRewindResult ShotgunConfirmHit(
+		const TArray<FFramePackage>& FramePackages,
+		const FVector_NetQuantize& TraceStart,
+		const TArray<FVector_NetQuantize>& HitLocations);
 
 	UFUNCTION()
 	void CacheBoxPositions(AOnlineShooterCharacter* HitCharacter, FFramePackage& OutFramePackage);
@@ -120,12 +150,33 @@ protected:
 public:
 	
 	UFUNCTION()
-	FServerSideRewindResult ServerSideRewind(AOnlineShooterCharacter* HitCharacter,const FVector_NetQuantize& TraceStart,
-		const FVector_NetQuantize& HitLocation, float HitTime);
+	FServerSideRewindResult ServerSideRewind(
+		AOnlineShooterCharacter* HitCharacter,
+		const FVector_NetQuantize& TraceStart,
+		const FVector_NetQuantize& HitLocation,
+		float HitTime);
+
+	UFUNCTION()
+	FShotgunServerSideRewindResult ShotgunServerSideRewind(
+		const TArray<AOnlineShooterCharacter*>& HitCharacters,
+		const FVector_NetQuantize& TraceStart,
+		const TArray<FVector_NetQuantize>& HitLocations,
+		float HitTime);
+
+	
+	UFUNCTION(Server, Reliable)
+	void ServerScoreRequest(
+		AOnlineShooterCharacter* HitCharacter,
+		const FVector_NetQuantize& TraceStart,
+		const FVector_NetQuantize& HitLocation,
+		float HitTime, AWeapon* DamageCauser);
 
 	UFUNCTION(Server, Reliable)
-	void ServerScoreRequest(AOnlineShooterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart,
-		const FVector_NetQuantize& HitLocation, float HitTime, AWeapon* DamageCauser );
+	void ShotgunServerScoreRequest(
+		const TArray<AOnlineShooterCharacter*>& HitCharacters,
+		const FVector_NetQuantize& TraceStart,
+		const TArray<FVector_NetQuantize>& HitLocations,
+		float HitTime, AWeapon* DamageCauser);
 
 	
 };

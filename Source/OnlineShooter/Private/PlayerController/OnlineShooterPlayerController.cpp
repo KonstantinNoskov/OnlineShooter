@@ -495,7 +495,7 @@ void AOnlineShooterPlayerController::ClientReportServerTime_Implementation(float
 	SingleTripTime = RoundTripTime * .5f;
 	
 	// Client gets current server time by summing server time we've just passed in and the client request time divided by 2. 
-	float CurrentServerTime = TimerServerReceivedClientRequest + (.5f * RoundTripTime);
+	float CurrentServerTime = TimerServerReceivedClientRequest + SingleTripTime;
 
 	// Delta between current client and current server time
 	ClientServerDeltaTime = CurrentServerTime - GetWorld()->GetTimeSeconds();
