@@ -57,7 +57,13 @@
             "c:\\unrealengine\\projects\\onlineshooter\\plugins\\multiplayersessions\\source\\multiplayersessions\\public\\multiplayersessionssubsystem.h",
             "c:\\unrealengine\\projects\\onlineshooter\\plugins\\multiplayersessions\\intermediate\\build\\win64\\unrealeditor\\inc\\multiplayersessions\\uht\\multiplayersessionssubsystem.generated.h",
             "c:\\unrealengine\\projects\\onlineshooter\\plugins\\multiplayersessions\\source\\multiplayersessions\\private\\multiplayersessions.cpp",
-            "c:\\unrealengine\\projects\\onlineshooter\\plugins\\multiplayersessions\\source\\multiplayersessions\\public\\multiplayersessions.h"
+            "c:\\unrealengine\\projects\\onlineshooter\\plugins\\multiplayersessions\\source\\multiplayersessions\\public\\multiplayersessions.h",
+            "c:\\unrealengine\\projects\\onlineshooter\\plugins\\multiplayersessions\\source\\multiplayersessions\\private\\multiplayersessionssubsystem.cpp",
+            "c:\\unrealengine\\ue_5.2\\engine\\plugins\\online\\onlinebase\\source\\public\\online\\onlinesessionnames.h",
+            "c:\\unrealengine\\ue_5.2\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinesessionsettings.h",
+            "c:\\unrealengine\\ue_5.2\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinesubsystempackage.h",
+            "c:\\unrealengine\\ue_5.2\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinesubsystem.h",
+            "c:\\unrealengine\\ue_5.2\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinesubsystemmodule.h"
         ],
         "ImportedModules": [],
         "ImportedHeaderUnits": []

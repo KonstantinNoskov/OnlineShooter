@@ -27,7 +27,7 @@ void AOnlineShooterPlayerController::BeginPlay()
 	OnlineShooterHUD = Cast<AOnlineShooterHUD>(GetHUD());
 	
 	Server_CheckMatchState();
-		
+	
 }
 
 void AOnlineShooterPlayerController::Tick(float DeltaSeconds)

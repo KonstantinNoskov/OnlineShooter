@@ -9,5 +9,7 @@
 AMainMenuGameMode::AMainMenuGameMode()
 {
 	DefaultPawnClass = AOnlineShooterCharacter::StaticClass();
+
+	
 }
 
