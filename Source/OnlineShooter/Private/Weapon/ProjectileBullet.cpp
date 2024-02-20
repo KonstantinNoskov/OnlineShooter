@@ -19,10 +19,51 @@ AProjectileBullet::AProjectileBullet()
 	ProjectileMovementComponent->MaxSpeed = InitialSpeed;
 }
 
+#if WITH_EDITOR
+
+void AProjectileBullet::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	OnInitialSpeedEdit(PropertyChangedEvent);
+}
+void AProjectileBullet::OnInitialSpeedEdit(const FPropertyChangedEvent& PropertyChangedEvent) 
+{
+	FName PropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(AProjectileBullet, InitialSpeed))
+	{
+		if (ProjectileMovementComponent)
+		{
+			ProjectileMovementComponent->InitialSpeed = InitialSpeed;
+			ProjectileMovementComponent->MaxSpeed = InitialSpeed;
+		}
+	}
+}
+
+#endif
+
+
+
 void AProjectileBullet::BeginPlay()
 {
 	Super::BeginPlay();
+
+	FPredictProjectilePathParams PathParams;
+	FPredictProjectilePathResult PredictPathResult;
+
+	PathParams.bTraceWithChannel = true;
+	PathParams.bTraceWithCollision = true;
+	PathParams.DrawDebugTime = 5.f;
+	PathParams.DrawDebugType = EDrawDebugTrace::ForDuration;
+	PathParams.LaunchVelocity = GetActorForwardVector() * InitialSpeed;
+	PathParams.MaxSimTime = 4.f;
+	PathParams.ProjectileRadius = 5.f;
+	PathParams.SimFrequency = 30.f;
+	PathParams.StartLocation = GetActorLocation();
+	PathParams.TraceChannel = ECC_Visibility;
+	PathParams.ActorsToIgnore.Add(this);
 	
+	UGameplayStatics::PredictProjectilePath(this, PathParams, PredictPathResult);
 }
 
 void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -43,4 +84,6 @@ void AProjectileBullet::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
+
+
 

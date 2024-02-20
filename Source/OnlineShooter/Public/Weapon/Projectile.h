@@ -21,6 +21,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void Destroyed() override;
 
+	bool bUserServerSideRewind = false;
+	FVector_NetQuantize TraceStart;
+	FVector_NetQuantize100 InitialVelocity;
+
+	UPROPERTY(EditAnywhere)
+	float InitialSpeed = 15000.f;
+
 protected:
 	virtual void BeginPlay() override;
 	
@@ -52,7 +59,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Explosion Damage")
 	float ExplosionOuterRadius = 500.f;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 	UProjectileMovementComponent* ProjectileMovementComponent;
 	
 	UPROPERTY(EditAnywhere) 
@@ -65,9 +72,6 @@ protected:
 	USoundCue* ImpactSound;
 	
 	UPROPERTY(EditAnywhere, Category = "Projectile")
-	float Damage = 10.f;
-
-	UPROPERTY(EditAnywhere, Category = "Projectile")
 	UNiagaraSystem* TrailSystem;
 
 	UPROPERTY()
@@ -76,11 +80,12 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* ProjectileMesh;
 
+
 public:
-
-	UPROPERTY(EditAnywhere, Category = "Projectile")
-	float InitialSpeed = 15000.f;
-
+	
+	UPROPERTY(VisibleAnywhere, Category = "Projectile")
+	float Damage = 10.f;
+	
 protected:
 
 	UFUNCTION()

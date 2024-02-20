@@ -25,9 +25,7 @@ AProjectileGrenade::AProjectileGrenade()
 	RocketMovementComponent->bRotationFollowsVelocity = true;
 	RocketMovementComponent->SetIsReplicated(true);
 	RocketMovementComponent->bShouldBounce = true;
-	RocketMovementComponent->InitialSpeed = InitialSpeed;
-	RocketMovementComponent->MaxSpeed = InitialSpeed;
-
+	
 	ExplosionMinDamage = Damage;
 }
 
