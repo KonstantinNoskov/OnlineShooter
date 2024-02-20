@@ -121,20 +121,7 @@ protected:
 	
 	UFUNCTION()
 	void ShowFramePackage(const FFramePackage& Package, const FColor& Color, float DeltaTime);
-
-	UFUNCTION()
-	FServerSideRewindResult ConfirmHit(
-		const FFramePackage& Package,
-		AOnlineShooterCharacter* HitCharacter,
-		const FVector_NetQuantize& TraceStart,
-		const FVector_NetQuantize& HitLocation);
-
-	UFUNCTION()
-	FShotgunServerSideRewindResult ShotgunConfirmHit(
-		const TArray<FFramePackage>& FramePackages,
-		const FVector_NetQuantize& TraceStart,
-		const TArray<FVector_NetQuantize>& HitLocations);
-
+	
 	UFUNCTION()
 	void CacheBoxPositions(AOnlineShooterCharacter* HitCharacter, FFramePackage& OutFramePackage);
 
@@ -149,6 +136,7 @@ protected:
 	
 public:
 	
+#pragma region HITSCAN
 	UFUNCTION()
 	FServerSideRewindResult ServerSideRewind(
 		AOnlineShooterCharacter* HitCharacter,
@@ -157,19 +145,35 @@ public:
 		float HitTime);
 
 	UFUNCTION()
-	FShotgunServerSideRewindResult ShotgunServerSideRewind(
-		const TArray<AOnlineShooterCharacter*>& HitCharacters,
+	FServerSideRewindResult ConfirmHit(
+		const FFramePackage& Package,
+		AOnlineShooterCharacter* HitCharacter,
 		const FVector_NetQuantize& TraceStart,
-		const TArray<FVector_NetQuantize>& HitLocations,
-		float HitTime);
+		const FVector_NetQuantize& HitLocation);
 
-	
 	UFUNCTION(Server, Reliable)
 	void ServerScoreRequest(
 		AOnlineShooterCharacter* HitCharacter,
 		const FVector_NetQuantize& TraceStart,
 		const FVector_NetQuantize& HitLocation,
 		float HitTime, AWeapon* DamageCauser);
+
+#pragma endregion
+
+#pragma region SHOTGUN
+	
+	UFUNCTION()
+	FShotgunServerSideRewindResult ShotgunServerSideRewind(
+		const TArray<AOnlineShooterCharacter*>& HitCharacters,
+		const FVector_NetQuantize& TraceStart,
+		const TArray<FVector_NetQuantize>& HitLocations,
+		float HitTime);
+
+	UFUNCTION()
+	FShotgunServerSideRewindResult ShotgunConfirmHit(
+		const TArray<FFramePackage>& FramePackages,
+		const FVector_NetQuantize& TraceStart,
+		const TArray<FVector_NetQuantize>& HitLocations);
 
 	UFUNCTION(Server, Reliable)
 	void ShotgunServerScoreRequest(
@@ -178,7 +182,28 @@ public:
 		const TArray<FVector_NetQuantize>& HitLocations,
 		float HitTime, AWeapon* DamageCauser);
 
+#pragma endregion
 	
+#pragma region PROJECTILE
+
+	UFUNCTION()
+	FServerSideRewindResult ProjectileServerSideRewind(
+		AOnlineShooterCharacter* HitCharacter,
+		const FVector_NetQuantize& TraceStart,
+		const FVector_NetQuantize100& InitialVelocity,
+		float HitTime
+		);
+
+	UFUNCTION()
+	FServerSideRewindResult ProjectileConfirmHit(
+		const FFramePackage& Package,
+		AOnlineShooterCharacter* HitCharacter,
+		const FVector_NetQuantize& TraceStart,
+		const FVector_NetQuantize&  InitialVelocity,
+		float HitTime
+		);
+
+#pragma endregion
 };
 
 
