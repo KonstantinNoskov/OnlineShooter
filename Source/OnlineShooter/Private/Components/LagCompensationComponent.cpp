@@ -1,6 +1,6 @@
 ﻿#include "Components/LagCompensationComponent.h"
 
-#include "DDSFile.h"
+#include "OnlineShooter.h"
 #include "Characters/OnlineShooterCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -105,7 +105,7 @@ FFramePackage ULagCompensationComponent::InterpBetweenFrames(
 	const float Distance = YoungerFrame.Time - OlderFrame.Time;
 	const float InterpFraction = FMath::Clamp((HitTime - OlderFrame.Time) / Distance, 0.f, 1.f);
 	
-	FFramePackage InterpFramePackage;
+	FFramePackage InterpFramePackage = FFramePackage();
 	InterpFramePackage.Time = HitTime;
 
 	// Run through all hit boxes and add it's transform info to InterpFramePackage
@@ -178,7 +178,7 @@ FServerSideRewindResult ULagCompensationComponent::ConfirmHit(
 	// Enable collision for the head first
 	UBoxComponent* HeadBox = HitCharacter->HitCollisionBoxes[FName("head")];
 	HeadBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	HeadBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	HeadBox->SetCollisionResponseToChannel(ECC_Hitbox, ECR_Block);
 
 	FHitResult ConfirmHitResult;
 	const FVector TraceEnd = TraceStart + (HitLocation - TraceStart) * 1.25f;
@@ -186,10 +186,33 @@ FServerSideRewindResult ULagCompensationComponent::ConfirmHit(
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_Visibility);
+		World->LineTraceSingleByChannel(
+			ConfirmHitResult,
+			TraceStart,
+			TraceEnd,
+			ECC_Hitbox
+			);
 
 		if (ConfirmHitResult.bBlockingHit) // we hit the head, return early
 		{
+			// Debug
+			if (ConfirmHitResult.Component.IsValid()  && bDebug)
+			{
+				UBoxComponent* Box = Cast<UBoxComponent>(ConfirmHitResult.Component);
+				if (Box)
+				{
+					DrawDebugBox(
+						GetWorld(),
+						Box->GetComponentLocation(),
+						Box->GetScaledBoxExtent(),
+						FQuat(Box->GetComponentRotation()),
+						FColor::Red,
+						false,
+						8.f
+						);
+				}
+			}
+			
 			ResetHitBoxes(HitCharacter, CurrentFrame);
 			EnableCharacterMeshCollision(HitCharacter, ECollisionEnabled::QueryAndPhysics);
 			return FServerSideRewindResult{ true, true};
@@ -202,14 +225,32 @@ FServerSideRewindResult ULagCompensationComponent::ConfirmHit(
 				if (HitBoxPair.Value)
 				{
 					HitBoxPair.Value->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-					HitBoxPair.Value->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+					HitBoxPair.Value->SetCollisionResponseToChannel(ECC_Hitbox, ECR_Block);
 				}
 			}
 
-			World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_Visibility);
+			World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_Hitbox);
 
 			if (ConfirmHitResult.bBlockingHit)
 			{
+				// Debug
+				if (ConfirmHitResult.Component.IsValid() && bDebug)
+				{
+					UBoxComponent* Box = Cast<UBoxComponent>(ConfirmHitResult.Component);
+					if (Box)
+					{
+						DrawDebugBox(
+							GetWorld(),
+							Box->GetComponentLocation(),
+							Box->GetScaledBoxExtent(),
+							FQuat(Box->GetComponentRotation()),
+							FColor::Blue,
+							false,
+							8.f
+							);
+					}
+				}
+				
 				ResetHitBoxes(HitCharacter, CurrentFrame);
 				EnableCharacterMeshCollision(HitCharacter, ECollisionEnabled::QueryAndPhysics);
 				return FServerSideRewindResult{true, false};
@@ -255,7 +296,7 @@ FShotgunServerSideRewindResult ULagCompensationComponent::ShotgunConfirmHit(
 		// Enable collision for the head first
 		UBoxComponent* HeadBox = Frame.Character->HitCollisionBoxes[FName("head")];
 		HeadBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		HeadBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);	
+		HeadBox->SetCollisionResponseToChannel(ECC_Hitbox, ECR_Block);	
 	}
 
 	UWorld* World = GetWorld();
@@ -268,11 +309,30 @@ FShotgunServerSideRewindResult ULagCompensationComponent::ShotgunConfirmHit(
 		
 		if (World)
 		{
-			World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_Visibility);
+			World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_Hitbox);
 			
 			AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(ConfirmHitResult.GetActor());
 			if (OnlineShooterCharacter)
 			{
+				// Debug
+				if (ConfirmHitResult.Component.IsValid() && bDebug)
+				{
+					UBoxComponent* Box = Cast<UBoxComponent>(ConfirmHitResult.Component);
+					if (Box)
+					{
+						DrawDebugBox(
+							GetWorld(),
+							Box->GetComponentLocation(),
+							Box->GetScaledBoxExtent(),
+							FQuat(Box->GetComponentRotation()),
+							FColor::Red,
+							false,
+							8.f
+							);
+					}
+				}
+
+				
 				if (ShotgunResult.HeadShots.Contains(OnlineShooterCharacter))
 				{
 					ShotgunResult.HeadShots[OnlineShooterCharacter]++;
@@ -293,7 +353,7 @@ FShotgunServerSideRewindResult ULagCompensationComponent::ShotgunConfirmHit(
 			if (HitBoxPair.Value)
 			{
 				HitBoxPair.Value->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-				HitBoxPair.Value->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+				HitBoxPair.Value->SetCollisionResponseToChannel(ECC_Hitbox, ECR_Block);
 			}	
 		}
 
@@ -310,11 +370,29 @@ FShotgunServerSideRewindResult ULagCompensationComponent::ShotgunConfirmHit(
 		
 		if (World)
 		{
-			World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_Visibility);
+			World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_Hitbox);
 			
 			AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(ConfirmHitResult.GetActor());
 			if (OnlineShooterCharacter)
 			{
+				// Debug
+				if (ConfirmHitResult.Component.IsValid() && bDebug)
+				{
+					UBoxComponent* Box = Cast<UBoxComponent>(ConfirmHitResult.Component);
+					if (Box)
+					{
+						DrawDebugBox(
+							GetWorld(),
+							Box->GetComponentLocation(),
+							Box->GetScaledBoxExtent(),
+							FQuat(Box->GetComponentRotation()),
+							FColor::Blue,
+							false,
+							8.f
+							);
+					}
+				}
+				
 				if (ShotgunResult.BodyShots.Contains(OnlineShooterCharacter))
 				{
 					ShotgunResult.BodyShots[OnlineShooterCharacter]++;
