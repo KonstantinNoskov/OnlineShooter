@@ -35,6 +35,9 @@ protected:
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
 private:
+
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+	bool bDebug = false;
 	
 	UPROPERTY(EditAnywhere, Category = "Projectile")
 	UParticleSystem* Tracer;

@@ -30,7 +30,7 @@ AProjectile::AProjectile()
 	CollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
 	CollisionBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
-	CollisionBox->SetCollisionResponseToChannel(UE_ECC_SkeletalMesh, ECR_Block);
+	CollisionBox->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECR_Block);
 	
 }
 
@@ -101,9 +101,13 @@ void AProjectile::ExplodeDamage()
 				this,						// DamageCauser
 				FiringController			// InstigatorController
 			);
-			
-			//DrawDebugSphere(GetWorld(), GetActorLocation(), InnerRadius, 16, FColor::Green, false, 2.f);
-			//DrawDebugSphere(GetWorld(), GetActorLocation(), OuterRadius, 16, FColor::Red, false, 2.f);
+
+			// DEBUG
+			if (bDebug)
+			{
+				DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionInnerRadius, 16, FColor::Green, false, 2.f);
+				DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionOuterRadius, 16, FColor::Red, false, 2.f);	
+			}
 		}
 	}
 }

@@ -111,9 +111,7 @@ protected:
 
 	UFUNCTION()
 	void SaveFramePackage(FFramePackage& Package);
-
-	// Shotgun
-
+	
 	FFramePackage GetFrameToCheck(AOnlineShooterCharacter* HitCharacter, float HitTime);
 
 	UFUNCTION()
@@ -137,6 +135,7 @@ protected:
 public:
 	
 #pragma region HITSCAN
+	
 	UFUNCTION()
 	FServerSideRewindResult ServerSideRewind(
 		AOnlineShooterCharacter* HitCharacter,
@@ -156,10 +155,10 @@ public:
 		AOnlineShooterCharacter* HitCharacter,
 		const FVector_NetQuantize& TraceStart,
 		const FVector_NetQuantize& HitLocation,
-		float HitTime, AWeapon* DamageCauser);
+		float HitTime,
+		AWeapon* DamageCauser);
 
 #pragma endregion
-
 #pragma region SHOTGUN
 	
 	UFUNCTION()
@@ -180,10 +179,10 @@ public:
 		const TArray<AOnlineShooterCharacter*>& HitCharacters,
 		const FVector_NetQuantize& TraceStart,
 		const TArray<FVector_NetQuantize>& HitLocations,
-		float HitTime, AWeapon* DamageCauser);
+		float HitTime,
+		AWeapon* DamageCauser);
 
 #pragma endregion
-	
 #pragma region PROJECTILE
 
 	UFUNCTION()
@@ -199,11 +198,19 @@ public:
 		const FFramePackage& Package,
 		AOnlineShooterCharacter* HitCharacter,
 		const FVector_NetQuantize& TraceStart,
-		const FVector_NetQuantize&  InitialVelocity,
+		const FVector_NetQuantize100&  InitialVelocity,
 		float HitTime
 		);
 
+	UFUNCTION(Server, Reliable)
+	void ProjectileServerScoreRequest(
+		AOnlineShooterCharacter* HitCharacter,
+		const FVector_NetQuantize& TraceStart,
+		const FVector_NetQuantize& InitialVelocity,
+		float HitTime);
+
 #pragma endregion
+	
 };
 
 
