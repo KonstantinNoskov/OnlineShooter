@@ -10,6 +10,7 @@ class AOnlineShooterGameMode;
 class UCharacterOverlay;
 class AOnlineShooterHUD;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHighPingDelegate, bool, bPingTooHigh);
 
 UCLASS()
 class ONLINESHOOTER_API AOnlineShooterPlayerController : public APlayerController
@@ -104,6 +105,13 @@ private:
 	
 	UPROPERTY()
 	float SingleTripTime = 0.f;
+
+public:
+	FHighPingDelegate HighPingDelegate;
+
+private:
+	UFUNCTION(Server, Reliable)
+	void ServerReportPingStatus(bool bHighPing);
 
 #pragma endregion
 

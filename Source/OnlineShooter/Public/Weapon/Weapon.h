@@ -123,9 +123,14 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float Damage = 5.f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(Replicated, EditAnywhere)
 	bool bUseServerSideRewind = false;
 
+private:
+
+	UFUNCTION()
+	void OnPingTooHigh(bool bPingTooHigh);
+	
 public:
 
 	UPROPERTY()

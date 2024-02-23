@@ -1,7 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "PlayerController/OnlineShooterPlayerController.h"
+﻿#include "PlayerController/OnlineShooterPlayerController.h"
 
 #include "Characters/OnlineShooterCharacter.h"
 #include "Components/ProgressBar.h"
@@ -408,6 +405,8 @@ void AOnlineShooterPlayerController::StopHighPingWarning()
 }
 void AOnlineShooterPlayerController::CheckPing(float DeltaTime) 
 {
+	if (HasAuthority()) return;
+	
 	HighPingRunningTime += DeltaTime;
 
 	if(HighPingRunningTime > CheckPingFrequency)
@@ -416,11 +415,17 @@ void AOnlineShooterPlayerController::CheckPing(float DeltaTime)
 
 		if (PlayerState)
 		{
+			
 			if (PlayerState->GetPingInMilliseconds() > HighPingThreshold) 
 			{
 				HighPingWarning();
 				PingAnimationRunningTime = 0.f;
-			};
+				ServerReportPingStatus(true);
+			}
+			else
+			{
+				ServerReportPingStatus(false);
+			}
 		}
 
 		HighPingRunningTime = 0.f;
@@ -441,6 +446,10 @@ void AOnlineShooterPlayerController::CheckPing(float DeltaTime)
 			StopHighPingWarning();
 		}
 	}
+}
+void AOnlineShooterPlayerController::ServerReportPingStatus_Implementation(bool bHighPing)
+{
+	HighPingDelegate.Broadcast(bHighPing);
 }
 
 // Sniper scope
@@ -508,6 +517,7 @@ float AOnlineShooterPlayerController::GetServerTime()
 	// Client should sync it's time with server by adding delta time which we've calculated earlier to client current time.
 	return GetWorld()->GetTimeSeconds() + ClientServerDeltaTime; 
 }
+
 void AOnlineShooterPlayerController::ReceivedPlayer()
 {
 	Super::ReceivedPlayer();

@@ -78,6 +78,7 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeapon, WeaponState)
+	DOREPLIFETIME_CONDITION(AWeapon, bUseServerSideRewind, COND_OwnerOnly)
 }
 bool AWeapon::IsMagEmpty()
 {
@@ -204,9 +205,7 @@ void AWeapon::OnRep_WeaponState()
 void AWeapon::HandleWeaponEquipped() 
 {
 	ShowPickupWidget(false);
-
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
 	WeaponMesh->SetSimulatePhysics(false);
 	WeaponMesh->SetEnableGravity(false);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -221,7 +220,18 @@ void AWeapon::HandleWeaponEquipped()
 
 	// Disable Weapon mesh outline
 	EnableCustomDepth(false);
+
+	OnlineShooterOwnerCharacter = !OnlineShooterOwnerCharacter ? Cast<AOnlineShooterCharacter>(GetOwner()) : OnlineShooterOwnerCharacter;
+	if(OnlineShooterOwnerCharacter && bUseServerSideRewind)
+	{
+		OnlineShooterOwnerController = !OnlineShooterOwnerController ? Cast<AOnlineShooterPlayerController>(OnlineShooterOwnerCharacter->Controller) : OnlineShooterOwnerController;
+		if(OnlineShooterOwnerController && HasAuthority() && OnlineShooterOwnerController->HighPingDelegate.IsBound())
+		{
+			OnlineShooterOwnerController->HighPingDelegate.AddDynamic(this, &AWeapon::OnPingTooHigh);
+		}
+	}
 }
+
 void AWeapon::HandleWeaponDropped() 
 {
 	if(HasAuthority())
@@ -241,7 +251,18 @@ void AWeapon::HandleWeaponDropped()
 	WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_BLUE);
 	WeaponMesh->MarkRenderStateDirty();
 	EnableCustomDepth(true);
+
+	OnlineShooterOwnerCharacter = !OnlineShooterOwnerCharacter ? Cast<AOnlineShooterCharacter>(GetOwner()) : OnlineShooterOwnerCharacter;
+	if(OnlineShooterOwnerCharacter && bUseServerSideRewind)
+	{
+		OnlineShooterOwnerController = !OnlineShooterOwnerController ? Cast<AOnlineShooterPlayerController>(OnlineShooterOwnerCharacter->Controller) : OnlineShooterOwnerController;
+		if(OnlineShooterOwnerController && HasAuthority() && OnlineShooterOwnerController->HighPingDelegate.IsBound())
+		{
+			OnlineShooterOwnerController->HighPingDelegate.RemoveDynamic(this, &AWeapon::OnPingTooHigh);
+		}
+	}
 }
+
 void AWeapon::HandleEquippedSecondary()
 {
 	ShowPickupWidget(false);
@@ -261,6 +282,21 @@ void AWeapon::HandleEquippedSecondary()
 
 	// Disable Weapon mesh outline
 	EnableCustomDepth(false);
+
+	OnlineShooterOwnerCharacter = !OnlineShooterOwnerCharacter ? Cast<AOnlineShooterCharacter>(GetOwner()) : OnlineShooterOwnerCharacter;
+	if(OnlineShooterOwnerCharacter && bUseServerSideRewind)
+	{
+		OnlineShooterOwnerController = !OnlineShooterOwnerController ? Cast<AOnlineShooterPlayerController>(OnlineShooterOwnerCharacter->Controller) : OnlineShooterOwnerController;
+		if(OnlineShooterOwnerController && HasAuthority() && OnlineShooterOwnerController->HighPingDelegate.IsBound())
+		{
+			OnlineShooterOwnerController->HighPingDelegate.RemoveDynamic(this, &AWeapon::OnPingTooHigh);
+		}
+	}
+}
+
+void AWeapon::OnPingTooHigh(bool bPingTooHigh)
+{
+	bUseServerSideRewind = !bPingTooHigh; 
 }
 
 void AWeapon::Fire(const FVector& HitTarget)

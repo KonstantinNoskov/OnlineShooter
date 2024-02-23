@@ -299,6 +299,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void FinishReloading();
 
+	UFUNCTION(BlueprintCallable)
+	void FinishSwapWeapon();
+
+	UFUNCTION(BlueprintCallable)
+	void FinishSwapAttachWeapon();
+	
 	UFUNCTION()
 	void SetAiming(bool bIsAiming);
 

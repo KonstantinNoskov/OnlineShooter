@@ -123,7 +123,8 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	bool bFABRIKOverride =
 		OnlineShooterCharacter->IsLocallyControlled() &&
-		OnlineShooterCharacter->GetCombatState() != ECombatState::ECS_ThrowingGrenade;
+		OnlineShooterCharacter->GetCombatState() != ECombatState::ECS_ThrowingGrenade &&
+		OnlineShooterCharacter->bFinishedSwapping;
 
 	// Stop using FABRIK if Reload starts on Client to prevent 
 	if (bFABRIKOverride)
@@ -131,10 +132,16 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bUseFABRIK = !OnlineShooterCharacter->IsLocallyReloading();
 	}
 	
-	// Use AimOffsets all the time except reloading & when the game state is on cooldown. 
-	bUseAimOffsets = OnlineShooterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied && !OnlineShooterCharacter->GetDisableGameplay();
+	// Use AimOffsets all the time except reloading & when the game state is on cooldown.
+	bUseAimOffsets =
+		OnlineShooterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied &&
+		//OnlineShooterCharacter->GetCombatState() == ECombatState::ECS_SwappingWeapon &&
+		!OnlineShooterCharacter->GetDisableGameplay();
 
 	// Use Right hand transform all the time except reloading & when the game state is on cooldown.
 	// Right hand transform used to aim weapon mesh towards to hit target.
-	bTransformRightHand = OnlineShooterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied && !OnlineShooterCharacter->GetDisableGameplay();
+	bTransformRightHand =
+		OnlineShooterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied &&
+		OnlineShooterCharacter->GetCombatState() != ECombatState::ECS_SwappingWeapon &&
+		!OnlineShooterCharacter->GetDisableGameplay();
 }

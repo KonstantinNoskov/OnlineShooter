@@ -260,10 +260,37 @@ private:
 	UPROPERTY(EditAnywhere, Category = Montages)
 	UAnimMontage* ThrowGrenadeMontage;
 
+	UPROPERTY(EditAnywhere, Category = Montages)
+	UAnimMontage* SwapWeaponMontage;
+
+public:
+
+	bool bFinishedSwapping = false;
+	
+	UFUNCTION()
+	void PlayFireMontage(bool bAiming);
+
+	UFUNCTION()
+	void PlayReloadMontage();
+
+	UFUNCTION()
+	void PlayHitReactMontage();
+
+	UFUNCTION()
+	void PlayElimMontage();
+
+	UFUNCTION()
+	void PlayThrowGrenadeMontage();
+
+	UFUNCTION()
+	void PlaySwapWeaponMontage();
+
 #pragma endregion
 
 #pragma region ELIMBOT
 
+private:
+	
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* ElimBotEffect;
 
@@ -538,21 +565,6 @@ public:
 	AWeapon* GetEquippedWeapon() const;
 	
 	UFUNCTION()
-	void PlayFireMontage(bool bAiming);
-
-	UFUNCTION()
-	void PlayReloadMontage();
-
-	UFUNCTION()
-	void PlayHitReactMontage();
-
-	UFUNCTION()
-	void PlayElimMontage();
-
-	UFUNCTION()
-	void PlayThrowGrenadeMontage();
-	
-	UFUNCTION()
 	FVector GetHitTarget() const;
 
 	UFUNCTION()
@@ -563,8 +575,6 @@ public:
 
 	UFUNCTION()
 	ECombatState GetCombatState() const;
-
-	
 
 #pragma region GETTERS & SETTERS
 

@@ -67,13 +67,6 @@ void UCombatComponent::BeginPlay()
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (!Character->HasAuthority() && Character->IsLocallyControlled())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("bLOcallyReloaded:%hd"), bLocallyReloading)	
-	}
-	
-	
 	
 	if (Character && Character->IsLocallyControlled())
 	{
@@ -341,19 +334,44 @@ bool UCombatComponent::ShouldSwapWeapon()
 }
 void UCombatComponent::SwapWeapon()
 {
-	if (CombatState != ECombatState::ECS_Unoccupied) return;
+	if (!Character || CombatState != ECombatState::ECS_Unoccupied || !Character->HasAuthority()) return;
+
+	CombatState = ECombatState::ECS_SwappingWeapon;
+	Character->PlaySwapWeaponMontage();
+ 	Character->bFinishedSwapping = false;
+}
+
+void UCombatComponent::FinishSwapWeapon()
+{
+	if (Character && Character->HasAuthority())
+	{
+		CombatState = ECombatState::ECS_Unoccupied;
+	}
+
+	if (Character)
+	{
+		Character->bFinishedSwapping = true;
+		//ReloadEmptyWeapon();
+	}
+}
+void UCombatComponent::FinishSwapAttachWeapon()
+{
+	PlayEquippedWeaponSound(EquippedWeapon);
+
+	if (!Character || !Character->HasAuthority()) return;
 	
 	AWeapon* TempWeapon = EquippedWeapon;
 	EquippedWeapon = SecondaryWeapon;
 	SecondaryWeapon = TempWeapon;
-
+	
 	// Set params as secondary weapon become primary
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 	AttachActorToRightHand(EquippedWeapon);
+
 	EquippedWeapon->SetHUDAmmo();
 	UpdateCarriedAmmo();
-	PlayEquippedWeaponSound(EquippedWeapon);
-	ReloadEmptyWeapon();
+	
+	//ReloadEmptyWeapon();
 	
 	// Set params as primary weapon become secondary 
 	SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
@@ -577,7 +595,6 @@ void UCombatComponent::OnRep_CombatState()
 			
 			if (Character && Character->IsLocallyControlled())
 			{
-				UE_LOG(LogTemp, Warning, TEXT("UCombatComponent::HandleReload() - OnREP"))
 				HandleReload();	
 			}
 			break;
@@ -587,6 +604,13 @@ void UCombatComponent::OnRep_CombatState()
 			{
 				Character->PlayThrowGrenadeMontage(); // Play throwing grenade animation
 				ShowAttachedGrenade(true); // Show the attached grenade mesh
+			}
+			break;
+
+		case ECombatState::ECS_SwappingWeapon:
+			if (Character && !Character->IsLocallyControlled())
+			{
+				Character->PlaySwapWeaponMontage();
 			}
 			break;
 		
@@ -647,11 +671,13 @@ void UCombatComponent::FinishReloading()
 		CombatState = ECombatState::ECS_Unoccupied;
 		UpdateAmmoValues();
 	}
+	
 	if(bFireButtonPressed)
 	{
 		Fire();
 	}
 }
+
 int32 UCombatComponent::AmountToReload()
 {
 	if(!EquippedWeapon) return 0;
@@ -674,7 +700,6 @@ void UCombatComponent::HandleReload()
 	{
 		Character->PlayReloadMontage();
 	}
-	
 }
 void UCombatComponent::UpdateAmmoValues()
 {
@@ -1059,11 +1084,3 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 		 Character->GetFollowCamera()->SetFieldOfView(CurrentFOV);
 	}
 }
-
-
-
-
-
-
-
-

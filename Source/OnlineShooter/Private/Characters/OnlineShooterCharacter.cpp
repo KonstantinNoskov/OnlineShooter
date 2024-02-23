@@ -967,7 +967,23 @@ void AOnlineShooterCharacter::EquipButtonPressed()
 	if(Combat)
 	{
 		// Server Call EquipWeapon
-		Server_EquipButtonPressed();
+		if (Combat->CombatState == ECombatState::ECS_Unoccupied)
+		{
+			Server_EquipButtonPressed();
+		}
+
+		bool bSwapWeapon =
+			Combat->ShouldSwapWeapon() &&
+			!HasAuthority() &&
+			Combat->CombatState == ECombatState::ECS_Unoccupied &&
+			!OverlappingWeapon;
+
+		if (bSwapWeapon)
+		{
+			PlaySwapWeaponMontage();
+			Combat->CombatState = ECombatState::ECS_SwappingWeapon;
+			bFinishedSwapping = false;
+		}
 	}
 }
 
@@ -1230,6 +1246,16 @@ void AOnlineShooterCharacter::PlayThrowGrenadeMontage()
 	if(AnimInstance && ThrowGrenadeMontage)
 	{
 		AnimInstance->Montage_Play(ThrowGrenadeMontage);
+	}
+}
+
+void AOnlineShooterCharacter::PlaySwapWeaponMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	if(AnimInstance && SwapWeaponMontage)
+	{
+		AnimInstance->Montage_Play(SwapWeaponMontage);
 	}
 }
 
