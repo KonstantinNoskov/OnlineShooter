@@ -1,10 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "MultiplayerSessionsSubsystem.h"
 
 #include "OnlineSessionSettings.h"
 #include "OnlineSubsystem.h"
+#include "Online/OnlineSessionNames.h"
 
 UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem() :
 	CreateSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionComplete)),
@@ -123,7 +121,7 @@ void UMultiplayerSessionsSubsystem::JoinSession(const FOnlineSessionSearchResult
 }
 void UMultiplayerSessionsSubsystem::DestroySession()
 {
-	if(SessionInterface)
+	if(!SessionInterface)
 	{
 		MultiplayerOnDestroySessionsComplete.Broadcast(false);
 		return;

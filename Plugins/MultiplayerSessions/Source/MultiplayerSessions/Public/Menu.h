@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -18,10 +16,13 @@ class MULTIPLAYERSESSIONS_API UMenu : public UUserWidget
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere, Category = "Debug")
+	bool bDebug = false;
+	
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "Network")
-	void MenuSetup(int32 NumberOfPublicConnection = 4, FString TypeOfMatch = FString(TEXT("Noskov")), FString LobbyPath = FString(TEXT("/Game/ThirdPerson/Maps/L_Lobby")));
+	void MenuSetup(int32 NumberOfPublicConnection = 4, FString TypeOfMatch = FString(TEXT("Noskov")), FString LobbyPath = FString(TEXT("/Game/OnlineShooter/Maps/Lobby/L_Lobby")));
 
 protected:
 	

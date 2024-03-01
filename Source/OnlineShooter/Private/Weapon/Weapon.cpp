@@ -47,12 +47,6 @@ void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Make Weapon pick up widget invisible by default
-	if (PickupWidget)
-	{
-		PickupWidget->SetVisibility(false);
-	}
-	
 	// Set default collision settings
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	AreaSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
@@ -60,6 +54,17 @@ void AWeapon::BeginPlay()
 	// Bind overlap delegates
 	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);
 	AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);
+
+	// Make Weapon pick up widget invisible by default
+	if (PickupWidget)
+	{
+		PickupWidget->SetVisibility(false);
+	}
+
+	if (!HasAuthority())
+	{
+		FireRate = 0.001f;
+	}
 }
 
 void AWeapon::Tick(float DeltaTime)

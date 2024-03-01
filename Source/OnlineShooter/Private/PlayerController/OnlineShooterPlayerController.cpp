@@ -11,20 +11,30 @@
 #include "PlayerStates/OnlineShooterPlayerState.h"
 
 // HUD
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "Components/Image.h"
 #include "HUD/Announcement.h"
 #include "HUD/CharacterOverlay.h"
 #include "HUD/OnlineShooterHUD.h"
+#include "HUD/ReturnToMainMenu.h"
 #include "HUD/SniperScopeWidget.h"
 
 void AOnlineShooterPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	// Get HUD
 	OnlineShooterHUD = Cast<AOnlineShooterHUD>(GetHUD());
 	
+	// Match State Check
 	Server_CheckMatchState();
-		
+	
+	// Add Controller Mapping Context
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		Subsystem->AddMappingContext(ControllerMappingContext, 1);
+	}
 }
 
 void AOnlineShooterPlayerController::Tick(float DeltaSeconds)
@@ -43,6 +53,51 @@ void AOnlineShooterPlayerController::Tick(float DeltaSeconds)
 	// Check Ping
 	CheckPing(DeltaSeconds);
 }
+
+
+void AOnlineShooterPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	if (!InputComponent) return;
+	
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
+	{
+		EnhancedInputComponent->BindAction(MenuAction, ETriggerEvent::Started, this, &AOnlineShooterPlayerController::ShowReturnToMainMenu);
+	}
+}
+
+void AOnlineShooterPlayerController::ShowReturnToMainMenu()
+{
+	// Menu subclass valid check
+	if (!ReturnToMainMenuWidget) return;
+
+	// Create Menu widget if necessary
+	if (!ReturnToMainMenu)
+	{
+		ReturnToMainMenu = CreateWidget<UReturnToMainMenu>(this, ReturnToMainMenuWidget);	
+	}
+
+	// Menu Widget valid check
+	if (ReturnToMainMenu)	
+	{
+		// Toggle Menu Open/Close flag 
+		bReturnToMainMenuOpen = !bReturnToMainMenuOpen;
+
+		// Menu is open
+		if (bReturnToMainMenuOpen)
+		{
+			ReturnToMainMenu->MenuSetup();
+		}
+
+		// Menu is closed
+		else
+		{
+			ReturnToMainMenu->MenuTearDown();
+		}
+	}
+}
+
 
 void AOnlineShooterPlayerController::PollInit()
 {

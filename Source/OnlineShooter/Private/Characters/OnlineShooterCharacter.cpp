@@ -243,10 +243,12 @@ void AOnlineShooterCharacter::BeginPlay()
 	// Set Enhanced input subsystem
 	if (const ULocalPlayer* Player = (GEngine && GetWorld()) ? GEngine->GetFirstGamePlayer(GetWorld()) : nullptr)
 	{
-		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Player);
-		if (CharacterMappingContext)
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Player))
 		{
-			Subsystem->AddMappingContext(CharacterMappingContext, 0);
+			if (CharacterMappingContext)
+			{
+				Subsystem->AddMappingContext(CharacterMappingContext, 0);
+			}
 		}
 	}
 	
@@ -325,6 +327,7 @@ void AOnlineShooterCharacter::OnRep_ReplicatedMovement()
 	TimeSinceLastMovementReplication = 0.f;
 }
 
+// 
 void AOnlineShooterCharacter::PollInit()
 {
 	if (!OnlineShooterPlayerState)
@@ -342,7 +345,6 @@ void AOnlineShooterCharacter::PollInit()
 // Binding inputs
 void AOnlineShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
@@ -460,7 +462,7 @@ void AOnlineShooterCharacter::AimButtonReleased()
 {
 	if (bDisableGameplay) return;
 	
-	if(Combat)
+	if(Combat && Combat->IsAiming())
 	{
 		Combat->SetAiming(false);
 	}

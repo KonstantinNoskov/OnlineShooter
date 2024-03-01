@@ -15,7 +15,10 @@ public class OnlineShooter : ModuleRules
 			"Engine",
 			"InputCore",
 			"EnhancedInput",
-			"Niagara"
+			"Niagara",
+			"MultiplayerSessions",
+			"OnlineSubsystem",
+			"OnlineSubsystemSteam"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

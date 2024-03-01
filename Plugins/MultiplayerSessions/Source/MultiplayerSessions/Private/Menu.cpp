@@ -11,7 +11,40 @@
 #include "Kismet/KismetSystemLibrary.h"
 
 
-void UMenu::MenuSetup(int32 NumberOfPublicConnection, FString TypeOfMatch, FString LobbyPath)
+
+
+bool UMenu::Initialize()
+{
+	if(!Super::Initialize()) { return false; }
+
+	if(HostButton) { HostButton->OnClicked.AddDynamic(this, &ThisClass::HostButtonClicked); }
+	if(JoinButton) { JoinButton->OnClicked.AddDynamic(this, &ThisClass::JoinButtonClicked); }
+	if(QuitButton) { QuitButton->OnClicked.AddDynamic(this, &ThisClass::QuitButtonClicked); }
+
+	if(HostButton) {HostButton->OnHovered.AddDynamic(this, &ThisClass::SetHostButtonColor); }
+	if(JoinButton) {JoinButton->OnHovered.AddDynamic(this, &ThisClass::SetJoinButtonColor); }
+	if(QuitButton) {QuitButton->OnHovered.AddDynamic(this, &ThisClass::SetQuitButtonColor); }
+
+	if(HostButton) {HostButton->OnUnhovered.AddDynamic(this, &ThisClass::SetHostButtonColor); }
+	if(JoinButton) {JoinButton->OnUnhovered.AddDynamic(this, &ThisClass::SetJoinButtonColor); }
+	if(QuitButton) {QuitButton->OnUnhovered.AddDynamic(this, &ThisClass::SetQuitButtonColor); }
+	
+	return true;
+}
+
+/*
+ * Will be called when menu gonna be destroyed, after we travel to another level
+ */
+void UMenu::NativeDestruct()
+{
+	// this function return back input to a character controller so we can move it
+	// also hide the mouse cursor
+	MenuTearDown();
+	
+	Super::NativeDestruct();
+}
+
+void UMenu::MenuSetup(const int32 NumberOfPublicConnection, FString TypeOfMatch, const FString LobbyPath)
 {
 	NumPublicConnections = NumberOfPublicConnection;
 	MatchType = TypeOfMatch;
@@ -56,38 +89,6 @@ void UMenu::MenuSetup(int32 NumberOfPublicConnection, FString TypeOfMatch, FStri
 		MultiplayerSessionsSubsystem->MultiplayerOnStartSessionsComplete.AddDynamic(this, &ThisClass::OnStartSession);
 	}
 }
-
-bool UMenu::Initialize()
-{
-	if(!Super::Initialize()) { return false; }
-
-	if(HostButton) { HostButton->OnClicked.AddDynamic(this, &ThisClass::HostButtonClicked); }
-	if(JoinButton) { JoinButton->OnClicked.AddDynamic(this, &ThisClass::JoinButtonClicked); }
-	if(QuitButton) { QuitButton->OnClicked.AddDynamic(this, &ThisClass::QuitButtonClicked); }
-
-	if(HostButton) {HostButton->OnHovered.AddDynamic(this, &ThisClass::SetHostButtonColor); }
-	if(JoinButton) {JoinButton->OnHovered.AddDynamic(this, &ThisClass::SetJoinButtonColor); }
-	if(QuitButton) {QuitButton->OnHovered.AddDynamic(this, &ThisClass::SetQuitButtonColor); }
-
-	if(HostButton) {HostButton->OnUnhovered.AddDynamic(this, &ThisClass::SetHostButtonColor); }
-	if(JoinButton) {JoinButton->OnUnhovered.AddDynamic(this, &ThisClass::SetJoinButtonColor); }
-	if(QuitButton) {QuitButton->OnUnhovered.AddDynamic(this, &ThisClass::SetQuitButtonColor); }
-	
-	return true;
-}
-
-/*
- * Will be called when menu gonna be destroyed, after we travel to another level
- */
-void UMenu::NativeDestruct()
-{
-	// this function return back input to a character controller so we can move it
-	// also hide the mouse cursor
-	MenuTearDown();
-	
-	Super::NativeDestruct();
-}
-
 void UMenu::MenuTearDown()
 {
 	RemoveFromParent();
@@ -105,7 +106,7 @@ void UMenu::MenuTearDown()
 		}
 	}
 }
- 
+
 void UMenu::SetHostButtonColor()
 {
 	if (HostButton->IsHovered())
@@ -117,7 +118,6 @@ void UMenu::SetHostButtonColor()
 		HostButton->SetColorAndOpacity(ButtonDefaultColor);	
 	}
 }
-
 void UMenu::SetJoinButtonColor()
 {
 	if (JoinButton->IsHovered())
@@ -129,7 +129,6 @@ void UMenu::SetJoinButtonColor()
 		JoinButton->SetColorAndOpacity(ButtonDefaultColor);	
 	}
 }
-
 void UMenu::SetQuitButtonColor()
 {
 	if (QuitButton->IsHovered())
@@ -141,8 +140,6 @@ void UMenu::SetQuitButtonColor()
 		QuitButton->SetColorAndOpacity(ButtonDefaultColor);	
 	}
 }
-
-
 
 
 /* BUTTONS FUNCTIONS
@@ -180,10 +177,10 @@ void UMenu::JoinButtonClicked()
 	if(MultiplayerSessionsSubsystem)
 	{
 		// Call FindSessions() on SessionSubsystem 
-		MultiplayerSessionsSubsystem->FindSessions(10000);
+		MultiplayerSessionsSubsystem->FindSessions(100000);
 	}
 }
-void UMenu::QuitButtonClicked()
+void UMenu::QuitButtonClicked() 
 {
 	// Get references to world and player controller instances
 	UWorld* World = GetWorld();
@@ -201,34 +198,42 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 	// if session has been created successfully...
 	if(bWasSuccessful)
 	{	
-		if (GEngine) { GEngine->AddOnScreenDebugMessage(-1,15.f,FColor::Green,FString::Printf(TEXT("Session was successfully created!"))); }
+		if (GEngine && bDebug) { GEngine->AddOnScreenDebugMessage(-1,15.f,FColor::Green,FString::Printf(TEXT("Session was successfully created!"))); }
 
 		UWorld* World = GetWorld();
 
 		if(World)
 		{
+			if (GEngine && bDebug) { GEngine->AddOnScreenDebugMessage(-1,15.f,FColor::Green,FString::Printf(TEXT("ServerTravel to: %s"), *PathToLobby)); }
 			World->ServerTravel(PathToLobby);
 		}
 	}
 	else
 	{
-		if (GEngine) { GEngine->AddOnScreenDebugMessage(-1,15.f,FColor::Red,FString::Printf(TEXT("Failed to create session!"))); }
+		if (GEngine && bDebug) { GEngine->AddOnScreenDebugMessage(-1,15.f,FColor::Red,FString::Printf(TEXT("ERROR: Failed to create session!"))); }
 		HostButton->SetIsEnabled(true);
 	}
 }
 void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
 {
 	// check if MultiplayerSessionsSubsystem is valid 
-	if(!MultiplayerSessionsSubsystem) { return; }
-
+	if(!MultiplayerSessionsSubsystem) return;
+	
 	// run through all created sessions
 	for (FOnlineSessionSearchResult Result : SessionResults)
 	{
 		FString SettingsValue;
 		Result.Session.SessionSettings.Get(FName("MatchType"), SettingsValue);
 
+		if (GEngine && bDebug)
+		{
+			GEngine->AddOnScreenDebugMessage(-1,15.f,FColor::Yellow,
+				FString::Printf(TEXT("Matchtype: %s"), *MatchType));
+		}
+
 		if (SettingsValue == MatchType)
 		{
+			if (GEngine && bDebug) { GEngine->AddOnScreenDebugMessage(-1,15.f,FColor::Green,FString::Printf(TEXT("Session was found."))); }
 			MultiplayerSessionsSubsystem->JoinSession(Result); 
 			return;
 		}
@@ -239,6 +244,7 @@ void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResu
 	if(!bWasSuccessful || !SessionResults.Num())
 	{
 		// enable join button back so we can try to find session again
+		if (GEngine && bDebug) { GEngine->AddOnScreenDebugMessage(-1,15.f,FColor::Red,FString::Printf(TEXT("ERROR: Session not found!"))); }
 		JoinButton->SetIsEnabled(true);
 	}
 }
@@ -252,12 +258,13 @@ void UMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 		if (SessionInterface.IsValid())
 		{
 			FString Address;
-
 			SessionInterface->GetResolvedConnectString(NAME_GameSession, Address);
 
 			// Reference to a local player controller
 			APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController();
 
+			if (GEngine && bDebug) { GEngine->AddOnScreenDebugMessage(-1,15.f,FColor::Green,FString::Printf(TEXT("Joining session..."))); }
+			
 			if (PlayerController)
 			{
 				PlayerController->ClientTravel(Address, TRAVEL_Absolute);
@@ -267,6 +274,7 @@ void UMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 
 	if (Result != EOnJoinSessionCompleteResult::Success)
 	{
+		if (GEngine && bDebug) { GEngine->AddOnScreenDebugMessage(-1,15.f,FColor::Red,FString::Printf(TEXT("ERROR: Join session wasn't successful!"))); }
 		JoinButton->SetIsEnabled(true);
 	}
 	

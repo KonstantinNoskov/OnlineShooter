@@ -138,6 +138,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ThrowGrenadeAction;
 
+
 protected:
 	
 	/** Callback for movement input */

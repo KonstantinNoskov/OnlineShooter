@@ -15,7 +15,10 @@ public:
 	
 	AProjectileRocket();
 	
+#if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
+	
 	virtual void Tick(float DeltaTime) override;
 	virtual void Destroyed() override;
 

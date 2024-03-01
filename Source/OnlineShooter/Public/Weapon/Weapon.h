@@ -93,7 +93,7 @@ private:
 
 	// Fire rate (the lower - the faster)
 	UPROPERTY(EditAnywhere, Category = "Weapon")
-	float FireRate = 1.f;
+	float FireRate = .15f;
 
 	// Whether automatic fire or not 
 	UPROPERTY(EditAnywhere, Category = "Weapon")
@@ -172,11 +172,9 @@ public:
 	void Client_AddAmmo(int32 AmmoToAdd);
 	
 #pragma endregion
-	
-	/*
-	 * Textures for the weapon crosshair
-	 */
 
+#pragma region CROSSHAIR
+	
 	UPROPERTY(EditAnywhere, Category = Crosshairs)
 	UTexture2D* CrosshairCenter;
 
@@ -191,6 +189,8 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Crosshairs)
 	UTexture2D* CrosshairBottom;
+
+#pragma endregion
 
 	UPROPERTY(EditAnywhere, Category = Weapon)
 	USoundCue* EquipSound;
@@ -234,6 +234,9 @@ public:
 	// Replication
 	UFUNCTION()
 	void OnRep_WeaponState();
+
+
+#pragma region GETTERS & SETTERS
 	
 	FORCEINLINE EWeaponState GetWeaponState() const { return WeaponState; }
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
@@ -246,4 +249,6 @@ public:
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
 	FORCEINLINE float GetDamage() const { return Damage; }
+
+#pragma endregion
 };

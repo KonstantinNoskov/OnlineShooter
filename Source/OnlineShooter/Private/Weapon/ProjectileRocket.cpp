@@ -42,7 +42,7 @@ void AProjectileRocket::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 		}
 	}
 }
-
+ 
 #endif
 
 void AProjectileRocket::BeginPlay()

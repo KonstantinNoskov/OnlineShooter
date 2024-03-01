@@ -334,13 +334,14 @@ bool UCombatComponent::ShouldSwapWeapon()
 }
 void UCombatComponent::SwapWeapon()
 {
+	SetAiming(false);
+	
 	if (!Character || CombatState != ECombatState::ECS_Unoccupied || !Character->HasAuthority()) return;
 
 	CombatState = ECombatState::ECS_SwappingWeapon;
 	Character->PlaySwapWeaponMontage();
  	Character->bFinishedSwapping = false;
 }
-
 void UCombatComponent::FinishSwapWeapon()
 {
 	if (Character && Character->HasAuthority())
@@ -513,6 +514,8 @@ void UCombatComponent::Server_Fire_Implementation(const FVector_NetQuantize& Tra
 {
 	Multicast_Fire(TraceHitTarget);
 }
+
+
 void UCombatComponent::Multicast_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget) 
 {
 	if (Character && Character->IsLocallyControlled() && !Character->HasAuthority()) return;

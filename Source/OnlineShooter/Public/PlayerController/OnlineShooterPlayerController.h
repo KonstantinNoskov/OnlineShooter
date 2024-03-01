@@ -6,6 +6,9 @@
 #include "GameFramework/PlayerController.h"
 #include "OnlineShooterPlayerController.generated.h"
 
+class UReturnToMainMenu;
+class UInputAction;
+class UInputMappingContext;
 class AOnlineShooterGameMode;
 class UCharacterOverlay;
 class AOnlineShooterHUD;
@@ -20,7 +23,44 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void Tick(float DeltaSeconds) override;
+
+
+#pragma region INPUT
+
+protected:
+
+	virtual void SetupInputComponent() override;
+
+public:
+
+	/** Controller Mapping Context */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputMappingContext* ControllerMappingContext;
+
+	/** Toggle Menu Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* MenuAction;
 	
+#pragma endregion
+
+
+#pragma region MENU
+	
+protected:
+	void ShowReturnToMainMenu();
+	
+private:
+	
+	UPROPERTY(EditAnywhere, Category = HUD)
+	TSubclassOf<UUserWidget> ReturnToMainMenuWidget;
+	
+	UPROPERTY()
+	UReturnToMainMenu* ReturnToMainMenu;
+
+	bool bReturnToMainMenuOpen = false;
+	
+#pragma endregion
+
 protected:
 	
 	virtual void BeginPlay() override;

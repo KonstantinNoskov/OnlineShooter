@@ -330,4 +330,5 @@ public:
 	bool ShouldSwapWeapon();
 	
 	FORCEINLINE int32 GetGrenades() const { return Grenades; }
+	FORCEINLINE bool IsAiming() const { return bAiming; }
 };
