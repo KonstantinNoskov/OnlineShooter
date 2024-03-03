@@ -36,7 +36,6 @@ void AOnlineShooterPlayerController::BeginPlay()
 		Subsystem->AddMappingContext(ControllerMappingContext, 1);
 	}
 }
-
 void AOnlineShooterPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -54,7 +53,6 @@ void AOnlineShooterPlayerController::Tick(float DeltaSeconds)
 	CheckPing(DeltaSeconds);
 }
 
-
 void AOnlineShooterPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -66,7 +64,6 @@ void AOnlineShooterPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(MenuAction, ETriggerEvent::Started, this, &AOnlineShooterPlayerController::ShowReturnToMainMenu);
 	}
 }
-
 void AOnlineShooterPlayerController::ShowReturnToMainMenu()
 {
 	// Menu subclass valid check
@@ -98,7 +95,6 @@ void AOnlineShooterPlayerController::ShowReturnToMainMenu()
 	}
 }
 
-
 void AOnlineShooterPlayerController::PollInit()
 {
 	if(!CharacterOverlay)
@@ -124,14 +120,12 @@ void AOnlineShooterPlayerController::PollInit()
 		}
 	}
 }
-
 void AOnlineShooterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AOnlineShooterPlayerController, MatchState)
 }
-
 void AOnlineShooterPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -609,7 +603,6 @@ void AOnlineShooterPlayerController::OnMatchStateSet(FName State)
 		HandleCooldown();
 	}
 }
-
 void AOnlineShooterPlayerController::OnRep_MatchState()
 {
 	if(MatchState == MatchState::InProgress)
@@ -621,7 +614,6 @@ void AOnlineShooterPlayerController::OnRep_MatchState()
 		HandleCooldown();
 	}
 }
-
 void AOnlineShooterPlayerController::HandleMatchHasStarted() 
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
@@ -638,7 +630,6 @@ void AOnlineShooterPlayerController::HandleMatchHasStarted()
 		}
 	}
 }
-
 void AOnlineShooterPlayerController::HandleCooldown()
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
@@ -701,7 +692,6 @@ void AOnlineShooterPlayerController::HandleCooldown()
 		OnlineShooterCharacter->GetCombatComponent()->SetAiming(false);
 	}
 }
-
 void AOnlineShooterPlayerController::Server_CheckMatchState_Implementation()  
 {
 	AOnlineShooterGameMode* GameMode = Cast<AOnlineShooterGameMode>(UGameplayStatics::GetGameMode(this));
@@ -717,7 +707,6 @@ void AOnlineShooterPlayerController::Server_CheckMatchState_Implementation()
 		Client_JoinMidgame(MatchState, WarmupTime, MatchTime, LevelStartingTime, CooldownTime);
 	}
 }
-
 void AOnlineShooterPlayerController::Client_JoinMidgame_Implementation(FName StateOfMatch, float Warmup, float Match, float StartingTime, float Cooldown) 
 {
 	OnMatchStateSet(MatchState);

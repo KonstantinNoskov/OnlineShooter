@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -34,6 +32,9 @@ class UInputMappingContext;
 class UInputAction;
 struct FInputActionInstance;
 
+// DELEGATES
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLeftGame);
+
 UCLASS()
 class ONLINESHOOTER_API AOnlineShooterCharacter : public ACharacter, public IInteractInterface
 {
@@ -59,7 +60,6 @@ public:
 protected:
 	
 	virtual void BeginPlay() override;
-
 	virtual void Jump() override;
 
 private:
@@ -415,7 +415,21 @@ private:
 	void OnRep_Shield(float LastShield);
 
 #pragma endregion
+
+
+#pragma region LEAVING SESSION
+
+private:
+	bool bLeftGame = false;
+
+public:
+	FOnLeftGame OnLeftGame;
 	
+	UFUNCTION(Server, Reliable)
+	void ServerLeaveGame();
+
+
+#pragma endregion
 
 public:
 	
@@ -569,10 +583,10 @@ public:
 	FVector GetHitTarget() const;
 
 	UFUNCTION()
-	void Eliminated();
+	void Eliminated(bool bPlayerLeftGame);
 	
 	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_Eliminated();
+	void Multicast_Eliminated(bool bPlayerLeftGame);
 
 	UFUNCTION()
 	ECombatState GetCombatState() const;

@@ -224,7 +224,7 @@ void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResu
 	{
 		FString SettingsValue;
 		Result.Session.SessionSettings.Get(FName("MatchType"), SettingsValue);
-
+	
 		if (GEngine && bDebug)
 		{
 			GEngine->AddOnScreenDebugMessage(-1,15.f,FColor::Yellow,

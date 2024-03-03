@@ -454,7 +454,7 @@ void UCombatComponent::FireHitScanWeapon()
 {
 	if (EquippedWeapon && Character)
 	{	
-		HitTarget  = EquippedWeapon->bUseScatter ? EquippedWeapon->TraceEndWithScatter(HitTarget) : HitTarget;
+		HitTarget = EquippedWeapon->bUseScatter ? EquippedWeapon->TraceEndWithScatter(HitTarget) : HitTarget;
 		if (!Character->HasAuthority()) LocalFire(HitTarget);
 		Server_Fire(HitTarget);
 	}

@@ -540,6 +540,7 @@ void AOnlineShooterCharacter::OnRep_Shield(float LastShield)
 		PlayHitReactMontage();	
 	}
 }
+
 void AOnlineShooterCharacter::UpdateHUDHealth()
 {
 	OnlineShooterPlayerController = !OnlineShooterPlayerController ? Cast<AOnlineShooterPlayerController>(Controller) : OnlineShooterPlayerController;
@@ -593,15 +594,15 @@ void AOnlineShooterCharacter::UpdateHUDGrenades()
 	}
 }
 
-void AOnlineShooterCharacter::Eliminated()
+void AOnlineShooterCharacter::Eliminated(bool bPlayerLeftGame)
 {
 	DropOrDestroyWeapons();
 	
-	Multicast_Eliminated();
-	GetWorldTimerManager().SetTimer(EliminatedTimer, this, &AOnlineShooterCharacter::EliminatedTimerFinished, EliminatedDelay);
+	Multicast_Eliminated(bPlayerLeftGame);
 }
-void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
+void AOnlineShooterCharacter::Multicast_Eliminated_Implementation(bool bPlayerLeftGame)
 {
+	bLeftGame = bPlayerLeftGame;
 	if(OnlineShooterPlayerController)
 	{
 		OnlineShooterPlayerController->SetHUDWeaponAmmo(0);
@@ -618,7 +619,6 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 		DynamicDissolveMaterialInstance_0->SetScalarParameterValue(TEXT("Dissolve"), .75f);
 		DynamicDissolveMaterialInstance_0->SetScalarParameterValue(TEXT("Glow"), 200.f);
 	}
-
 	if(DissolveMaterialInstance_1)
 	{
 		
@@ -627,7 +627,6 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 		DynamicDissolveMaterialInstance_1->SetScalarParameterValue(TEXT("Dissolve"), .75f);
 		DynamicDissolveMaterialInstance_1->SetScalarParameterValue(TEXT("Glow"), 200.f);
 	}
-
 	if(DissolveMaterialInstance_2)
 	{
 		
@@ -636,7 +635,6 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 		DynamicDissolveMaterialInstance_2->SetScalarParameterValue(TEXT("Dissolve"), .75f);
 		DynamicDissolveMaterialInstance_2->SetScalarParameterValue(TEXT("Glow"), 200.f); 
 	}
-
 	if(DissolveMaterialInstance_3)
 	{
 		
@@ -645,7 +643,6 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 		DynamicDissolveMaterialInstance_3->SetScalarParameterValue(TEXT("Dissolve"), .75f);
 		DynamicDissolveMaterialInstance_3->SetScalarParameterValue(TEXT("Glow"), 200.f);
 	}
-
 	if(DissolveMaterialInstance_5)
 	{
 		
@@ -654,7 +651,6 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 		DynamicDissolveMaterialInstance_5->SetScalarParameterValue(TEXT("Dissolve"), .75f);
 		DynamicDissolveMaterialInstance_5->SetScalarParameterValue(TEXT("Glow"), 200.f);
 	}
-
 	if(DissolveMaterialInstance_6)
 	{
 		
@@ -663,7 +659,6 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 		DynamicDissolveMaterialInstance_6->SetScalarParameterValue(TEXT("Dissolve"), .75f);
 		DynamicDissolveMaterialInstance_6->SetScalarParameterValue(TEXT("Glow"), 200.f);
 	}
-
 	if(DissolveMaterialInstance_7)
 	{
 		
@@ -672,7 +667,6 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 		DynamicDissolveMaterialInstance_7->SetScalarParameterValue(TEXT("Dissolve"), .75f);
 		DynamicDissolveMaterialInstance_7->SetScalarParameterValue(TEXT("Glow"), 200.f);
 	}
-
 	if(DissolveMaterialInstance_8)
 	{
 		
@@ -681,7 +675,6 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 		DynamicDissolveMaterialInstance_8->SetScalarParameterValue(TEXT("Dissolve"), .75f);
 		DynamicDissolveMaterialInstance_8->SetScalarParameterValue(TEXT("Glow"), 200.f);
 	}
-
 	if(DissolveMaterialInstance_9)
 	{
 		
@@ -731,6 +724,8 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation()
 	{
 		ShowSniperScopeWidget(false);
 	}
+
+	GetWorldTimerManager().SetTimer(EliminatedTimer, this, &AOnlineShooterCharacter::EliminatedTimerFinished, EliminatedDelay);
 }
 void AOnlineShooterCharacter::DropOrDestroyWeapons()
 {
@@ -762,11 +757,30 @@ void AOnlineShooterCharacter::DropOrDestroyWeapon(AWeapon* Weapon)
 }
 void AOnlineShooterCharacter::EliminatedTimerFinished()
 {
-	AOnlineShooterGameMode* OnlineShooterGameMode = GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>();
-	
-	if (OnlineShooterGameMode)
+	AOnlineShooterGameMode* OnlineShooterGameMode = GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>(); 
+	if (OnlineShooterGameMode && !bLeftGame)
 	{
 		OnlineShooterGameMode->RequestRespawn(this, Controller);
+	}
+
+	if (bLeftGame && IsLocallyControlled())
+	{
+		OnLeftGame.Broadcast();
+	}
+}
+
+#pragma endregion
+
+#pragma region LEAVING SESSION
+
+void AOnlineShooterCharacter::ServerLeaveGame_Implementation()
+{
+	AOnlineShooterGameMode* OnlineShooterGameMode = GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>();
+	OnlineShooterPlayerState = !OnlineShooterPlayerState ? GetPlayerState<AOnlineShooterPlayerState>() : OnlineShooterPlayerState; 
+	
+	if (OnlineShooterGameMode && OnlineShooterPlayerState)
+	{
+		OnlineShooterGameMode->PlayerLeftGame(OnlineShooterPlayerState);
 	}
 }
 

@@ -1,6 +1,7 @@
 ﻿#include "HUD/ReturnToMainMenu.h"
 
 #include "MultiplayerSessionsSubsystem.h"
+#include "Characters/OnlineShooterCharacter.h"
 #include "Components/Button.h"
 #include "GameFramework/GameModeBase.h"
 
@@ -70,12 +71,11 @@ void UReturnToMainMenu::OnDestroySession(bool bWasSuccessful)
 		AGameModeBase* GameMode = World->GetAuthGameMode<AGameModeBase>();
 		if (GameMode)
 		{
-			
 			GameMode->ReturnToMainMenuHost();
 		}
 		else
 		{
-			PlayerController = World->GetFirstPlayerController();
+			PlayerController = !PlayerController ? World->GetFirstPlayerController() : PlayerController;
 			if (PlayerController)
 			{
 				PlayerController->ClientReturnToMainMenuWithTextReason(FText());
@@ -117,8 +117,34 @@ void UReturnToMainMenu::ReturnButtonClicked()
 {
 	ReturnButton->SetIsEnabled(false);
 	
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		APlayerController* FirstPlayerController = World->GetFirstPlayerController();
+		if (FirstPlayerController)
+		{
+			AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(FirstPlayerController->GetPawn());
+			if (OnlineShooterCharacter)
+			{
+				OnlineShooterCharacter->ServerLeaveGame();
+				OnlineShooterCharacter->OnLeftGame.AddDynamic(this, &UReturnToMainMenu::OnPlayerLeftGame);
+			}
+			else
+			{
+				ReturnButton->SetIsEnabled(true);
+			}
+		}
+	}
+}
+
+#pragma region LEAVING SESSION
+
+void UReturnToMainMenu::OnPlayerLeftGame()
+{
 	if (MultiplayerSessionsSubsystem)
 	{
 		MultiplayerSessionsSubsystem->DestroySession(); 
 	}
 }
+
+#pragma endregion

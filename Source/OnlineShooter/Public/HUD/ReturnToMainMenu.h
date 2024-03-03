@@ -13,6 +13,13 @@ class ONLINESHOOTER_API UReturnToMainMenu : public UUserWidget
 {
 	GENERATED_BODY()
 
+protected:
+	virtual bool Initialize() override;
+
+	UFUNCTION()
+	void OnDestroySession(bool bWasSuccessful);
+
+
 private:
 	UPROPERTY(meta = (BindWidget))
 	UButton* ReturnButton;
@@ -26,11 +33,14 @@ private:
 	UFUNCTION()
 	void ReturnButtonClicked();
 
+#pragma region LEAVING SESSION
+
 protected:
-	virtual bool Initialize() override;
 
 	UFUNCTION()
-	void OnDestroySession(bool bWasSuccessful);
+	void OnPlayerLeftGame();
+	
+#pragma endregion
 	
 public:
 

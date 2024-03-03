@@ -6,6 +6,7 @@
 #include "GameFramework/GameMode.h"
 #include "OnlineShooterGameMode.generated.h"
 
+class AOnlineShooterPlayerState;
 class AOnlineShooterPlayerController;
 class AOnlineShooterCharacter;
 
@@ -40,6 +41,13 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float CooldownTime = 10.f;
+
+#pragma region LEAVING SESSION
+
+public:
+	void PlayerLeftGame(AOnlineShooterPlayerState* PlayerLeaving);
+
+#pragma endregion
 
 protected:
 

@@ -19,6 +19,7 @@ AOnlineShooterGameMode::AOnlineShooterGameMode()
 	bDelayedStart = true;
 }
 
+
 void AOnlineShooterGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -60,6 +61,7 @@ void AOnlineShooterGameMode::Tick(float DeltaSeconds)
 	}
 }
 
+
 void AOnlineShooterGameMode::OnMatchStateSet()
 {
 	Super::OnMatchStateSet();
@@ -97,7 +99,7 @@ void AOnlineShooterGameMode::PlayerEliminated(AOnlineShooterCharacter* ElimedCha
 	
 	if (ElimedCharacter)
 	{
-		ElimedCharacter->Eliminated();
+		ElimedCharacter->Eliminated(false);
 	}
 }
 void AOnlineShooterGameMode::RequestRespawn(ACharacter* EliminatedCharacter, AController* EliminatedController)
@@ -119,6 +121,28 @@ void AOnlineShooterGameMode::RequestRespawn(ACharacter* EliminatedCharacter, ACo
 		}
 	}
 }
+
+#pragma region LEAVING SESSION
+
+void AOnlineShooterGameMode::PlayerLeftGame(AOnlineShooterPlayerState* PlayerLeaving)
+{
+	if (!PlayerLeaving) return;
+		
+	AOnlineShooterGameState* OnlineShooterGameState = GetGameState<AOnlineShooterGameState>();
+	if (OnlineShooterGameState && OnlineShooterGameState->TopScoringPlayers.Contains(PlayerLeaving))
+	{
+		OnlineShooterGameState->TopScoringPlayers.Remove(PlayerLeaving);
+	}
+	
+	AOnlineShooterCharacter* CharacterLeaving = Cast<AOnlineShooterCharacter>(PlayerLeaving->GetPawn());
+	if (CharacterLeaving)
+	{
+		CharacterLeaving->Eliminated(true);
+	}
+}
+
+#pragma endregion
+
 
 AActor* AOnlineShooterGameMode::GetRespawnPoint()
 {	
