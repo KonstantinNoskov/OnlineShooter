@@ -19,6 +19,11 @@ void AShotgun::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AShotgun::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 {
 	AWeapon::Fire(FVector());
@@ -147,11 +152,27 @@ void AShotgun::ShotgunTraceEndWithScatter(const FVector& HitTarget, TArray<FVect
 		ToEndLoc = TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size();
 		
 		HitTargets.Add(ToEndLoc);
+
+		// DEBUG
+		if (bDebug)
+		{
+			// SCATTER
+			if(bUseScatter)
+			{
+				DrawDebugLine(GetWorld(), SphereCenter, EndLoc, FColor::Red, true);
+				DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Green, true);
+				DrawDebugSphere(GetWorld(), EndLoc, 5.f, 12, FColor::Red, true);
+				DrawDebugLine(
+					GetWorld(),
+					TraceStart,
+					FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size()),
+					FColor::Cyan,
+					true
+						);	
+			}	
+		}
 	}
 }
 
-void AShotgun::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
+
 

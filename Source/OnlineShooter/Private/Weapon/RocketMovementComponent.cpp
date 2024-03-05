@@ -9,6 +9,7 @@ URocketMovementComponent::URocketMovementComponent()
 void URocketMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	
 }
 
 void URocketMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,

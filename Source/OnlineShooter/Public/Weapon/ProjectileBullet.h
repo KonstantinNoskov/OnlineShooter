@@ -11,6 +11,7 @@ class ONLINESHOOTER_API AProjectileBullet : public AProjectile
 
 public:
 	AProjectileBullet();
+
 	void OnInitialSpeedEdit(const FPropertyChangedEvent& PropertyChangedEvent);
 
 	virtual void Tick(float DeltaTime) override;

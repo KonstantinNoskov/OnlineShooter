@@ -172,10 +172,10 @@ protected:
 	void CalculateAO_Pitch();
 	
 	UFUNCTION()
-	void FireButtonPressed(const FInputActionInstance& InputInstance);
+	void FireButtonPressed();
 	
 	UFUNCTION()
-	void FireButtonReleased(const FInputActionInstance& InputInstance);
+	void FireButtonReleased();
 
 	UFUNCTION()
 	void ReloadButtonPressed();

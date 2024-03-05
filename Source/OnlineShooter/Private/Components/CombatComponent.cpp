@@ -84,6 +84,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		// Aim zoom
 		InterpFOV(DeltaTime);
 	}
+	
 }
 
 // Replication
@@ -332,7 +333,7 @@ bool UCombatComponent::ShouldSwapWeapon()
 {
 	return (EquippedWeapon && SecondaryWeapon);
 }
-void UCombatComponent::SwapWeapon()
+void UCombatComponent::SwapWeapon() 
 {
 	SetAiming(false);
 	
@@ -412,11 +413,10 @@ void UCombatComponent::Fire()
 	if (CanFire())
 	{
 		bCanFire = false;
-		
 		if(EquippedWeapon)
 		{
 			CrosshairShootFactor = .75f;
-
+			
 			switch (EquippedWeapon->FireType) {
 
 				case EFireType::EFT_HitScan:
@@ -445,8 +445,12 @@ void UCombatComponent::FireProjectileWeapon()
 {
 	if (EquippedWeapon && Character)
 	{
-		HitTarget  = EquippedWeapon->bUseScatter ? EquippedWeapon->TraceEndWithScatter(HitTarget) : HitTarget;
-		if (!Character->HasAuthority()) LocalFire(HitTarget);
+		HitTarget = EquippedWeapon->bUseScatter ? EquippedWeapon->TraceEndWithScatter(HitTarget) : HitTarget;
+		if (!Character->HasAuthority())
+		{
+			LocalFire(HitTarget);
+		}
+			
 		Server_Fire(HitTarget);
 	}
 }
@@ -481,15 +485,6 @@ void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceHitTarget)
 {
 	if(!EquippedWeapon) return;
 
-	if (Character && CombatState == ECombatState::ECS_Reloading && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun)
-	{
-		Character->PlayFireMontage(bAiming);
-		EquippedWeapon->Fire(TraceHitTarget);
-		CombatState = ECombatState::ECS_Unoccupied;
-		
-		return;
-	}
-	
 	if (Character && CombatState == ECombatState::ECS_Unoccupied)
 	{
 		Character->PlayFireMontage(bAiming);
@@ -503,6 +498,7 @@ void UCombatComponent::ShotgunLocalFire(const TArray<FVector_NetQuantize>& Trace
 	
 	if (CombatState == ECombatState::ECS_Reloading || CombatState == ECombatState::ECS_Unoccupied)
 	{
+		bLocallyReloading = false;
 		Character->PlayFireMontage(bAiming);
 		Shotgun->FireShotgun(TraceHitTargets);
 		CombatState = ECombatState::ECS_Unoccupied;
@@ -514,14 +510,10 @@ void UCombatComponent::Server_Fire_Implementation(const FVector_NetQuantize& Tra
 {
 	Multicast_Fire(TraceHitTarget);
 }
-
-
 void UCombatComponent::Multicast_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget) 
 {
 	if (Character && Character->IsLocallyControlled() && !Character->HasAuthority()) return;
-	{
-		LocalFire(TraceHitTarget);
-	}
+	LocalFire(TraceHitTarget);
 }
 
 // Shotgun Fire RPC
@@ -541,6 +533,7 @@ void UCombatComponent::StartFireTimer()
 
 	Character->GetWorldTimerManager().SetTimer(FireTimer, this, &UCombatComponent::OnFireTimerFinished, EquippedWeapon->GetFireRate());
 }
+
 void UCombatComponent::InitializeCarriedAmmo()
 {
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_AssaultRifle, StartingARAmmo);

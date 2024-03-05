@@ -43,6 +43,7 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 		SpawnParams.Owner = GetOwner();
 		SpawnParams.Instigator = InstigatorPawn;
 		
+		
 		AProjectile* SpawnedProjectile = nullptr;
 		if (bUseServerSideRewind)
 		{
@@ -54,9 +55,10 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 				if (InstigatorPawn->IsLocallyControlled())
 				{
 					SpawnedProjectile = World->SpawnActor<AProjectile>(ProjectileClass, SocketTransform.GetLocation(), TargetRotation,SpawnParams);
+					
 					SpawnedProjectile->bUserServerSideRewind = false;
 					SpawnedProjectile->Damage = Damage;
-				}
+									}
 
 				// Not locally controlled - spawn non-replicated projectile, no SSR
 				else

@@ -28,8 +28,9 @@ void AProjectileBullet::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	OnInitialSpeedEdit(PropertyChangedEvent);
+	//OnInitialSpeedEdit(PropertyChangedEvent);
 }
+
 void AProjectileBullet::OnInitialSpeedEdit(const FPropertyChangedEvent& PropertyChangedEvent) 
 {
 	FName PropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetFName() : NAME_None;

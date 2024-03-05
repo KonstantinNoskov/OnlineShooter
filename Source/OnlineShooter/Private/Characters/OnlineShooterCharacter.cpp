@@ -938,15 +938,17 @@ void AOnlineShooterCharacter::SimProxiesTurn()
 }
 
 // Fire
-void AOnlineShooterCharacter::FireButtonPressed(const FInputActionInstance& InputInstance)
+void AOnlineShooterCharacter::FireButtonPressed()
 {
+	UE_LOG(LogTemp,Warning,TEXT("AOnlineShooterCharacter::FireButtonPressed("))
+	
 	if (bDisableGameplay) return;
 	if(Combat && Combat->EquippedWeapon)
 	{
 		Combat->FireButtonPressed(true);
 	}
 }
-void AOnlineShooterCharacter::FireButtonReleased(const FInputActionInstance& InputInstance)
+void AOnlineShooterCharacter::FireButtonReleased()
 {
 	if (bDisableGameplay) return;
 	if(Combat && Combat->EquippedWeapon)
@@ -1017,6 +1019,7 @@ void AOnlineShooterCharacter::Server_EquipButtonPressed_Implementation()
 			Combat->SwapWeapon();
 		}
 	}
+	
 }
 
 // Set overlapped weapon on server
