@@ -25,6 +25,7 @@ AProjectile::AProjectile()
 	// Set collision
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	SetRootComponent(CollisionBox);
+	
 	CollisionBox->SetCollisionObjectType(ECC_WorldDynamic);
 	CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
@@ -37,8 +38,8 @@ void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	CollisionBox->IgnoreActorWhenMoving(Owner, true);
-	//CollisionBox->IgnoreComponentWhenMoving(Character->GetMesh(), true);
+
+	
 	
 	if(Tracer)
 	{

@@ -33,7 +33,8 @@ protected:
 	
 	UFUNCTION()
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-	
+
+
 private:
 	
 	UPROPERTY(EditAnywhere, Category = "Projectile")
@@ -65,9 +66,6 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UProjectileMovementComponent* ProjectileMovementComponent;
 	
-	UPROPERTY(EditAnywhere) 
-	UBoxComponent* CollisionBox;
-
 	UPROPERTY(EditAnywhere, Category = "Projectile")
 	UParticleSystem* ImpactParticles;
 
@@ -84,6 +82,9 @@ protected:
 	UStaticMeshComponent* ProjectileMesh;
 
 public:
+
+	UPROPERTY(EditAnywhere) 
+	UBoxComponent* CollisionBox;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Projectile")
 	float Damage = 10.f;

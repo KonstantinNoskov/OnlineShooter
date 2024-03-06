@@ -54,9 +54,11 @@ void AProjectileGrenade::BeginPlay()
 	AActor::BeginPlay();
 	
 	SpawnTrailSystem();
+
+	// Uncomment to destroy grenade in time. Otherwise grenade will be destroyed by reaching min velocity.
 	//StartDestroyTimer(DestroyTime);
 	
-	ProjectileMovementComponent->OnProjectileBounce.AddDynamic(this, &AProjectileGrenade::OnBounce);
+	ProjectileMovementComponent->OnProjectileBounce.AddDynamic(this, &AProjectileGrenade::OnBounceGrenade);
 	ProjectileMovementComponent->OnProjectileStop.AddDynamic(this, &AProjectileGrenade::AProjectileGrenade::OnProjectileGrenadeStop);
 }
 
@@ -66,7 +68,7 @@ void AProjectileGrenade::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AProjectileGrenade::OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity)
+void AProjectileGrenade::OnBounceGrenade(const FHitResult& ImpactResult, const FVector& ImpactVelocity)
 {
 	AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(ImpactResult.GetActor());
 	if (OnlineShooterCharacter && OnlineShooterCharacter != GetOwner())

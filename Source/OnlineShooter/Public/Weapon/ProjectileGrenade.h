@@ -29,12 +29,12 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UFUNCTION()
-	void OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity);
-		
-private:
-	
+	virtual void OnBounceGrenade(const FHitResult& ImpactResult, const FVector& ImpactVelocity);
+
 	UPROPERTY(EditAnywhere)
 	USoundCue* BounceSound;
+		
+private:
 	
 	UFUNCTION()
 	void OnProjectileGrenadeStop(const FHitResult& ImpactResult);

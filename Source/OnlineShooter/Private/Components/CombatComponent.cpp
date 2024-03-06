@@ -28,6 +28,7 @@
 #include "DrawDebugHelpers.h"
 
 // HUD
+#include "Components/BoxComponent.h"
 #include "HUD/OnlineShooterHUD.h"
 
 // Constructor
@@ -857,12 +858,17 @@ void UCombatComponent::Server_LaunchGrenade_Implementation(const FVector_NetQuan
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			World->SpawnActor<AProjectile>(
+			AProjectile* SpawnedProjectile = World->SpawnActor<AProjectile>(
 				GrenadeClass,
 				GrenadeSpawnLocation,
 				ToTarget.Rotation(),
 				SpawnParams
 				);
+
+			if (SpawnedProjectile && SpawnedProjectile->CollisionBox)
+			{
+				SpawnedProjectile->CollisionBox->IgnoreActorWhenMoving(Character, true);	
+			}
 		}
 	}
 }
