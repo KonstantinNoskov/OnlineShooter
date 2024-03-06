@@ -1,11 +1,9 @@
 ﻿#include "Weapon/ProjectileGrenade.h"
 
 #include "Characters/OnlineShooterCharacter.h"
-#include "Components/CapsuleComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
-#include "Weapon/RocketMovementComponent.h"
 
 
 AProjectileGrenade::AProjectileGrenade()
@@ -15,18 +13,14 @@ AProjectileGrenade::AProjectileGrenade()
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Grenade Mesh"));
 	ProjectileMesh->SetupAttachment(RootComponent); 
 	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+	
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement Component"));
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->SetIsReplicated(true);
 	ProjectileMovementComponent->bShouldBounce = true;
 	ProjectileMovementComponent->InitialSpeed = InitialSpeed;
 	ProjectileMovementComponent->MaxSpeed = InitialSpeed;
-
-	//RocketMovementComponent = CreateDefaultSubobject<URocketMovementComponent>(TEXT("RocketMovement Component"));
-	//RocketMovementComponent->bRotationFollowsVelocity = true;
-	//RocketMovementComponent->SetIsReplicated(true);
-	//RocketMovementComponent->bShouldBounce = true;
+	
 	
 	ExplosionMinDamage = Damage;
 }
@@ -37,7 +31,6 @@ void AProjectileGrenade::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 	OnInitialSpeedEdit(PropertyChangedEvent);
-	
 }
 
 void AProjectileGrenade::OnInitialSpeedEdit(const FPropertyChangedEvent& PropertyChangedEvent)
@@ -61,11 +54,10 @@ void AProjectileGrenade::BeginPlay()
 	AActor::BeginPlay();
 	
 	SpawnTrailSystem();
-	StartDestroyTimer();
+	//StartDestroyTimer(DestroyTime);
 	
 	ProjectileMovementComponent->OnProjectileBounce.AddDynamic(this, &AProjectileGrenade::OnBounce);
-
-	//RocketMovementComponent->OnProjectileBounce.AddDynamic(this, &AProjectileGrenade::OnBounce);
+	ProjectileMovementComponent->OnProjectileStop.AddDynamic(this, &AProjectileGrenade::AProjectileGrenade::OnProjectileGrenadeStop);
 }
 
 
@@ -76,6 +68,14 @@ void AProjectileGrenade::Tick(float DeltaTime)
 
 void AProjectileGrenade::OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity)
 {
+	AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(ImpactResult.GetActor());
+	if (OnlineShooterCharacter && OnlineShooterCharacter != GetOwner())
+	{
+		// Apply explode damage
+		ExplodeDamage();
+
+		DestroyDelay(3.f);
+	}
 	
 	UE_LOG(LogTemp, Warning, TEXT("Bounce of: %s"), *ImpactResult.GetComponent()->GetName())
 	if (BounceSound)
@@ -88,9 +88,16 @@ void AProjectileGrenade::OnBounce(const FHitResult& ImpactResult, const FVector&
 	}
 }
 
-void AProjectileGrenade::Destroyed()
+void AProjectileGrenade::OnProjectileGrenadeStop(const FHitResult& ImpactResult)
 {
+	// Apply explode damage
 	ExplodeDamage();
-	Super::Destroyed();
+	
+	DestroyDelay(3.f);
+}
+
+void AProjectileGrenade::Destroyed()
+{	
+	// We don't need to spawn an impact particles and sound from the parent class the second time, so we override this function to prevent it.
 }
 

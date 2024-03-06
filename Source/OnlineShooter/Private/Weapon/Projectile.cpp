@@ -31,7 +31,6 @@ AProjectile::AProjectile()
 	CollisionBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECR_Block);
-	
 }
 
 void AProjectile::BeginPlay()
@@ -118,15 +117,52 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 	Destroy();
 }
 
-void AProjectile::StartDestroyTimer()
+void AProjectile::DestroyDelay(float Delay)
+{
+	// Launch Destroy timer
+	StartDestroyTimer(Delay);
+
+	// Show particles
+	if(ImpactParticles)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, GetActorTransform());
+	}
+
+	// Play impact sound
+	if(ImpactSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
+	}
+
+	// Hide mesh to imitate object destruction
+	if(ProjectileMesh)
+	{
+		ProjectileMesh->SetVisibility(false);
+	}
+
+	// Deactivate smoke trail particle
+	if (TrailSystemComponent)
+	{
+		TrailSystemComponent->Deactivate();
+	}
+		
+	// Deactivate collision to prevent another rocket explosion if some actor hit it  
+	if(CollisionBox)
+	{
+		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+}
+
+void AProjectile::StartDestroyTimer(float TimerDelay)
 {
 	GetWorldTimerManager().SetTimer(
 		DestroyTimer,
 		this,
 		&AProjectile::DestroyTimerFinished,
-		DestroyTime
+		TimerDelay
 		);
 }
+
 void AProjectile::DestroyTimerFinished()
 {
 	Destroy();

@@ -98,7 +98,7 @@ void AProjectileRocket::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 	ExplodeDamage();
 
 	// Launch Destroy timer
-	StartDestroyTimer();
+	StartDestroyTimer(3.f);
 
 	// Show particles
 	if(ImpactParticles)

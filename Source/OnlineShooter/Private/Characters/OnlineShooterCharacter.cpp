@@ -940,8 +940,6 @@ void AOnlineShooterCharacter::SimProxiesTurn()
 // Fire
 void AOnlineShooterCharacter::FireButtonPressed()
 {
-	UE_LOG(LogTemp,Warning,TEXT("AOnlineShooterCharacter::FireButtonPressed("))
-	
 	if (bDisableGameplay) return;
 	if(Combat && Combat->EquippedWeapon)
 	{

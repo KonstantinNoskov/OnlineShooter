@@ -35,7 +35,7 @@ protected:
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
 private:
-
+	
 	UPROPERTY(EditAnywhere, Category = "Projectile")
 	bool bDebug = false;
 	
@@ -48,11 +48,11 @@ private:
 	UPROPERTY()
 	FTimerHandle DestroyTimer;
 
-	UPROPERTY(EditAnywhere, Category = "Projectile")
-	float DestroyTime = 3.f;
-
 protected:
 
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+	float DestroyTime = 3.f;
+	
 	UPROPERTY(EditAnywhere, Category = "Explosion Damage")
 	float ExplosionMinDamage = 10.f;
 
@@ -83,7 +83,6 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* ProjectileMesh;
 
-
 public:
 	
 	UPROPERTY(VisibleAnywhere, Category = "Projectile")
@@ -92,7 +91,10 @@ public:
 protected:
 
 	UFUNCTION()
-	void StartDestroyTimer();
+	void DestroyDelay(float Delay);
+
+	UFUNCTION()
+	void StartDestroyTimer(float TimerDelay);
 	
 	UFUNCTION()
 	void DestroyTimerFinished();
@@ -102,5 +104,7 @@ protected:
 
 	UFUNCTION()
 	void ExplodeDamage();
+
+	
 	
 };

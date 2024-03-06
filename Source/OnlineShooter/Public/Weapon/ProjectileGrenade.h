@@ -15,6 +15,7 @@ public:
 	
 	AProjectileGrenade();
 	virtual void Tick(float DeltaTime) override;
+	
 	virtual void Destroyed() override;
 	
 	void OnInitialSpeedEdit(const FPropertyChangedEvent& PropertyChangedEventGrenade);
@@ -32,12 +33,10 @@ protected:
 		
 private:
 	
-	UPROPERTY(VisibleAnywhere)
-	URocketMovementComponent* RocketMovementComponent;
-	
 	UPROPERTY(EditAnywhere)
 	USoundCue* BounceSound;
 	
-	
+	UFUNCTION()
+	void OnProjectileGrenadeStop(const FHitResult& ImpactResult);
 };
 

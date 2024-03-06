@@ -24,4 +24,5 @@ protected:
 		float& SubTickTimeRemaining) override;
 	
 	virtual void HandleImpact(const FHitResult& Hit, float TimeSlice, const FVector& MoveDelta) override;
+	
 };

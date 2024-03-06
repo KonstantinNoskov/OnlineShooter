@@ -32,4 +32,3 @@ void URocketMovementComponent::HandleImpact(const FHitResult& Hit, float TimeSli
 
 	// Rockets should not stop; only explode when their CollisionBox detects a hit
 }
-
