@@ -766,7 +766,7 @@ void UCombatComponent::ThrowGrenade()
 	// Check for ability to throw grenade
 	bool bNotAbleToThrow =
 		CombatState != ECombatState::ECS_Unoccupied ||
-		//!EquippedWeapon ||
+		!EquippedWeapon ||
 		!Grenades ||
 		Character->IsEliminated();
 	
