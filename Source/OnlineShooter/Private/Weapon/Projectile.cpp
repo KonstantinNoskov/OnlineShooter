@@ -118,7 +118,7 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 	Destroy();
 }
 
-void AProjectile::DestroyDelay(float Delay)
+void AProjectile::DestroyDelay(float Delay) 
 {
 	// Launch Destroy timer
 	StartDestroyTimer(Delay);

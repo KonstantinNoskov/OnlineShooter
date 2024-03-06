@@ -37,6 +37,6 @@ protected:
 private:
 	
 	UFUNCTION()
-	void OnProjectileGrenadeStop(const FHitResult& ImpactResult);
+	virtual  void OnProjectileGrenadeStop(const FHitResult& ImpactResult);
 };
 

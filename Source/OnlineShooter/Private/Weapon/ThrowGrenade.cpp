@@ -1,11 +1,16 @@
 ﻿#include "Weapon/ThrowGrenade.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
 
 AThrowGrenade::AThrowGrenade()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	ThrowGrenadeParticleComponent = CreateDefaultSubobject<UParticleSystemComponent>("ThrowGrenadeParticle");
+	ThrowGrenadeParticleComponent->SetupAttachment(RootComponent);
+	
 }
 
 void AThrowGrenade::BeginPlay()
@@ -37,5 +42,10 @@ void AThrowGrenade::Destroyed()
 {
 	ExplodeDamage();
 	AProjectile::Destroyed();
+}
+
+void AThrowGrenade::OnProjectileGrenadeStop(const FHitResult& ImpactResult)
+{
+	//
 }
 

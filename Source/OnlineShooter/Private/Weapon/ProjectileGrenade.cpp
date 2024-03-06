@@ -21,7 +21,6 @@ AProjectileGrenade::AProjectileGrenade()
 	ProjectileMovementComponent->InitialSpeed = InitialSpeed;
 	ProjectileMovementComponent->MaxSpeed = InitialSpeed;
 	
-	
 	ExplosionMinDamage = Damage;
 }
 
