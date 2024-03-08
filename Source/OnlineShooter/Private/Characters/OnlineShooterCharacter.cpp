@@ -557,11 +557,14 @@ void AOnlineShooterCharacter::MulticastGainedTheLead_Implementation()
 	if (!CrownSystem) return;
 	if (!CrownComponent)
 	{
+		FVector HeadLocation = GetMesh()->GetBoneLocation("head");
+		
 		CrownComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
 				CrownSystem,
 				GetCapsuleComponent(),
 				FName(),
-				GetActorLocation() + FVector(0.f,0.f, 110.f),
+				//GetActorLocation() + FVector(0.f,0.f, 110.f),
+				GetMesh()->GetBoneLocation("head") + FVector(0.f,0.f, 30.f),
 				GetActorRotation(),
 				EAttachLocation::KeepWorldPosition,
 				false

@@ -139,6 +139,61 @@ void AOnlineShooterPlayerController::OnPossess(APawn* InPawn)
 	}
 }
 
+#pragma region GAINING THE LEAD
+
+void AOnlineShooterPlayerController::BroadcastEliminate(APlayerState* Attacker, APlayerState* Victim)
+{
+	ClientEliminateAnnouncement(Attacker, Victim);
+}
+
+void AOnlineShooterPlayerController::ClientEliminateAnnouncement_Implementation(APlayerState* Attacker,
+	APlayerState* Victim)
+{
+	APlayerState* Self = GetPlayerState<APlayerState>();
+	if (Attacker && Victim && Self)
+	{
+		OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+		if (OnlineShooterHUD)
+		{
+			// You killed someone
+			if (Attacker == Self && Victim != Self)
+			{
+				OnlineShooterHUD->AddEliminateAnnouncement("You", Victim->GetPlayerName());
+				return;
+			}
+
+			// Someone killed you
+			if (Victim == Self && Attacker != Self)
+			{
+				OnlineShooterHUD->AddEliminateAnnouncement(Attacker->GetPlayerName(), "you");
+				return;
+			}
+
+			// You killed yourself
+			if (Attacker == Victim && Attacker == Self)
+			{
+				OnlineShooterHUD->AddEliminateAnnouncement("You",  "yourself");
+				return;
+			}
+
+			// Someone killed themselves
+			if (Attacker == Victim && Attacker != Self)
+			{
+				OnlineShooterHUD->AddEliminateAnnouncement(Attacker->GetPlayerName(),  "themselves");
+				return;
+			}
+
+			// Someone killed someone else
+			OnlineShooterHUD->AddEliminateAnnouncement(Attacker->GetPlayerName(),  Victim->GetPlayerName());
+		}
+	}
+}
+
+#pragma endregion
+
+
+
+
 // Set Character Overlay
 void AOnlineShooterPlayerController::SetHUDHealth(float Health, float MaxHealth)
 {

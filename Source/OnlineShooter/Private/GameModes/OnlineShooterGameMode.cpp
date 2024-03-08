@@ -135,6 +135,15 @@ void AOnlineShooterGameMode::PlayerEliminated(AOnlineShooterCharacter* ElimedCha
 	{
 		ElimedCharacter->Eliminated(false);
 	}
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		AOnlineShooterPlayerController* OnlineShooterPlayer = Cast<AOnlineShooterPlayerController>(*It);
+		if (OnlineShooterPlayer && AttackerPlayerState && VictimPlayerState)
+		{
+			OnlineShooterPlayer->BroadcastEliminate(AttackerPlayerState, VictimPlayerState);
+		}
+	}
 }
 
 void AOnlineShooterGameMode::RequestRespawn(ACharacter* EliminatedCharacter, AController* EliminatedController)

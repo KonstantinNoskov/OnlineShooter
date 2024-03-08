@@ -93,6 +93,22 @@ void AOnlineShooterHUD::AddSniperScope()
 	}
 }
 
+void AOnlineShooterHUD::AddEliminateAnnouncement(FString Attacker, FString Victim)
+{
+	OwningPlayer = !OwningPlayer ? GetOwningPlayerController() : OwningPlayer;
+	if (OwningPlayer && EliminateAnnouncementClass)
+	{
+		EliminateAnnouncement = CreateWidget<UEliminateAnnouncement>(OwningPlayer, EliminateAnnouncementClass);
+		if (EliminateAnnouncement)
+		{
+			EliminateAnnouncement->SetEliminateAnnouncementText(Attacker, Victim);
+
+			EliminateAnnouncement->AddToViewport();
+		}
+		
+	}
+}
+
 void AOnlineShooterHUD::DrawCrosshair(UTexture2D* Texture, FVector2D ViewportCenter, FVector2d Spread, FLinearColor CrosshairColor)
 {
 	const float TextureWidth = Texture->GetSizeX();
