@@ -16,6 +16,8 @@
 
 #include "OnlineShooterCharacter.generated.h"
 
+class UNiagaraComponent;
+class UNiagaraSystem;
 class ULagCompensationComponent;
 class UBoxComponent;
 class UBuffComponent;
@@ -416,7 +418,6 @@ private:
 
 #pragma endregion
 
-
 #pragma region LEAVING SESSION
 
 private:
@@ -428,6 +429,29 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerLeaveGame();
 
+
+#pragma endregion
+
+
+#pragma region GAINING THE LEAD
+
+private:
+	
+	UPROPERTY(EditAnywhere)
+	UNiagaraSystem* CrownSystem;
+
+	UPROPERTY()
+	UNiagaraComponent* CrownComponent;
+
+public:
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastGainedTheLead();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastLostTheLead();
+
+	FORCEINLINE UNiagaraComponent* GetCrownComponent() const { return CrownComponent; }
 
 #pragma endregion
 

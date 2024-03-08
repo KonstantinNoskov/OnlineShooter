@@ -15,6 +15,7 @@ void AOnlineShooterGameState::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 
 void AOnlineShooterGameState::UpdateTopScore(AOnlineShooterPlayerState* ScoringPlayer)
 {
+	
 	if(!TopScoringPlayers.Num())
 	{
 		TopScoringPlayers.Add(ScoringPlayer);

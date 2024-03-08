@@ -1,11 +1,10 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "PlayerStates/OnlineShooterPlayerState.h"
+﻿#include "PlayerStates/OnlineShooterPlayerState.h"
 
 #include "Characters/OnlineShooterCharacter.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "PlayerController/OnlineShooterPlayerController.h"
+#include "Sound/SoundCue.h"
 
 
 void AOnlineShooterPlayerState::BeginPlay()
@@ -70,6 +69,21 @@ void AOnlineShooterPlayerState::SetAttackerName(FString Name)
 {
 	Multicast_SetAttackerName(Name);
 }
+
+void AOnlineShooterPlayerState::MulticastPlayGainLeadAnnounce_Implementation()
+{
+	if (!GainLeadAnnounce) return;
+	
+	UGameplayStatics::PlaySound2D(this, GainLeadAnnounce);
+}
+
+void AOnlineShooterPlayerState::MulticastPlayLostLeadAnnounce_Implementation()
+{
+	if (!LostLeadAnnounce) return;
+	
+	UGameplayStatics::PlaySound2D(this, LostLeadAnnounce);
+}
+
 
 #pragma region REPLICATION
 

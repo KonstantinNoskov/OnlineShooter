@@ -5,6 +5,7 @@
 #include "OnlineShooterPlayerState.generated.h"
 
 
+class USoundCue;
 class AOnlineShooterPlayerController;
 class AOnlineShooterCharacter;
 
@@ -49,4 +50,28 @@ private:
 
 	UPROPERTY()
 	FString KilledBy;
+
+
+#pragma region GAINING THE LEAD
+
+private:
+	
+	UPROPERTY(EditAnywhere)
+	USoundCue* GainLeadAnnounce;
+
+	UPROPERTY(EditAnywhere)
+	USoundCue* LostLeadAnnounce;
+
+public:
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPlayGainLeadAnnounce();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPlayLostLeadAnnounce();
+
+
+#pragma endregion
+
+	
 };
