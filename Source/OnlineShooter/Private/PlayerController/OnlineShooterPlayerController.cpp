@@ -36,6 +36,7 @@ void AOnlineShooterPlayerController::BeginPlay()
 		Subsystem->AddMappingContext(ControllerMappingContext, 1);
 	}
 }
+
 void AOnlineShooterPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -64,6 +65,7 @@ void AOnlineShooterPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(MenuAction, ETriggerEvent::Started, this, &AOnlineShooterPlayerController::ShowReturnToMainMenu);
 	}
 }
+
 void AOnlineShooterPlayerController::ShowReturnToMainMenu()
 {
 	// Menu subclass valid check
@@ -190,8 +192,6 @@ void AOnlineShooterPlayerController::ClientEliminateAnnouncement_Implementation(
 }
 
 #pragma endregion
-
-
 
 
 // Set Character Overlay

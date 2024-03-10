@@ -2,6 +2,9 @@
 #include "HUD/OnlineShooterHUD.h"
 
 #include "Blueprint/UserWidget.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/CanvasPanelSlot.h"
+#include "Components/HorizontalBox.h"
 #include "Components/Image.h"
 #include "HUD/Announcement.h"
 #include "HUD/CharacterOverlay.h"
@@ -98,14 +101,49 @@ void AOnlineShooterHUD::AddEliminateAnnouncement(FString Attacker, FString Victi
 	OwningPlayer = !OwningPlayer ? GetOwningPlayerController() : OwningPlayer;
 	if (OwningPlayer && EliminateAnnouncementClass)
 	{
-		EliminateAnnouncement = CreateWidget<UEliminateAnnouncement>(OwningPlayer, EliminateAnnouncementClass);
-		if (EliminateAnnouncement)
+		EliminateAnnouncementWidget = CreateWidget<UEliminateAnnouncement>(OwningPlayer, EliminateAnnouncementClass);
+		if (EliminateAnnouncementWidget)
 		{
-			EliminateAnnouncement->SetEliminateAnnouncementText(Attacker, Victim);
+			EliminateAnnouncementWidget->SetEliminateAnnouncementText(Attacker, Victim);
+			EliminateAnnouncementWidget->AddToViewport();
 
-			EliminateAnnouncement->AddToViewport();
+			for (UEliminateAnnouncement* Message : EliminateMessages)
+			{
+				if (Message && Message->AnnouncementBox)
+				{
+					UCanvasPanelSlot* CanvasSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(Message->AnnouncementBox);
+					if (CanvasSlot)
+					{
+						FVector2D Position = CanvasSlot->GetPosition();
+						FVector2D NewPosition(CanvasSlot->GetPosition().X, Position.Y + CanvasSlot->GetSize().Y);
+
+						CanvasSlot->SetPosition(NewPosition);
+					}
+				}
+			}
+
+			
+			EliminateMessages.Add(EliminateAnnouncementWidget);
+			
+			FTimerHandle EliminateMessageTimer;
+			FTimerDelegate EliminateMessageDelegate;
+
+			EliminateMessageDelegate.BindUFunction(this, FName("EliminateAnnounceTimerFinished"), EliminateAnnouncementWidget);
+			GetWorldTimerManager().SetTimer(
+				EliminateMessageTimer,
+				EliminateMessageDelegate,
+				EliminateAnnouncementTime,
+				false
+				);
 		}
-		
+	}
+}
+
+void AOnlineShooterHUD::EliminateAnnounceTimerFinished(UEliminateAnnouncement* MessageToRemove)
+{
+	if (MessageToRemove)
+	{
+		MessageToRemove->RemoveFromParent();
 	}
 }
 

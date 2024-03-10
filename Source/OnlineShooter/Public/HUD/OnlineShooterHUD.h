@@ -70,7 +70,7 @@ public:
 
 	UPROPERTY()
 	USniperScopeWidget* SniperScope;
-
+	
 	UFUNCTION()
 	void DrawCrosshair(UTexture2D* Texture, FVector2D ViewportCenter, FVector2D Spread, FLinearColor CrosshairColor = FLinearColor::White);
 
@@ -83,6 +83,8 @@ public:
 	UFUNCTION()
 	void AddSniperScope();
 
+	
+
 
 #pragma region ELIMINATE ANNOUNCE
 
@@ -90,14 +92,26 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "Widgets")
 	TSubclassOf<UEliminateAnnouncement> EliminateAnnouncementClass;
-	
-	UEliminateAnnouncement* EliminateAnnouncement;
+
+	UPROPERTY()
+	UEliminateAnnouncement* EliminateAnnouncementWidget;
 
 public:
+
+	UPROPERTY(EditAnywhere)
+	float EliminateAnnouncementTime = 2.5f;
+
+	UPROPERTY()
+	TArray<UEliminateAnnouncement*> EliminateMessages;
 	
 	UFUNCTION()
 	void AddEliminateAnnouncement(FString Attacker, FString Victim);
+
+	UFUNCTION()
+	void EliminateAnnounceTimerFinished(UEliminateAnnouncement* MessageToRemove);
+
 	
+
 #pragma endregion
 	
 public:
