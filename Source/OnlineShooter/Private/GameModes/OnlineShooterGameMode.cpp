@@ -3,6 +3,7 @@
 #include "Characters/OnlineShooterCharacter.h"
 
 // Add libs
+#include "NiagaraComponent.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameStates/OnlineShooterGameState.h"
 #include "Kismet/GameplayStatics.h"
@@ -61,7 +62,6 @@ void AOnlineShooterGameMode::Tick(float DeltaSeconds)
 	}
 }
 
-
 void AOnlineShooterGameMode::OnMatchStateSet()
 {
 	Super::OnMatchStateSet();
@@ -85,23 +85,67 @@ void AOnlineShooterGameMode::PlayerEliminated(AOnlineShooterCharacter* ElimedCha
 
 	AOnlineShooterGameState* OnlineShooterGameState = GetGameState<AOnlineShooterGameState>();
 	
+	// If player get a kill - add 1 frag to his score & update top score
+	// Activate leading crown effect if Attacker gained the lead and deactivate effect for those who lost one
 	if(AttackerPlayerState && AttackerPlayerState != VictimPlayerState && OnlineShooterGameState)
 	{
-		AttackerPlayerState->AddToScore(1.f);
 
+		// Store currently leading players
+		TArray<AOnlineShooterPlayerState*> PlayersCurrentlyInTheLead;
+		for (auto LeadPlayer : OnlineShooterGameState->TopScoringPlayers)
+		{
+			PlayersCurrentlyInTheLead.Add(LeadPlayer);
+		}	
+		
+		AttackerPlayerState->AddToScore(1.f);
 		OnlineShooterGameState->UpdateTopScore(AttackerPlayerState);
+		
+		// Looking for those player's who gained the lead
+		if (OnlineShooterGameState->TopScoringPlayers.Contains(AttackerPlayerState))
+		{
+			AOnlineShooterCharacter* Leader = Cast<AOnlineShooterCharacter>(AttackerPlayerState->GetPawn());
+			if (Leader)
+			{
+				Leader->MulticastGainedTheLead();
+			}
+		}
+
+		// Looking for those player's whom lost the lead
+		for (int32 i = 0; i < PlayersCurrentlyInTheLead.Num(); i++)
+		{
+			if (!OnlineShooterGameState->TopScoringPlayers.Contains(PlayersCurrentlyInTheLead[i]))
+			{
+			 	AOnlineShooterCharacter* Loser = Cast<AOnlineShooterCharacter>(PlayersCurrentlyInTheLead[i]->GetPawn());
+			    if (Loser)
+			    {
+				    Loser->MulticastLostTheLead();
+			    }
+			}
+		}
 	}
 
+	// At the same time increment VictimPlayer defeat count
 	if(VictimPlayerState)
 	{
 		VictimPlayerState->AddToDefeats(1);
 	}
-	
+
+	// Activate eliminate logic on VictimPlayer
 	if (ElimedCharacter)
 	{
 		ElimedCharacter->Eliminated(false);
 	}
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		AOnlineShooterPlayerController* OnlineShooterPlayer = Cast<AOnlineShooterPlayerController>(*It);
+		if (OnlineShooterPlayer && AttackerPlayerState && VictimPlayerState)
+		{
+			OnlineShooterPlayer->BroadcastEliminate(AttackerPlayerState, VictimPlayerState);
+		}
+	}
 }
+
 void AOnlineShooterGameMode::RequestRespawn(ACharacter* EliminatedCharacter, AController* EliminatedController)
 {
 	if(EliminatedCharacter)
@@ -142,7 +186,6 @@ void AOnlineShooterGameMode::PlayerLeftGame(AOnlineShooterPlayerState* PlayerLea
 }
 
 #pragma endregion
-
 
 AActor* AOnlineShooterGameMode::GetRespawnPoint()
 {	

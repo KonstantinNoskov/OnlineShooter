@@ -1,11 +1,11 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "EliminateAnnouncement.h"
 #include "GameFramework/HUD.h"
 #include "OnlineShooterHUD.generated.h"
 
+class AOnlineShooterPlayerController;
 class USniperScopeWidget;
 class UAnnouncement;
 class UCharacterOverlay;
@@ -26,9 +26,7 @@ struct FHUDPackage
 	
 };
 
-/**
- * 
- */
+
 UCLASS()
 class ONLINESHOOTER_API AOnlineShooterHUD : public AHUD
 {
@@ -41,6 +39,9 @@ public:
 private:
 
 	UPROPERTY()
+	APlayerController* OwningPlayer;
+	
+	UPROPERTY()
 	FHUDPackage HUDPackage;
 	
 	UPROPERTY(EditAnywhere)
@@ -52,24 +53,24 @@ protected:
 
 public:
 
-	UPROPERTY(EditAnywhere, Category = "Player Stats")
+	UPROPERTY(EditAnywhere, Category = "Widgets")
 	TSubclassOf<UUserWidget> CharacterOverlayClass;
 	
 	UPROPERTY()
 	UCharacterOverlay* CharacterOverlay;
 	
-	UPROPERTY(EditAnywhere, Category = "Announcements")
+	UPROPERTY(EditAnywhere, Category = "Widgets")
 	TSubclassOf<UUserWidget> AnnouncementClass;
 
 	UPROPERTY()
 	UAnnouncement* Announcement;
 
-	UPROPERTY(EditAnywhere, Category = "SniperScope")
+	UPROPERTY(EditAnywhere, Category = "Widgets")
 	TSubclassOf<UUserWidget> SniperScopeClass;
 
 	UPROPERTY()
 	USniperScopeWidget* SniperScope;
-
+	
 	UFUNCTION()
 	void DrawCrosshair(UTexture2D* Texture, FVector2D ViewportCenter, FVector2D Spread, FLinearColor CrosshairColor = FLinearColor::White);
 
@@ -81,7 +82,38 @@ public:
 
 	UFUNCTION()
 	void AddSniperScope();
+
+	
+
+
+#pragma region ELIMINATE ANNOUNCE
+
+private:
+	
+	UPROPERTY(EditAnywhere, Category = "Widgets")
+	TSubclassOf<UEliminateAnnouncement> EliminateAnnouncementClass;
+
+	UPROPERTY()
+	UEliminateAnnouncement* EliminateAnnouncementWidget;
+
+public:
+
+	UPROPERTY(EditAnywhere)
+	float EliminateAnnouncementTime = 2.5f;
+
+	UPROPERTY()
+	TArray<UEliminateAnnouncement*> EliminateMessages;
+	
+	UFUNCTION()
+	void AddEliminateAnnouncement(FString Attacker, FString Victim);
+
+	UFUNCTION()
+	void EliminateAnnounceTimerFinished(UEliminateAnnouncement* MessageToRemove);
+
+	
+
+#pragma endregion
 	
 public:
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package) { HUDPackage = Package; }
-};
+}; 

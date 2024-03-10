@@ -24,7 +24,6 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void Tick(float DeltaSeconds) override;
 
-
 #pragma region INPUT
 
 protected:
@@ -197,6 +196,20 @@ public:
 	UFUNCTION(Client, Reliable)
 	void Client_JoinMidgame(FName StateOfMatch, float Warmup, float Match, float StartingTime, float Cooldown);
 
+#pragma endregion
+
+#pragma region GAINING THE LEAD
+
+public:
+
+	UFUNCTION()
+	void BroadcastEliminate(APlayerState* Attacker, APlayerState* Victim);
+
+protected:
+
+	UFUNCTION(Client, Reliable)
+	void ClientEliminateAnnouncement(APlayerState* Attacker, APlayerState* Victim);
+	
 #pragma endregion
 	
 public:

@@ -28,10 +28,13 @@
 #include "Particles/ParticleSystemComponent.h"
 
 // GameModes
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Components/BoxComponent.h"
 #include "Components/BuffComponent.h"
 #include "Components/LagCompensationComponent.h"
 #include "GameModes/OnlineShooterGameMode.h"
+#include "GameStates/OnlineShooterGameState.h"
 #include "PlayerStates/OnlineShooterPlayerState.h"
 
 // Constructor
@@ -287,7 +290,6 @@ void AOnlineShooterCharacter::BeginPlay()
 	{
 		AttachedGrenade->SetVisibility(false);
 	}
-	
 }
 
 // Tick
@@ -338,6 +340,12 @@ void AOnlineShooterCharacter::PollInit()
 		{
 			OnlineShooterPlayerState->AddToScore(0.f);
 			OnlineShooterPlayerState->AddToDefeats(0);
+			
+			AOnlineShooterGameState* OnlineShooterGameState = Cast<AOnlineShooterGameState>(UGameplayStatics::GetGameState(this));
+			if (OnlineShooterGameState && OnlineShooterGameState->TopScoringPlayers.Contains(OnlineShooterPlayerState))
+			{
+				MulticastGainedTheLead();
+			}
 		}
 	}
 }
@@ -541,6 +549,44 @@ void AOnlineShooterCharacter::OnRep_Shield(float LastShield)
 	}
 }
 
+
+#pragma region GAINING THE LEAD
+
+void AOnlineShooterCharacter::MulticastGainedTheLead_Implementation()
+{
+	if (!CrownSystem) return;
+	if (!CrownComponent)
+	{
+		FVector HeadLocation = GetMesh()->GetBoneLocation("head");
+		
+		CrownComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+				CrownSystem,
+				GetCapsuleComponent(),
+				FName(),
+				//GetActorLocation() + FVector(0.f,0.f, 110.f),
+				GetMesh()->GetBoneLocation("head") + FVector(0.f,0.f, 30.f),
+				GetActorRotation(),
+				EAttachLocation::KeepWorldPosition,
+				false
+			);
+	}
+
+	if (CrownComponent)
+	{
+		CrownComponent->Activate();
+	}
+}
+
+void AOnlineShooterCharacter::MulticastLostTheLead_Implementation()
+{
+	if (CrownComponent)
+	{
+		CrownComponent->DestroyComponent();
+	}
+}
+
+#pragma endregion
+
 void AOnlineShooterCharacter::UpdateHUDHealth()
 {
 	OnlineShooterPlayerController = !OnlineShooterPlayerController ? Cast<AOnlineShooterPlayerController>(Controller) : OnlineShooterPlayerController;
@@ -725,6 +771,11 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation(bool bPlayerLe
 		ShowSniperScopeWidget(false);
 	}
 
+	if (CrownComponent)
+	{
+		CrownComponent->DestroyComponent();
+	}
+	
 	GetWorldTimerManager().SetTimer(EliminatedTimer, this, &AOnlineShooterCharacter::EliminatedTimerFinished, EliminatedDelay);
 }
 void AOnlineShooterCharacter::DropOrDestroyWeapons()
