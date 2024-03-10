@@ -126,6 +126,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float CritFactor = 2.f;
 
+	UPROPERTY()
+	float CritDamage = Damage * CritFactor;
+
 	UPROPERTY(Replicated, EditAnywhere)
 	bool bUseServerSideRewind = false;
 

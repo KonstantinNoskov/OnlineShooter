@@ -38,27 +38,45 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
 		const FVector Start = SocketTransform.GetLocation();
 
-		// The map stores all character's that were hit as a key and amount of hits as a value 
-		TMap<AOnlineShooterCharacter*, uint32> HitMap;
+		// Body HitMap will keep track about all body hits
+		TMap<AOnlineShooterCharacter*, uint32> BodyHitMap;
+
+		// Headshot HitMap will keep track about all headshot hits
+		TMap<AOnlineShooterCharacter*, uint32> HeadshotHitMap;
+
+		// DamageMap will accumulate all damage from body and head combined
+		TMap<AOnlineShooterCharacter*, float> DamageMap;
+
+		// Stores pointer to all Hit characters (Used for Server-Side Rewind logic ONLY)
+		TArray<AOnlineShooterCharacter*> HitCharacters;
+
+		
 		for (FVector_NetQuantize HitTarget : HitTargets)
 		{
 			FHitResult FireHit;
 			WeaponTraceHit(Start, HitTarget, FireHit);
 
-			// check if hit actor and Instigator controller is valid; also do server check 
+			// check if hit actor is valid
 			AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(FireHit.GetActor());
 			if (OnlineShooterCharacter)
 			{
-				if (HitMap.Contains(OnlineShooterCharacter))
+				
+				// Fill the Headshot HitMap
+				const bool bHeadshot = FireHit.BoneName.ToString() == FString("head");
+				if (bHeadshot)
 				{
-					HitMap[OnlineShooterCharacter]++;
+					if (HeadshotHitMap.Contains(OnlineShooterCharacter)) HeadshotHitMap[OnlineShooterCharacter]++;
+					else HeadshotHitMap.Emplace(OnlineShooterCharacter, 1);	
 				}
 
 				else
 				{
-					HitMap.Emplace(OnlineShooterCharacter, 1);
+					// Fill the Body HitMap
+					if (BodyHitMap.Contains(OnlineShooterCharacter)) BodyHitMap[OnlineShooterCharacter]++;
+					else BodyHitMap.Emplace(OnlineShooterCharacter, 1);	
 				}
-
+				
+				
 				// Play impact particles at the impact point
 				if(ImpactParticles)
 				{
@@ -83,30 +101,50 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 				}
 			}
 		}
-
-		TArray<AOnlineShooterCharacter*> HitCharacters;
 		
-		for (auto HitPair : HitMap)
+		// Accumulate body damage by multiplying times Hit x Damage - store in DamageMap
+		for (auto BodyHitPair : BodyHitMap)
 		{
-			// check if hit actor and Instigator controller is valid; also do server check 
-			if(HitPair.Key && InstigatorController )
+			if(BodyHitPair.Key)
+			{
+				DamageMap.Emplace(BodyHitPair.Key, BodyHitPair.Value * Damage);
+				HitCharacters.AddUnique(BodyHitPair.Key);
+			}
+		}
+
+		// Accumulate Headshot damage by multiplying times Hit x Damage - store in DamageMap
+		for (auto HeadshotHitPair : HeadshotHitMap)
+		{
+			if(HeadshotHitPair.Key)
+			{
+				if (DamageMap.Contains(HeadshotHitPair.Key)) DamageMap[HeadshotHitPair.Key] += HeadshotHitPair.Value * CritDamage;
+				else DamageMap.Emplace(HeadshotHitPair.Key, HeadshotHitPair.Value * CritDamage);	
+				
+				HitCharacters.AddUnique(HeadshotHitPair.Key);
+			}
+		}
+
+		// Apply total damage from body and head hits combined
+		for (auto DamagePair : DamageMap)
+		{
+			if (DamagePair.Key && InstigatorController)
 			{
 				bool bCauseAuthDamage = !bUseServerSideRewind || OwnerPawn->IsLocallyControlled();
 				if (HasAuthority() && bCauseAuthDamage)
 				{
 					UGameplayStatics::ApplyDamage(
-						HitPair.Key, // Character that was hit
-						Damage * HitPair.Value, // Multiply Damage by number of times hit
+						DamagePair.Key, // Character that was hit
+						DamagePair.Value, // Apply Body and Head damage combined
 						InstigatorController,
 						this,
 						UDamageType::StaticClass()
 					);
 				}
-				
-				HitCharacters.Add(HitPair.Key);
-				}
 			}
-
+		}
+		
+		
+		// FOR SERVER-SIDE REWIND ONLY 
 		if (!HasAuthority() && bUseServerSideRewind)
 		{
 			OnlineShooterOwnerCharacter = !OnlineShooterOwnerCharacter ? Cast<AOnlineShooterCharacter>(OwnerPawn) : OnlineShooterOwnerCharacter;

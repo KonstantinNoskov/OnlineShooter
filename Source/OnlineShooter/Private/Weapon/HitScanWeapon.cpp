@@ -43,9 +43,10 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 		if(OnlineShooterCharacter && InstigatorController)
 		{
 			bool bCauseAuthDamage = !bUseServerSideRewind || OwnerPawn->IsLocallyControlled();
+
 			if (HasAuthority() && bCauseAuthDamage)
 			{
-				float DamageToCause = FireHit.BoneName.ToString() == FString("head") ? Damage * CritFactor : Damage;
+				const float DamageToCause = FireHit.BoneName.ToString() == FString("head") ? CritDamage : Damage;
 				
 				UGameplayStatics::ApplyDamage(
 				OnlineShooterCharacter,
@@ -55,7 +56,8 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 				UDamageType::StaticClass()
 				);
 			}
-
+			
+			// FOR SERVER-SIDE REWIND ONLY
 			if (!HasAuthority() && bUseServerSideRewind)
 			{
 				OnlineShooterOwnerCharacter = !OnlineShooterOwnerCharacter ? Cast<AOnlineShooterCharacter>(OwnerPawn) : OnlineShooterOwnerCharacter;
