@@ -38,12 +38,4 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	USoundCue* ImpactSound;
-	
-public:
-	
-	
-	
-protected:
-	
-	
 };
