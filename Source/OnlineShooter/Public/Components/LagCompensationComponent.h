@@ -155,8 +155,7 @@ public:
 		AOnlineShooterCharacter* HitCharacter,
 		const FVector_NetQuantize& TraceStart,
 		const FVector_NetQuantize& HitLocation,
-		float HitTime,
-		AWeapon* DamageCauser);
+		float HitTime);
 
 #pragma endregion
 #pragma region SHOTGUN
