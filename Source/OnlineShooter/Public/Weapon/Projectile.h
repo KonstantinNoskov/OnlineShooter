@@ -86,8 +86,14 @@ public:
 	UPROPERTY(EditAnywhere) 
 	UBoxComponent* CollisionBox;
 	
-	UPROPERTY(VisibleAnywhere, Category = "Projectile")
+	UPROPERTY(EditAnywhere, Category = "Projectile")
 	float Damage = 10.f;
+
+	// Multiply Damage by this value
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+	float CritFactor = 2.f;
+
+	float CritDamage = Damage * CritFactor;
 	
 protected:
 

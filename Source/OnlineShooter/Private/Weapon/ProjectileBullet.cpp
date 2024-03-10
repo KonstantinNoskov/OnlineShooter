@@ -80,12 +80,15 @@ void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 		{
 			if (OwnerCharacter->HasAuthority() && !bUserServerSideRewind)
 			{
-				UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
+				const float DamageToCause = Hit.BoneName.ToString() == FString("head") ? CritDamage : Damage;
+				
+				UGameplayStatics::ApplyDamage(OtherActor, DamageToCause, OwnerController, this, UDamageType::StaticClass());
 				Super::OnHit(HitComp, OtherActor, OtherComp, NormalImpulse, Hit);
 
 				return;
 			}
 
+			// SERVER-SIDE REWIND ONLY
 			AOnlineShooterCharacter* HitCharacter = Cast<AOnlineShooterCharacter>(OtherActor);
 			if (HitCharacter && bUserServerSideRewind && OwnerCharacter->GetLagCompensation() && OwnerCharacter->IsLocallyControlled())
 			{

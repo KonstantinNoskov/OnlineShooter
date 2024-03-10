@@ -256,6 +256,7 @@ public:
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
 	FORCEINLINE float GetDamage() const { return Damage; }
 	FORCEINLINE float GetCritFactor() const { return CritFactor; }
+	FORCEINLINE float GetCritDamage() const { return CritDamage; }
 
 #pragma endregion
 };
