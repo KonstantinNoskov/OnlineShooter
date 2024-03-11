@@ -17,9 +17,8 @@ class ONLINESHOOTER_API AOnlineShooterPlayerState : public APlayerState
 public:
 	
 	virtual void OnRep_Score() override;
-	virtual  void BeginPlay() override;
+	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 	
 	UFUNCTION()
 	virtual void OnRep_Defeats();

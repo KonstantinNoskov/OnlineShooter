@@ -1025,6 +1025,7 @@ void AOnlineShooterCharacter::GrenadeButtonPressed()
 	}
 }
 
+
 // Equip weapon
 void AOnlineShooterCharacter::EquipButtonPressed()
 {

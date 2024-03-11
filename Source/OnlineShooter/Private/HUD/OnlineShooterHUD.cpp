@@ -4,10 +4,12 @@
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Components/EditableTextBox.h"
 #include "Components/HorizontalBox.h"
 #include "Components/Image.h"
 #include "HUD/Announcement.h"
 #include "HUD/CharacterOverlay.h"
+#include "HUD/Chat.h"
 #include "HUD/SniperScopeWidget.h"
 
 void AOnlineShooterHUD::DrawHUD()
@@ -70,6 +72,7 @@ void AOnlineShooterHUD::AddCharacterOverlay()
 	}
 }
 
+// Announcement
 void AOnlineShooterHUD::AddAnnouncement()
 {
 	APlayerController* PlayerController = GetOwningPlayerController();
@@ -80,6 +83,7 @@ void AOnlineShooterHUD::AddAnnouncement()
 		Announcement->AddToViewport();
 	}
 }
+
 void AOnlineShooterHUD::AddSniperScope()
 {
 	APlayerController* PlayerController = GetOwningPlayerController();
@@ -96,6 +100,43 @@ void AOnlineShooterHUD::AddSniperScope()
 	}
 }
 
+// CHAT
+void AOnlineShooterHUD::AddChat()
+{
+	OwningPlayer = !OwningPlayer ? GetOwningPlayerController() : OwningPlayer;
+	if (OwningPlayer && ChatClass)
+	{
+		if (!ChatWidget)
+		{
+			ChatWidget = CreateWidget<UChat>(OwningPlayer, ChatClass);
+
+			if (ChatWidget)
+			{
+				ChatWidget->ChatSetup();
+				ChatWidget->AddToViewport();
+				ChatWidget->InputText->SetFocus();
+
+				
+			}
+		}
+	}
+}
+
+void AOnlineShooterHUD::RemoveChat()
+{
+	OwningPlayer = !OwningPlayer ? GetOwningPlayerController() : OwningPlayer;
+	if (OwningPlayer && ChatClass)
+	{
+		if (ChatWidget)
+		{
+			ChatWidget->ChatTearDown();
+			ChatWidget = nullptr;
+		}
+	}
+}
+
+
+// Elim Announcement
 void AOnlineShooterHUD::AddEliminateAnnouncement(FString Attacker, FString Victim)
 {
 	OwningPlayer = !OwningPlayer ? GetOwningPlayerController() : OwningPlayer;
@@ -138,7 +179,6 @@ void AOnlineShooterHUD::AddEliminateAnnouncement(FString Attacker, FString Victi
 		}
 	}
 }
-
 void AOnlineShooterHUD::EliminateAnnounceTimerFinished(UEliminateAnnouncement* MessageToRemove)
 {
 	if (MessageToRemove)
@@ -147,6 +187,8 @@ void AOnlineShooterHUD::EliminateAnnounceTimerFinished(UEliminateAnnouncement* M
 	}
 }
 
+
+// Crosshair
 void AOnlineShooterHUD::DrawCrosshair(UTexture2D* Texture, FVector2D ViewportCenter, FVector2d Spread, FLinearColor CrosshairColor)
 {
 	const float TextureWidth = Texture->GetSizeX();

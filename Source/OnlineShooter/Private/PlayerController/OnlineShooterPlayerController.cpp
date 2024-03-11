@@ -16,6 +16,7 @@
 #include "Components/Image.h"
 #include "HUD/Announcement.h"
 #include "HUD/CharacterOverlay.h"
+#include "HUD/Chat.h"
 #include "HUD/OnlineShooterHUD.h"
 #include "HUD/ReturnToMainMenu.h"
 #include "HUD/SniperScopeWidget.h"
@@ -62,9 +63,35 @@ void AOnlineShooterPlayerController::SetupInputComponent()
 	
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
 	{
+		// Toggle In-Game Menu
 		EnhancedInputComponent->BindAction(MenuAction, ETriggerEvent::Started, this, &AOnlineShooterPlayerController::ShowReturnToMainMenu);
+
+		// Toggle Chat
+		EnhancedInputComponent->BindAction(ToggleChatAction, ETriggerEvent::Started, this, &AOnlineShooterPlayerController::ToggleChat);
 	}
 }
+
+#pragma region CHAT
+
+void AOnlineShooterPlayerController::ToggleChat()
+{
+	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+	if (OnlineShooterHUD)
+	{
+		if (!OnlineShooterHUD->ChatWidget)
+		{
+			OnlineShooterHUD->AddChat();	
+		}
+
+		else
+		{
+			OnlineShooterHUD->RemoveChat();
+		}
+	}
+}
+
+#pragma endregion
+
 
 void AOnlineShooterPlayerController::ShowReturnToMainMenu()
 {
@@ -83,13 +110,13 @@ void AOnlineShooterPlayerController::ShowReturnToMainMenu()
 		// Toggle Menu Open/Close flag 
 		bReturnToMainMenuOpen = !bReturnToMainMenuOpen;
 
-		// Menu is open
+		// Open Menu
 		if (bReturnToMainMenuOpen)
 		{
 			ReturnToMainMenu->MenuSetup();
 		}
 
-		// Menu is closed
+		// Close Menu
 		else
 		{
 			ReturnToMainMenu->MenuTearDown();

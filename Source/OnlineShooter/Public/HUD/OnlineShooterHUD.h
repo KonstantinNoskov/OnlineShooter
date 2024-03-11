@@ -5,6 +5,7 @@
 #include "GameFramework/HUD.h"
 #include "OnlineShooterHUD.generated.h"
 
+class UChat;
 class AOnlineShooterPlayerController;
 class USniperScopeWidget;
 class UAnnouncement;
@@ -37,7 +38,7 @@ public:
 	virtual void DrawHUD() override;
 
 private:
-
+	
 	UPROPERTY()
 	APlayerController* OwningPlayer;
 	
@@ -83,8 +84,28 @@ public:
 	UFUNCTION()
 	void AddSniperScope();
 
-	
 
+#pragma region CHAT
+
+private:
+
+	UPROPERTY(EditAnywhere, Category = "Widgets")
+	TSubclassOf<UChat> ChatClass;
+
+public:
+
+	UPROPERTY()
+	UChat* ChatWidget;
+
+	UFUNCTION()
+	void AddChat();
+
+	UFUNCTION()
+	void RemoveChat();
+	
+#pragma endregion
+
+	
 
 #pragma region ELIMINATE ANNOUNCE
 
