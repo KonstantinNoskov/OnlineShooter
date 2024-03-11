@@ -6,7 +6,6 @@
 #include "GameFramework/PlayerController.h"
 #include "OnlineShooterPlayerController.generated.h"
 
-class UChat;
 class UReturnToMainMenu;
 class UInputAction;
 class UInputMappingContext;
@@ -40,15 +39,6 @@ public:
 	/** Toggle Menu Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MenuAction;
-
-	// Open / Close chat
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* ToggleChatAction;
-
-private:
-	
-	UFUNCTION()
-	void ToggleChat();
 	
 #pragma endregion
 
@@ -56,7 +46,6 @@ private:
 #pragma region MENU
 	
 protected:
-	
 	void ShowReturnToMainMenu();
 	
 private:
