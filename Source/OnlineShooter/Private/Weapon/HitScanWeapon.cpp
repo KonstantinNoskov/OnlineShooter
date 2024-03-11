@@ -69,7 +69,8 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 						OnlineShooterCharacter,
 						Start,
 						HitTarget,
-						OnlineShooterOwnerController->GetServerTime() - OnlineShooterOwnerController->GetSingleTripTime()
+						OnlineShooterOwnerController->GetServerTime() - OnlineShooterOwnerController->GetSingleTripTime(),
+						this
 					);
 				}
 			}
