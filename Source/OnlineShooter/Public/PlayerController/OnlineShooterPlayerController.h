@@ -39,9 +39,12 @@ public:
 	/** Toggle Menu Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MenuAction;
+
+	/** Toggle Chat Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ChatAction;
 	
 #pragma endregion
-
 
 #pragma region MENU
 	
@@ -60,6 +63,15 @@ private:
 	
 #pragma endregion
 
+#pragma region CHAT
+
+private:
+
+	UFUNCTION()
+	void ToggleChat();
+	
+#pragma endregion
+	
 protected:
 	
 	virtual void BeginPlay() override;

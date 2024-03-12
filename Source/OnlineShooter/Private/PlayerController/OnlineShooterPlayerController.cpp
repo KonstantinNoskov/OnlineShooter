@@ -62,7 +62,11 @@ void AOnlineShooterPlayerController::SetupInputComponent()
 	
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
 	{
+		// Toggle In-Game Menu
 		EnhancedInputComponent->BindAction(MenuAction, ETriggerEvent::Started, this, &AOnlineShooterPlayerController::ShowReturnToMainMenu);
+
+		// Toggle Chat
+		EnhancedInputComponent->BindAction(ChatAction, ETriggerEvent::Started, this, &AOnlineShooterPlayerController::ToggleChat);
 	}
 }
 
@@ -96,6 +100,19 @@ void AOnlineShooterPlayerController::ShowReturnToMainMenu()
 		}
 	}
 }
+
+#pragma region CHAT
+
+void AOnlineShooterPlayerController::ToggleChat()
+{
+	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+	if (OnlineShooterHUD)
+	{
+		!OnlineShooterHUD->ChatWidget ?	OnlineShooterHUD->AddChat() : OnlineShooterHUD->RemoveChat();
+	}
+}
+
+#pragma endregion
 
 void AOnlineShooterPlayerController::PollInit()
 {

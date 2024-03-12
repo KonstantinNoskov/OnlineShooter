@@ -5,6 +5,7 @@
 #include "GameFramework/HUD.h"
 #include "OnlineShooterHUD.generated.h"
 
+class UChat;
 class AOnlineShooterPlayerController;
 class USniperScopeWidget;
 class UAnnouncement;
@@ -83,9 +84,26 @@ public:
 	UFUNCTION()
 	void AddSniperScope();
 
+
+#pragma region CHAT
+
+	UPROPERTY(EditAnywhere, Category = "Widgets")
+	TSubclassOf<UUserWidget> ChatClass;
+
+	UPROPERTY()
+	UChat* ChatWidget;
+
+	UFUNCTION()
+	void AddChat();
+
+	UFUNCTION()
+	void RemoveChat();
+
+	UFUNCTION()
+	void OnInputCommitted(const FText& Text, ETextCommit::Type CommitMethod);
 	
-
-
+#pragma endregion
+	
 #pragma region ELIMINATE ANNOUNCE
 
 private:

@@ -4,10 +4,12 @@
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Components/EditableTextBox.h"
 #include "Components/HorizontalBox.h"
 #include "Components/Image.h"
 #include "HUD/Announcement.h"
 #include "HUD/CharacterOverlay.h"
+#include "HUD/Chat.h"
 #include "HUD/SniperScopeWidget.h"
 
 void AOnlineShooterHUD::DrawHUD()
@@ -96,6 +98,41 @@ void AOnlineShooterHUD::AddSniperScope()
 	}
 }
 
+#pragma region CHAT 
+
+void AOnlineShooterHUD::AddChat()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController && ChatClass)
+	{
+		if (!ChatWidget)
+		{
+			ChatWidget = CreateWidget<UChat>(PlayerController, ChatClass);
+
+			if (ChatWidget)
+			{
+				ChatWidget->ChatSetup();
+				ChatWidget->GetChatInput()->OnTextCommitted.AddDynamic(this, &AOnlineShooterHUD::OnInputCommitted);
+			}
+		}
+	}
+}
+void AOnlineShooterHUD::RemoveChat()
+{
+	if (ChatWidget)
+	{
+		ChatWidget->ChatTearDown();
+		ChatWidget = nullptr;
+	}
+}
+
+void AOnlineShooterHUD::OnInputCommitted(const FText& Text, ETextCommit::Type CommitMethod)
+{
+	
+}
+
+#pragma endregion
+
 void AOnlineShooterHUD::AddEliminateAnnouncement(FString Attacker, FString Victim)
 {
 	OwningPlayer = !OwningPlayer ? GetOwningPlayerController() : OwningPlayer;
@@ -121,12 +158,11 @@ void AOnlineShooterHUD::AddEliminateAnnouncement(FString Attacker, FString Victi
 					}
 				}
 			}
-
 			
 			EliminateMessages.Add(EliminateAnnouncementWidget);
 			
 			FTimerHandle EliminateMessageTimer;
-			FTimerDelegate EliminateMessageDelegate;
+			FTimerDelegate EliminateMessageDelegate; 
 
 			EliminateMessageDelegate.BindUFunction(this, FName("EliminateAnnounceTimerFinished"), EliminateAnnouncementWidget);
 			GetWorldTimerManager().SetTimer(
