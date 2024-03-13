@@ -94,13 +94,13 @@ public:
 	UChat* ChatWidget;
 
 	UFUNCTION()
-	void AddChat();
+	UChat* AddChat();
 
 	UFUNCTION()
 	void RemoveChat();
 
 	UFUNCTION()
-	void OnInputCommitted(const FText& Text, ETextCommit::Type CommitMethod);
+	void OnInputCommitted(const FText& InText, ETextCommit::Type CommitMethod);
 	
 #pragma endregion
 	

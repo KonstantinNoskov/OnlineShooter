@@ -11,6 +11,8 @@
 #include "HUD/CharacterOverlay.h"
 #include "HUD/Chat.h"
 #include "HUD/SniperScopeWidget.h"
+#include "PlayerController/OnlineShooterPlayerController.h"
+#include "PlayerStates/OnlineShooterPlayerState.h"
 
 void AOnlineShooterHUD::DrawHUD()
 {
@@ -74,21 +76,21 @@ void AOnlineShooterHUD::AddCharacterOverlay()
 
 void AOnlineShooterHUD::AddAnnouncement()
 {
-	APlayerController* PlayerController = GetOwningPlayerController();
+	OwningPlayer = !OwningPlayer ? GetOwningPlayerController() : OwningPlayer;
 
-	if (PlayerController && AnnouncementClass)
+	if (OwningPlayer && AnnouncementClass)
 	{
-		Announcement = CreateWidget<UAnnouncement>(PlayerController, AnnouncementClass);
+		Announcement = CreateWidget<UAnnouncement>(OwningPlayer, AnnouncementClass);
 		Announcement->AddToViewport();
 	}
 }
 void AOnlineShooterHUD::AddSniperScope()
 {
-	APlayerController* PlayerController = GetOwningPlayerController();
+	OwningPlayer = !OwningPlayer ? GetOwningPlayerController() : OwningPlayer;
 
-	if (PlayerController && SniperScopeClass)
+	if (OwningPlayer && SniperScopeClass)
 	{
-		SniperScope = CreateWidget<USniperScopeWidget>(PlayerController, SniperScopeClass);
+		SniperScope = CreateWidget<USniperScopeWidget>(OwningPlayer, SniperScopeClass);
 		
 		if(SniperScope && SniperScope->ScopeOverlay && SniperScope->Background)
 		{
@@ -100,35 +102,54 @@ void AOnlineShooterHUD::AddSniperScope()
 
 #pragma region CHAT 
 
-void AOnlineShooterHUD::AddChat()
+UChat* AOnlineShooterHUD::AddChat()
 {
-	APlayerController* PlayerController = GetOwningPlayerController();
-	if (PlayerController && ChatClass)
+	OwningPlayer = !OwningPlayer ? GetOwningPlayerController() : OwningPlayer;
+	if (OwningPlayer && ChatClass)
 	{
 		if (!ChatWidget)
 		{
-			ChatWidget = CreateWidget<UChat>(PlayerController, ChatClass);
+			ChatWidget = CreateWidget<UChat>(OwningPlayer, ChatClass);
 
 			if (ChatWidget)
 			{
-				ChatWidget->ChatSetup();
+				ChatWidget->ShowChat();
 				ChatWidget->GetChatInput()->OnTextCommitted.AddDynamic(this, &AOnlineShooterHUD::OnInputCommitted);
+				return ChatWidget;
 			}
 		}
 	}
+
+	return nullptr;
 }
 void AOnlineShooterHUD::RemoveChat()
 {
 	if (ChatWidget)
 	{
 		ChatWidget->ChatTearDown();
+		ChatWidget->GetChatInput()->OnTextCommitted.RemoveDynamic(this, &AOnlineShooterHUD::OnInputCommitted);
 		ChatWidget = nullptr;
 	}
 }
 
-void AOnlineShooterHUD::OnInputCommitted(const FText& Text, ETextCommit::Type CommitMethod)
+void AOnlineShooterHUD::OnInputCommitted(const FText& InText, ETextCommit::Type CommitMethod)
 {
+	if(CommitMethod != ETextCommit::OnEnter) return;
 	
+	AOnlineShooterPlayerController* PlayerController = Cast<AOnlineShooterPlayerController>(GetOwningPlayerController());
+	if (ChatWidget && PlayerController && PlayerController->GetPlayerState<AOnlineShooterPlayerState>())
+	{
+		/*for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+		{
+			AOnlineShooterPlayerController* Player = Cast<AOnlineShooterPlayerController>(*It);
+			if (Player)
+			{
+				
+			}
+		}*/
+
+		PlayerController->BroadcastChatMessage(PlayerController->GetPlayerState<AOnlineShooterPlayerState>(), InText.ToString());	
+	}
 }
 
 #pragma endregion

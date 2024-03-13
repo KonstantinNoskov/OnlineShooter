@@ -13,9 +13,11 @@
 // HUD
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Components/EditableTextBox.h"
 #include "Components/Image.h"
 #include "HUD/Announcement.h"
 #include "HUD/CharacterOverlay.h"
+#include "HUD/Chat.h"
 #include "HUD/OnlineShooterHUD.h"
 #include "HUD/ReturnToMainMenu.h"
 #include "HUD/SniperScopeWidget.h"
@@ -108,7 +110,62 @@ void AOnlineShooterPlayerController::ToggleChat()
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
 	if (OnlineShooterHUD)
 	{
-		!OnlineShooterHUD->ChatWidget ?	OnlineShooterHUD->AddChat() : OnlineShooterHUD->RemoveChat();
+		if (!OnlineShooterHUD->ChatWidget)
+		{
+			OnlineShooterHUD->AddChat();
+			OnlineShooterHUD->ChatWidget->FocusChat(); 
+		}
+
+		else
+		{
+			OnlineShooterHUD->RemoveChat();	
+		}
+	}
+}
+
+void AOnlineShooterPlayerController::BroadcastChatMessage(APlayerState* PublisherState, FString MessageText)
+{
+	ServerChatMessage(PublisherState, MessageText);
+}
+
+void AOnlineShooterPlayerController::ServerChatMessage_Implementation(APlayerState* PublisherState,
+	const FString& MessageText)
+{	
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		AOnlineShooterPlayerController* TempPlayerController = Cast<AOnlineShooterPlayerController>(*It);
+		if (TempPlayerController)
+		{
+			TempPlayerController->MulticastChatMessage(PublisherState, MessageText);
+		}
+	}
+}
+
+
+void AOnlineShooterPlayerController::MulticastChatMessage_Implementation(APlayerState* PublisherState, const FString& MessageText)
+{
+	APlayerState* Self = GetPlayerState<APlayerState>();
+
+	if (Self)
+	{
+		OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+		if (OnlineShooterHUD)
+		{
+			OnlineShooterHUD->AddChat();
+
+			if (OnlineShooterHUD->ChatWidget)
+			{
+				if (PublisherState == Self)
+				{
+					OnlineShooterHUD->ChatWidget->SetChatScrollText("You", MessageText);
+				}
+
+				else
+				{
+					OnlineShooterHUD->ChatWidget->SetChatScrollText(PublisherState->GetPlayerName(), MessageText);
+				}
+			}
+		}
 	}
 }
 

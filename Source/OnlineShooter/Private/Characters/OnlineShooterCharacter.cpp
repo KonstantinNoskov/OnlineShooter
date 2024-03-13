@@ -329,7 +329,7 @@ void AOnlineShooterCharacter::OnRep_ReplicatedMovement()
 	TimeSinceLastMovementReplication = 0.f;
 }
 
-// 
+// Try to Initialize
 void AOnlineShooterCharacter::PollInit()
 {
 	if (!OnlineShooterPlayerState)

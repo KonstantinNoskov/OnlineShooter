@@ -65,10 +65,25 @@ private:
 
 #pragma region CHAT
 
+public:
+
+	UFUNCTION()
+	void BroadcastChatMessage(APlayerState* PublisherState, FString MessageText);
+
+protected:
+
+	UFUNCTION(Server, Reliable)
+	void ServerChatMessage(APlayerState* PublisherState, const FString& MessageText);
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastChatMessage(APlayerState* PublisherState, const FString& MessageText); 
+	
 private:
 
 	UFUNCTION()
 	void ToggleChat();
+
+	
 	
 #pragma endregion
 	

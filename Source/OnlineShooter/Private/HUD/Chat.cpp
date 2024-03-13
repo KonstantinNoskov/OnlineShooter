@@ -1,13 +1,10 @@
 ﻿#include "HUD/Chat.h"
 
 #include "Components/EditableTextBox.h"
+#include "Components/TextBlock.h"
 
-void UChat::ChatSetup()
+void UChat::FocusChat()
 {
-	AddToViewport();
-	SetVisibility(ESlateVisibility::Visible);
-	SetIsFocusable(true);
-	
 	UWorld* World = GetWorld();
 	if (World)
 	{
@@ -25,6 +22,19 @@ void UChat::ChatSetup()
 	}
 }
 
+void UChat::ShowChat()
+{
+	AddToViewport();
+	SetVisibility(ESlateVisibility::Visible);
+	SetIsFocusable(true);
+}
+
+void UChat::ChatSetup()
+{
+	ShowChat();
+	
+	FocusChat();
+}
 void UChat::ChatTearDown()
 {
 	RemoveFromParent();
@@ -39,5 +49,15 @@ void UChat::ChatTearDown()
 			PlayerController->SetInputMode(InputModeData);
 			PlayerController->SetShowMouseCursor(false);
 		}
+	}
+}
+
+
+void UChat::SetChatScrollText(FString PublisherName, FString PlayerMessage)
+{
+	FString ChatScrollText = FString::Printf(TEXT("%s: %s"), *PublisherName, *PlayerMessage);
+	if (ChatScrollTextBlock)
+	{
+		ChatScrollTextBlock->SetText(FText::FromString(ChatScrollText));
 	}
 }
