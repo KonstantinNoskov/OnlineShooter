@@ -2,9 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/EditableTextBox.h"
 #include "Chat.generated.h"
 
-
+class UVerticalBox;
+class UCanvasPanelSlot;
+class UMessage;
 class UTextBlock;
 class UEditableTextBox;
 class UScrollBox;
@@ -17,26 +20,34 @@ class ONLINESHOOTER_API UChat : public UUserWidget
 	UPROPERTY()
 	APlayerController* PlayerController;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UMessage> ChatMessageClass;
+
+	UPROPERTY()
+	bool bChatOpen;
+	
 public:
 
 	UPROPERTY(meta = (BindWidget))
 	UScrollBox* ChatScrollBox;
-
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* ChatScrollTextBlock;
+	
+	UPROPERTY()
+	UMessage* ChatMessage;
 	
 	UPROPERTY(meta = (BindWidget))
 	UEditableTextBox* ChatInput; 
 
 	UFUNCTION()
-	void SetChatScrollText(FString PublisherName, FString PlayerMessage);
+	void AddChatMessageText(FString PublisherName, FString PlayerMessage);
 
 	void FocusChat();
 	void ShowChat();
 	void ChatSetup();
+	
 	void ChatTearDown();
-	
-	FORCEINLINE UEditableTextBox* GetChatInput() const { return ChatInput; } 
 
-	
+	FORCEINLINE void ClearInput() { ChatInput->SetText(FText()); }
+	FORCEINLINE UEditableTextBox* GetChatInput() const { return ChatInput; }
+	FORCEINLINE bool IsChatOpen() const { return bChatOpen; }
+	FORCEINLINE void SetChatOpen(bool NewChatOpen) { bChatOpen = NewChatOpen; }
 };

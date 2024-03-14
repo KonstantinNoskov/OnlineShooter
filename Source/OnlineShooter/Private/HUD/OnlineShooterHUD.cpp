@@ -112,8 +112,10 @@ UChat* AOnlineShooterHUD::AddChat()
 			ChatWidget = CreateWidget<UChat>(OwningPlayer, ChatClass);
 
 			if (ChatWidget)
-			{
+			{	
 				ChatWidget->ShowChat();
+				ChatWidget->SetChatOpen(true);
+				ChatWidget->GetChatInput()->SetClearKeyboardFocusOnCommit(false);
 				ChatWidget->GetChatInput()->OnTextCommitted.AddDynamic(this, &AOnlineShooterHUD::OnInputCommitted);
 				return ChatWidget;
 			}
@@ -128,27 +130,37 @@ void AOnlineShooterHUD::RemoveChat()
 	{
 		ChatWidget->ChatTearDown();
 		ChatWidget->GetChatInput()->OnTextCommitted.RemoveDynamic(this, &AOnlineShooterHUD::OnInputCommitted);
+		ChatWidget->SetChatOpen(false);
 		ChatWidget = nullptr;
 	}
 }
 
 void AOnlineShooterHUD::OnInputCommitted(const FText& InText, ETextCommit::Type CommitMethod)
 {
-	if(CommitMethod != ETextCommit::OnEnter) return;
+	if(CommitMethod != ETextCommit::OnEnter)
+	{
+		FInputModeGameOnly InputModeData;
+		OwningPlayer->SetInputMode(InputModeData);
+		
+		ChatWidget->ClearInput();
+		ChatWidget->SetVisibility(ESlateVisibility::Hidden);
+		ChatWidget->SetChatOpen(false);
+		
+		return;;
+	};
 	
 	AOnlineShooterPlayerController* PlayerController = Cast<AOnlineShooterPlayerController>(GetOwningPlayerController());
-	if (ChatWidget && PlayerController && PlayerController->GetPlayerState<AOnlineShooterPlayerState>())
-	{
-		/*for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-		{
-			AOnlineShooterPlayerController* Player = Cast<AOnlineShooterPlayerController>(*It);
-			if (Player)
-			{
-				
-			}
-		}*/
 
-		PlayerController->BroadcastChatMessage(PlayerController->GetPlayerState<AOnlineShooterPlayerState>(), InText.ToString());	
+	bool bBroadcastValid =
+		ChatWidget		 
+		&& !InText.IsEmpty()  
+		&& PlayerController
+		&& PlayerController->GetPlayerState<AOnlineShooterPlayerState>();
+	
+	if (bBroadcastValid)
+	{
+		PlayerController->BroadcastChatMessage(PlayerController->GetPlayerState<AOnlineShooterPlayerState>(), InText.ToString());
+		ChatWidget->ClearInput();
 	}
 }
 

@@ -79,7 +79,7 @@ protected:
 	void MulticastChatMessage(APlayerState* PublisherState, const FString& MessageText); 
 	
 private:
-
+	
 	UFUNCTION()
 	void ToggleChat();
 

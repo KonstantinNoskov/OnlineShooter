@@ -143,7 +143,8 @@ void UReturnToMainMenu::OnPlayerLeftGame()
 {
 	if (MultiplayerSessionsSubsystem)
 	{
-		MultiplayerSessionsSubsystem->DestroySession(); 
+		MultiplayerSessionsSubsystem->DestroySession();
+		
 	}
 }
 

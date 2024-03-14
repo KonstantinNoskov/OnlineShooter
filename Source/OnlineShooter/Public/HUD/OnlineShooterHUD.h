@@ -5,6 +5,7 @@
 #include "GameFramework/HUD.h"
 #include "OnlineShooterHUD.generated.h"
 
+class UMessage;
 class UChat;
 class AOnlineShooterPlayerController;
 class USniperScopeWidget;
@@ -92,6 +93,8 @@ public:
 
 	UPROPERTY()
 	UChat* ChatWidget;
+
+	
 
 	UFUNCTION()
 	UChat* AddChat();

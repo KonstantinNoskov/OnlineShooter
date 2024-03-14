@@ -103,74 +103,6 @@ void AOnlineShooterPlayerController::ShowReturnToMainMenu()
 	}
 }
 
-#pragma region CHAT
-
-void AOnlineShooterPlayerController::ToggleChat()
-{
-	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
-	if (OnlineShooterHUD)
-	{
-		if (!OnlineShooterHUD->ChatWidget)
-		{
-			OnlineShooterHUD->AddChat();
-			OnlineShooterHUD->ChatWidget->FocusChat(); 
-		}
-
-		else
-		{
-			OnlineShooterHUD->RemoveChat();	
-		}
-	}
-}
-
-void AOnlineShooterPlayerController::BroadcastChatMessage(APlayerState* PublisherState, FString MessageText)
-{
-	ServerChatMessage(PublisherState, MessageText);
-}
-
-void AOnlineShooterPlayerController::ServerChatMessage_Implementation(APlayerState* PublisherState,
-	const FString& MessageText)
-{	
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-	{
-		AOnlineShooterPlayerController* TempPlayerController = Cast<AOnlineShooterPlayerController>(*It);
-		if (TempPlayerController)
-		{
-			TempPlayerController->MulticastChatMessage(PublisherState, MessageText);
-		}
-	}
-}
-
-
-void AOnlineShooterPlayerController::MulticastChatMessage_Implementation(APlayerState* PublisherState, const FString& MessageText)
-{
-	APlayerState* Self = GetPlayerState<APlayerState>();
-
-	if (Self)
-	{
-		OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
-		if (OnlineShooterHUD)
-		{
-			OnlineShooterHUD->AddChat();
-
-			if (OnlineShooterHUD->ChatWidget)
-			{
-				if (PublisherState == Self)
-				{
-					OnlineShooterHUD->ChatWidget->SetChatScrollText("You", MessageText);
-				}
-
-				else
-				{
-					OnlineShooterHUD->ChatWidget->SetChatScrollText(PublisherState->GetPlayerName(), MessageText);
-				}
-			}
-		}
-	}
-}
-
-#pragma endregion
-
 void AOnlineShooterPlayerController::PollInit()
 {
 	if(!CharacterOverlay)
@@ -214,6 +146,84 @@ void AOnlineShooterPlayerController::OnPossess(APawn* InPawn)
 		HideElimMessage();
 	}
 }
+
+#pragma region CHAT
+
+void AOnlineShooterPlayerController::ToggleChat()
+{
+	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+	if (OnlineShooterHUD)
+	{
+		if (!OnlineShooterHUD->ChatWidget)
+		{
+			OnlineShooterHUD->AddChat();
+			OnlineShooterHUD->ChatWidget->FocusChat();
+			return;
+		}	
+		
+		if (OnlineShooterHUD->ChatWidget->IsChatOpen())
+		{
+			OnlineShooterHUD->ChatWidget->SetVisibility(ESlateVisibility::Hidden);
+			OnlineShooterHUD->ChatWidget->SetChatOpen(false);
+			
+		}
+
+		else
+		{
+			OnlineShooterHUD->ChatWidget->SetVisibility(ESlateVisibility::Visible);
+			OnlineShooterHUD->ChatWidget->SetChatOpen(true);
+			OnlineShooterHUD->ChatWidget->ChatInput->SetFocus();
+		}
+	}
+}
+
+void AOnlineShooterPlayerController::BroadcastChatMessage(APlayerState* PublisherState, FString MessageText)
+{
+	ServerChatMessage(PublisherState, MessageText);
+}
+
+void AOnlineShooterPlayerController::ServerChatMessage_Implementation(APlayerState* PublisherState,
+	const FString& MessageText)
+{	
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		AOnlineShooterPlayerController* TempPlayerController = Cast<AOnlineShooterPlayerController>(*It);
+		if (TempPlayerController)
+		{
+			TempPlayerController->MulticastChatMessage(PublisherState, MessageText);
+		}
+	}
+}
+
+
+void AOnlineShooterPlayerController::MulticastChatMessage_Implementation(APlayerState* PublisherState, const FString& MessageText)
+{
+	APlayerState* Self = GetPlayerState<APlayerState>();
+
+	if (Self)
+	{
+		OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+		if (OnlineShooterHUD)
+		{
+			OnlineShooterHUD->AddChat();
+
+			if (OnlineShooterHUD->ChatWidget)
+			{
+				if (PublisherState == Self)
+				{	
+					OnlineShooterHUD->ChatWidget->AddChatMessageText("You", MessageText);
+				}
+
+				else
+				{
+					OnlineShooterHUD->ChatWidget->AddChatMessageText(PublisherState->GetPlayerName(), MessageText);
+				}
+			}
+		}
+	}
+}
+
+#pragma endregion
 
 #pragma region GAINING THE LEAD
 

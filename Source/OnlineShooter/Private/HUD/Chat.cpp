@@ -1,40 +1,29 @@
 ﻿#include "HUD/Chat.h"
 
 #include "Components/EditableTextBox.h"
+#include "Components/ScrollBox.h"
 #include "Components/TextBlock.h"
+#include "HUD/Message.h"
 
-void UChat::FocusChat()
+void UChat::ChatSetup()
 {
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		PlayerController = !PlayerController ? World->GetFirstPlayerController() : PlayerController;
-		if (PlayerController)
-		{
-			FInputModeGameAndUI InputModeData;
-			InputModeData.SetWidgetToFocus(TakeWidget());
-			
-			PlayerController->SetInputMode(InputModeData);
-			PlayerController->SetShowMouseCursor(true);
-
-			ChatInput->SetFocus();
-		}
-	}
+	ShowChat();
+	FocusChat();
+	
 }
-
-void UChat::ShowChat()
+void UChat::ShowChat() 
 {
 	AddToViewport();
 	SetVisibility(ESlateVisibility::Visible);
 	SetIsFocusable(true);
 }
-
-void UChat::ChatSetup()
+void UChat::FocusChat() 
 {
-	ShowChat();
-	
-	FocusChat();
+	ChatInput->SetFocus();
 }
+
+
+
 void UChat::ChatTearDown()
 {
 	RemoveFromParent();
@@ -52,12 +41,14 @@ void UChat::ChatTearDown()
 	}
 }
 
-
-void UChat::SetChatScrollText(FString PublisherName, FString PlayerMessage)
+void UChat::AddChatMessageText(FString PublisherName, FString PlayerMessage)
 {
-	FString ChatScrollText = FString::Printf(TEXT("%s: %s"), *PublisherName, *PlayerMessage);
-	if (ChatScrollTextBlock)
+	ChatMessage = CreateWidget<UMessage>(GetOwningPlayer(), ChatMessageClass);
+	if (ChatScrollBox && ChatMessage)
 	{
-		ChatScrollTextBlock->SetText(FText::FromString(ChatScrollText));
+		FString ChatScrollText = FString::Printf(TEXT("%s: %s"), *PublisherName, *PlayerMessage);
+		ChatMessage->MessageText->SetText(FText::FromString(ChatScrollText));
+		ChatScrollBox->AddChild(ChatMessage);
+		
 	}
 }
