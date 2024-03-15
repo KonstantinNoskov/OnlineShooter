@@ -25,7 +25,7 @@
 void AOnlineShooterPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	// Get HUD
 	OnlineShooterHUD = Cast<AOnlineShooterHUD>(GetHUD());
 	
@@ -165,7 +165,6 @@ void AOnlineShooterPlayerController::ToggleChat()
 		{
 			OnlineShooterHUD->ChatWidget->SetVisibility(ESlateVisibility::Hidden);
 			OnlineShooterHUD->ChatWidget->SetChatOpen(false);
-			
 		}
 
 		else

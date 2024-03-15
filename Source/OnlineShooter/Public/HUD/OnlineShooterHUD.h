@@ -54,7 +54,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-
+	
 	UPROPERTY(EditAnywhere, Category = "Widgets")
 	TSubclassOf<UUserWidget> CharacterOverlayClass;
 	
@@ -94,7 +94,6 @@ public:
 	UPROPERTY()
 	UChat* ChatWidget;
 
-	
 
 	UFUNCTION()
 	UChat* AddChat();
@@ -130,8 +129,6 @@ public:
 
 	UFUNCTION()
 	void EliminateAnnounceTimerFinished(UEliminateAnnouncement* MessageToRemove);
-
-	
 
 #pragma endregion
 	

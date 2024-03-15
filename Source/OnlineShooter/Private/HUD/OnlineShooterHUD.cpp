@@ -77,7 +77,7 @@ void AOnlineShooterHUD::AddCharacterOverlay()
 void AOnlineShooterHUD::AddAnnouncement()
 {
 	OwningPlayer = !OwningPlayer ? GetOwningPlayerController() : OwningPlayer;
-
+	
 	if (OwningPlayer && AnnouncementClass)
 	{
 		Announcement = CreateWidget<UAnnouncement>(OwningPlayer, AnnouncementClass);
@@ -112,11 +112,13 @@ UChat* AOnlineShooterHUD::AddChat()
 			ChatWidget = CreateWidget<UChat>(OwningPlayer, ChatClass);
 
 			if (ChatWidget)
-			{	
+			{
+				
 				ChatWidget->ShowChat();
 				ChatWidget->SetChatOpen(true);
 				ChatWidget->GetChatInput()->SetClearKeyboardFocusOnCommit(false);
 				ChatWidget->GetChatInput()->OnTextCommitted.AddDynamic(this, &AOnlineShooterHUD::OnInputCommitted);
+				
 				return ChatWidget;
 			}
 		}

@@ -9,7 +9,8 @@ void AOnlineShooterGameState::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AOnlineShooterGameState, TopScoringPlayers);
+	DOREPLIFETIME(AOnlineShooterGameState, RedTeamScore);
+	DOREPLIFETIME(AOnlineShooterGameState, BlueTeamScore);
 	
 }
 
@@ -34,3 +35,15 @@ void AOnlineShooterGameState::UpdateTopScore(AOnlineShooterPlayerState* ScoringP
 		TopScore = ScoringPlayer->GetScore();
 	}
 }
+
+#pragma region TEAMS
+
+void AOnlineShooterGameState::OnRep_RedTeamScore()
+{
+}
+
+void AOnlineShooterGameState::OnRep_BlueTeamScore()
+{
+}
+
+#pragma endregion

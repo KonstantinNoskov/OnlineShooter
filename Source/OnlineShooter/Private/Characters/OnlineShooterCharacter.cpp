@@ -440,7 +440,6 @@ void AOnlineShooterCharacter::Look(const FInputActionValue& Value)
 void AOnlineShooterCharacter::Jump()
 {
 	if (bDisableGameplay) return;
-	
 	bIsCrouched ? UnCrouch() : Super::Jump();
 }
 
@@ -691,7 +690,6 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation(bool bPlayerLe
 	}
 	if(DissolveMaterialInstance_5)
 	{
-		
 		DynamicDissolveMaterialInstance_5 = UMaterialInstanceDynamic::Create(DissolveMaterialInstance_5, this);
 		GetMesh()->SetMaterial(5, DynamicDissolveMaterialInstance_5);
 		DynamicDissolveMaterialInstance_5->SetScalarParameterValue(TEXT("Dissolve"), .75f);

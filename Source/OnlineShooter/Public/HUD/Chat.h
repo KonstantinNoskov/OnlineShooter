@@ -19,15 +19,17 @@ class ONLINESHOOTER_API UChat : public UUserWidget
 	
 	UPROPERTY()
 	APlayerController* PlayerController;
-
+	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UMessage> ChatMessageClass;
 
 	UPROPERTY()
-	bool bChatOpen;
-	
+	bool bChatOpen = false;
+
 public:
 
+	
+	
 	UPROPERTY(meta = (BindWidget))
 	UScrollBox* ChatScrollBox;
 	

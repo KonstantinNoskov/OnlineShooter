@@ -22,8 +22,6 @@ void UChat::FocusChat()
 	ChatInput->SetFocus();
 }
 
-
-
 void UChat::ChatTearDown()
 {
 	RemoveFromParent();
@@ -49,6 +47,5 @@ void UChat::AddChatMessageText(FString PublisherName, FString PlayerMessage)
 		FString ChatScrollText = FString::Printf(TEXT("%s: %s"), *PublisherName, *PlayerMessage);
 		ChatMessage->MessageText->SetText(FText::FromString(ChatScrollText));
 		ChatScrollBox->AddChild(ChatMessage);
-		
 	}
 }

@@ -2,8 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
+#include "OnlineShooter/Data/Team.h"
 #include "OnlineShooterPlayerState.generated.h"
 
+
+enum class ETeam : uint8;
 
 class USoundCue;
 class AOnlineShooterPlayerController;
@@ -52,6 +55,19 @@ private:
 	FString KilledBy;
 
 
+#pragma region TEAMS
+
+	UPROPERTY(Replicated)
+	ETeam Team = ETeam::ET_NoTeam;
+
+public:
+	
+	FORCEINLINE ETeam GetTeam()		const	{ return Team; }
+	FORCEINLINE void SetTeam(ETeam NewTeam) { Team = NewTeam; }
+	
+#pragma endregion
+
+	
 #pragma region GAINING THE LEAD
 
 private:

@@ -14,6 +14,14 @@ void AOnlineShooterPlayerState::BeginPlay()
 	SetPlayerName(FString("Nagibator228"));
 }
 
+void AOnlineShooterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(AOnlineShooterPlayerState, Defeats);
+	DOREPLIFETIME(AOnlineShooterPlayerState, Team);
+}
+
 // Set Score amount
 void AOnlineShooterPlayerState::AddToScore(float ScoreAmount)
 {
@@ -84,16 +92,6 @@ void AOnlineShooterPlayerState::MulticastPlayLostLeadAnnounce_Implementation()
 	UGameplayStatics::PlaySound2D(this, LostLeadAnnounce);
 }
 
-
-#pragma region REPLICATION
-
-void AOnlineShooterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
-	DOREPLIFETIME(AOnlineShooterPlayerState, Defeats);
-}
-
 void AOnlineShooterPlayerState::OnRep_Defeats()
 {
 	Character = !Character ? Cast<AOnlineShooterCharacter>(GetPawn()) : Character;
@@ -126,7 +124,7 @@ void AOnlineShooterPlayerState::OnRep_Score()
 	}
 }
 
-#pragma endregion
+
 
 
 

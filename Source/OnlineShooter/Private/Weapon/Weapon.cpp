@@ -147,7 +147,6 @@ void AWeapon::OnRep_Owner()
 	{
 		SetHUDAmmo();
 	}
-	
 }
 
 // if player overlap weapon collision sphere, pass this weapon to player's @var OverlapWeapon
@@ -160,6 +159,7 @@ void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 		OnlineShooterCharacter->SetOverlappingWeapon(this);
 	}
 }
+
 
 // if player stops overlap weapon collision sphere, set player's @var OverlapWeapon to null
 void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,

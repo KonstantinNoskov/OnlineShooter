@@ -83,8 +83,6 @@ private:
 	UFUNCTION()
 	void ToggleChat();
 
-	
-	
 #pragma endregion
 	
 protected:
@@ -105,8 +103,7 @@ private:
 	UPROPERTY()
 	AOnlineShooterGameMode* OnlineShooterGameMode;
 	
-	UPROPERTY()
-	AOnlineShooterHUD* OnlineShooterHUD;
+	
 	
 	UPROPERTY()
 	float MatchTime = 0.f;
@@ -173,6 +170,10 @@ private:
 	float SingleTripTime = 0.f;
 
 public:
+
+	UPROPERTY()
+	AOnlineShooterHUD* OnlineShooterHUD;
+	
 	FHighPingDelegate HighPingDelegate;
 
 private:
