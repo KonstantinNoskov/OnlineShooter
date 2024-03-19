@@ -50,6 +50,22 @@ void ATeamsGameMode::Logout(AController* Exiting)
 	}
 }
 
+float ATeamsGameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)
+{	
+	AOnlineShooterPlayerState* AttackerPState = Attacker->GetPlayerState<AOnlineShooterPlayerState>();
+	AOnlineShooterPlayerState* VictimPState = Victim->GetPlayerState<AOnlineShooterPlayerState>();
+
+	if (!AttackerPState || !VictimPState) return BaseDamage;
+	if (AttackerPState == VictimPState) return BaseDamage;
+
+	if (AttackerPState->GetTeam() == VictimPState->GetTeam())
+	{
+		return 0;
+	}
+	
+	return BaseDamage;
+}
+
 void ATeamsGameMode::HandleMatchHasStarted() 
 {
 	Super::HandleMatchHasStarted();

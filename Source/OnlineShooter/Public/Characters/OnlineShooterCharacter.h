@@ -16,6 +16,7 @@
 
 #include "OnlineShooterCharacter.generated.h"
 
+class AOnlineShooterGameMode;
 enum class ETeam : uint8;
 class UNiagaraComponent;
 class UNiagaraSystem;
@@ -456,6 +457,9 @@ public:
 #pragma endregion
 
 #pragma region TEAMS
+
+	UPROPERTY()
+	AOnlineShooterGameMode* OnlineShooterGameMode;
 
 	UPROPERTY(EditAnywhere, Category = "Elimination")
 	UMaterialInstance* OriginalMaterial;

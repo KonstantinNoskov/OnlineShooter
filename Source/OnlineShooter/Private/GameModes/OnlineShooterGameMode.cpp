@@ -187,6 +187,17 @@ void AOnlineShooterGameMode::PlayerLeftGame(AOnlineShooterPlayerState* PlayerLea
 
 #pragma endregion
 
+
+#pragma region TEAMS
+
+float AOnlineShooterGameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)
+{
+	return BaseDamage;
+}
+
+
+#pragma endregion
+
 AActor* AOnlineShooterGameMode::GetRespawnPoint()
 {	
 	/*

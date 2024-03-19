@@ -20,6 +20,11 @@ class ONLINESHOOTER_API AOnlineShooterGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
+protected:
+
+	virtual void BeginPlay() override;
+	virtual void OnMatchStateSet() override;
+
 public:
 
 	AOnlineShooterGameMode();
@@ -49,11 +54,14 @@ public:
 
 #pragma endregion
 
-protected:
+#pragma region TEAMS
 
-	virtual void BeginPlay() override;
-	virtual void OnMatchStateSet() override;
+public:
+	UFUNCTION()
+	virtual float CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage);
 
+#pragma endregion
+	
 private:
 	
 	UPROPERTY()

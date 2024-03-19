@@ -494,7 +494,10 @@ void AOnlineShooterCharacter::CalculateAO_Pitch()
 
 void AOnlineShooterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
 {
-	if(bEliminated) return;
+	OnlineShooterGameMode = !OnlineShooterGameMode ? GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>() : OnlineShooterGameMode;
+	if(bEliminated || !OnlineShooterGameMode) return;
+	
+	Damage = OnlineShooterGameMode->CalculateDamage(InstigatorController, Controller, Damage);
 
 	float DamageToHealth = Damage;
 
@@ -520,7 +523,7 @@ void AOnlineShooterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, 
 
 	if(Health <= 0.f)
 	{
-		AOnlineShooterGameMode* OnlineShooterGameMode = GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>();
+		OnlineShooterGameMode = !OnlineShooterGameMode ? GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>() : OnlineShooterGameMode; 
 		if(OnlineShooterGameMode)
 		{
 			OnlineShooterPlayerController = !OnlineShooterPlayerController ? Cast<AOnlineShooterPlayerController>(Controller) : OnlineShooterPlayerController;
@@ -851,7 +854,7 @@ void AOnlineShooterCharacter::DropOrDestroyWeapon(AWeapon* Weapon)
 }
 void AOnlineShooterCharacter::EliminatedTimerFinished()
 {
-	AOnlineShooterGameMode* OnlineShooterGameMode = GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>(); 
+	OnlineShooterGameMode = !OnlineShooterGameMode ? GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>() : OnlineShooterGameMode; 
 	if (OnlineShooterGameMode && !bLeftGame)
 	{
 		OnlineShooterGameMode->RequestRespawn(this, Controller);
@@ -869,7 +872,7 @@ void AOnlineShooterCharacter::EliminatedTimerFinished()
 
 void AOnlineShooterCharacter::ServerLeaveGame_Implementation()
 {
-	AOnlineShooterGameMode* OnlineShooterGameMode = GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>();
+	OnlineShooterGameMode = !OnlineShooterGameMode ? GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>() : OnlineShooterGameMode; 
 	OnlineShooterPlayerState = !OnlineShooterPlayerState ? GetPlayerState<AOnlineShooterPlayerState>() : OnlineShooterPlayerState; 
 	
 	if (OnlineShooterGameMode && OnlineShooterPlayerState)
@@ -953,7 +956,7 @@ void AOnlineShooterCharacter::Destroyed()
 		ElimBotComponent->DestroyComponent();
 	}
 
-	AOnlineShooterGameMode* OnlineShooterGameMode = Cast<AOnlineShooterGameMode>(UGameplayStatics::GetGameMode(this));
+	OnlineShooterGameMode = !OnlineShooterGameMode ? GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>() : OnlineShooterGameMode; 
 	bool bMatchNotInProgress = OnlineShooterGameMode && OnlineShooterGameMode->GetMatchState() != MatchState::InProgress;
 }
 
@@ -1251,7 +1254,7 @@ void AOnlineShooterCharacter::RotateInPlace(float DeltaTime)
 // Spawn default weapon at the start of the game 
 void AOnlineShooterCharacter::SpawnDefaultWeapon()
 {
-	AOnlineShooterGameMode* OnlineShooterGameMode = Cast<AOnlineShooterGameMode>(UGameplayStatics::GetGameMode(this));
+	OnlineShooterGameMode = !OnlineShooterGameMode ? GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>() : OnlineShooterGameMode; 
 	UWorld* World = GetWorld();
 	if(World && OnlineShooterGameMode && !bEliminated && DefaultWeaponClass)
 	{
