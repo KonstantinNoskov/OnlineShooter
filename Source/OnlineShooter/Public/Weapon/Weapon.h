@@ -124,7 +124,7 @@ protected:
 	bool bDebug = false;
 
 	UPROPERTY(EditAnywhere)
-	float Damage = 5.f;
+	float Damage = 10.f;
 
 	UPROPERTY(EditAnywhere)
 	float CritFactor = 2.f;

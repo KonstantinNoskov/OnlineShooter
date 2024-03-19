@@ -11,6 +11,7 @@ void AOnlineShooterGameState::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 
 	DOREPLIFETIME(AOnlineShooterGameState, RedTeamScore);
 	DOREPLIFETIME(AOnlineShooterGameState, BlueTeamScore);
+	DOREPLIFETIME(AOnlineShooterGameState, TopScoringPlayers);
 	
 }
 

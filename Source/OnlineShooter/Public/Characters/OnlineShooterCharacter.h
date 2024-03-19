@@ -16,6 +16,7 @@
 
 #include "OnlineShooterCharacter.generated.h"
 
+enum class ETeam : uint8;
 class UNiagaraComponent;
 class UNiagaraSystem;
 class ULagCompensationComponent;
@@ -432,7 +433,6 @@ public:
 
 #pragma endregion
 
-
 #pragma region GAINING THE LEAD
 
 private:
@@ -452,6 +452,30 @@ public:
 	void MulticastLostTheLead();
 
 	FORCEINLINE UNiagaraComponent* GetCrownComponent() const { return CrownComponent; }
+
+#pragma endregion
+
+#pragma region TEAMS
+
+	UPROPERTY(EditAnywhere, Category = "Elimination")
+	UMaterialInstance* OriginalMaterial;
+	
+	UPROPERTY(EditAnywhere, Category = "Elimination")
+	UMaterialInstance* RedMaterial;
+	
+	UPROPERTY(EditAnywhere, Category = "Elimination")
+	UMaterialInstance* RedDissolveMatInst;
+
+	UPROPERTY(EditAnywhere, Category = "Elimination")
+	UMaterialInstance* BlueMaterial;
+	
+	UPROPERTY(EditAnywhere, Category = "Elimination")
+	UMaterialInstance* BlueDissolveMatInst;
+
+public:
+
+	UFUNCTION()
+	void SetTeamColor(ETeam InTeam);
 
 #pragma endregion
 

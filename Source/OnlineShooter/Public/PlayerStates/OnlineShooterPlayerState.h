@@ -57,13 +57,16 @@ private:
 
 #pragma region TEAMS
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_Team)
 	ETeam Team = ETeam::ET_NoTeam;
 
 public:
+
+	UFUNCTION()
+	void OnRep_Team();
 	
 	FORCEINLINE ETeam GetTeam()		const	{ return Team; }
-	FORCEINLINE void SetTeam(ETeam NewTeam) { Team = NewTeam; }
+	void SetTeam(ETeam NewTeam);
 	
 #pragma endregion
 

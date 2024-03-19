@@ -78,6 +78,36 @@ void AOnlineShooterPlayerState::SetAttackerName(FString Name)
 	Multicast_SetAttackerName(Name);
 }
 
+#pragma region TEAMS
+
+void AOnlineShooterPlayerState::SetTeam(ETeam NewTeam)
+{
+	Team = NewTeam;
+
+	AOnlineShooterCharacter* ShooterCharacter = Cast <AOnlineShooterCharacter>(GetPawn());
+	if (ShooterCharacter)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("AOnlineShooterPlayerState::SetTeam(), %s"), *ShooterCharacter->GetName())
+		ShooterCharacter->SetTeamColor(Team);
+	}
+}
+
+void AOnlineShooterPlayerState::OnRep_Team()
+{
+	AOnlineShooterCharacter* ShooterCharacter = Cast <AOnlineShooterCharacter>(GetPawn());
+	if (ShooterCharacter)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("AOnlineShooterPlayerState::OnRep_Team(), %s"), *ShooterCharacter->GetName())
+		ShooterCharacter->SetTeamColor(Team);
+	}
+}
+
+
+
+#pragma endregion
+
+
+
 void AOnlineShooterPlayerState::MulticastPlayGainLeadAnnounce_Implementation()
 {
 	if (!GainLeadAnnounce) return;

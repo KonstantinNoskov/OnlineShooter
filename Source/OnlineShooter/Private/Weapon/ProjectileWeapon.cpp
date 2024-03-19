@@ -3,6 +3,7 @@
 
 #include "Weapon/ProjectileWeapon.h"
 
+#include "Components/BoxComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Weapon/Projectile.h"
 
@@ -43,7 +44,6 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 		SpawnParams.Owner = GetOwner();
 		SpawnParams.Instigator = InstigatorPawn;
 		
-		
 		AProjectile* SpawnedProjectile = nullptr;
 		if (bUseServerSideRewind)
 		{
@@ -59,6 +59,11 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 					SpawnedProjectile->bUserServerSideRewind = false;
 					SpawnedProjectile->Damage = Damage;
 					SpawnedProjectile->CritDamage = Damage * CritFactor;
+
+					if (SpawnedProjectile && SpawnedProjectile->CollisionBox)
+					{
+						SpawnedProjectile->CollisionBox->IgnoreActorWhenMoving(Owner, true);
+					}
 				}
 
 				// Not locally controlled - spawn non-replicated projectile, no SSR
@@ -66,6 +71,8 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 				{
 					SpawnedProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation,SpawnParams);
 					SpawnedProjectile->bUserServerSideRewind = true;
+
+					
 				}
 			}
 

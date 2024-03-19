@@ -11,20 +11,21 @@ void ATeamsGameMode::OnPostLogin(AController* NewPlayer)
 	AOnlineShooterGameState* ShooterGameState = Cast<AOnlineShooterGameState>(UGameplayStatics::GetGameState(this));
 	if (ShooterGameState)
 	{
-
+		
 		AOnlineShooterPlayerState* OPlayerState = NewPlayer->GetPlayerState<AOnlineShooterPlayerState>();
 		if (OPlayerState && OPlayerState->GetTeam() == ETeam::ET_NoTeam)
 		{
 			if (ShooterGameState->BlueTeam.Num() >= ShooterGameState->RedTeam.Num())
-			{
+			{	
 				ShooterGameState->RedTeam.AddUnique(OPlayerState);
 				OPlayerState->SetTeam(ETeam::ET_RedTeam);
 			}
-		}
-		else
-		{
-			ShooterGameState->BlueTeam.AddUnique(OPlayerState);
-			OPlayerState->SetTeam(ETeam::ET_BlueTeam);
+
+			else
+			{
+				ShooterGameState->BlueTeam.AddUnique(OPlayerState);
+				OPlayerState->SetTeam(ETeam::ET_BlueTeam);
+			}
 		}
 	}
 }
@@ -49,8 +50,7 @@ void ATeamsGameMode::Logout(AController* Exiting)
 	}
 }
 
-
-void ATeamsGameMode::HandleMatchHasStarted()
+void ATeamsGameMode::HandleMatchHasStarted() 
 {
 	Super::HandleMatchHasStarted();
 
@@ -67,11 +67,12 @@ void ATeamsGameMode::HandleMatchHasStarted()
 					ShooterGameState->RedTeam.AddUnique(OPlayerState);
 					OPlayerState->SetTeam(ETeam::ET_RedTeam);
 				}
-			}
-			else
-			{
-				ShooterGameState->BlueTeam.AddUnique(OPlayerState);
-				OPlayerState->SetTeam(ETeam::ET_BlueTeam);
+				
+				else
+				{
+					ShooterGameState->BlueTeam.AddUnique(OPlayerState);
+					OPlayerState->SetTeam(ETeam::ET_BlueTeam);
+				}
 			}
 		}
 	}

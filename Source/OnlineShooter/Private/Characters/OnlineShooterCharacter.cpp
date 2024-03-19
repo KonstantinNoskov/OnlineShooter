@@ -340,6 +340,8 @@ void AOnlineShooterCharacter::PollInit()
 		{
 			OnlineShooterPlayerState->AddToScore(0.f);
 			OnlineShooterPlayerState->AddToDefeats(0);
+
+			SetTeamColor(OnlineShooterPlayerState->GetTeam());
 			
 			AOnlineShooterGameState* OnlineShooterGameState = Cast<AOnlineShooterGameState>(UGameplayStatics::GetGameState(this));
 			if (OnlineShooterGameState && OnlineShooterGameState->TopScoringPlayers.Contains(OnlineShooterPlayerState))
@@ -548,6 +550,49 @@ void AOnlineShooterCharacter::OnRep_Shield(float LastShield)
 	}
 }
 
+#pragma region TEAMS
+
+void AOnlineShooterCharacter::SetTeamColor(ETeam InTeam)
+{
+	
+	if (!GetMesh() || !OriginalMaterial) return;
+	
+	switch (InTeam) {
+		
+	case ETeam::ET_NoTeam:
+		for (uint8 i = 0; i < 2; i++)
+		{
+			GetMesh()->SetMaterial(i, OriginalMaterial);
+			
+		}
+		
+		break;
+		
+	case ETeam::ET_RedTeam:
+		for (uint8 i = 0; i < 2; i++)
+		{
+			GetMesh()->SetMaterial(i, RedMaterial);
+			
+		}
+		break;
+		
+	case ETeam::ET_BlueTeam:
+
+		for (uint8 i = 0; i < 2; i++)
+		{
+			GetMesh()->SetMaterial(i, BlueMaterial);
+		}
+		break;
+	
+	default:
+		break;
+	}
+}
+
+#pragma region
+
+
+
 
 #pragma region GAINING THE LEAD
 
@@ -560,7 +605,7 @@ void AOnlineShooterCharacter::MulticastGainedTheLead_Implementation()
 		
 		CrownComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
 				CrownSystem,
-				GetCapsuleComponent(),
+				GetMesh(),
 				FName(),
 				//GetActorLocation() + FVector(0.f,0.f, 110.f),
 				GetMesh()->GetBoneLocation("head") + FVector(0.f,0.f, 30.f),
@@ -1120,6 +1165,11 @@ void AOnlineShooterCharacter::HideMesh()
 		{
 			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = true;
 		}
+
+		if(Combat && Combat->SecondaryWeapon && Combat->SecondaryWeapon->GetWeaponMesh())
+		{
+			Combat->SecondaryWeapon->GetWeaponMesh()->bOwnerNoSee = true;
+		}
 	}
 	else
 	{
@@ -1127,6 +1177,11 @@ void AOnlineShooterCharacter::HideMesh()
 		if(Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
 		{
 			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
+		}
+
+		if(Combat && Combat->SecondaryWeapon && Combat->SecondaryWeapon->GetWeaponMesh())
+		{
+			Combat->SecondaryWeapon->GetWeaponMesh()->bOwnerNoSee = false;
 		}
 	}
 }

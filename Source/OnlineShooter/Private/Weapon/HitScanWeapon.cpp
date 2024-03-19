@@ -46,7 +46,7 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 
 			if (HasAuthority() && bCauseAuthDamage)
 			{
-				const float DamageToCause = FireHit.BoneName.ToString() == FString("head") ? CritDamage : Damage;
+				const float DamageToCause = FireHit.BoneName.ToString() == FString("head") ? Damage * CritFactor : Damage;
 				
 				UGameplayStatics::ApplyDamage(
 				OnlineShooterCharacter,

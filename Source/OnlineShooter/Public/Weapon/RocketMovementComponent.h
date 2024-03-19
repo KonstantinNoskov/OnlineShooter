@@ -6,6 +6,7 @@
 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+
 class ONLINESHOOTER_API URocketMovementComponent : public UProjectileMovementComponent
 {
 	GENERATED_BODY()
@@ -13,8 +14,7 @@ class ONLINESHOOTER_API URocketMovementComponent : public UProjectileMovementCom
 public:
 	URocketMovementComponent();
 
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-							   FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
 	
