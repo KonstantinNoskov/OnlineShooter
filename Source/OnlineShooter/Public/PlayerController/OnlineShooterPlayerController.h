@@ -84,6 +84,34 @@ private:
 	void ToggleChat();
 
 #pragma endregion
+
+	
+
+#pragma region TEAMS
+
+
+
+	UFUNCTION()
+	void HideTeamScores();
+
+	UFUNCTION()
+	void InitTeamScores();
+
+	UFUNCTION()
+	void SetHUDRedTeamScore(int32 RedScore);
+
+	UFUNCTION()
+	void SetHUDBlueTeamScore(int32 BlueScore);
+
+protected:
+
+	UPROPERTY(ReplicatedUsing = OnRep_ShowTeamScores);
+	bool bShowTeamScores = false;
+
+	UFUNCTION()
+	void OnRep_ShowTeamScores();
+	
+#pragma endregion
 	
 protected:
 	
@@ -102,8 +130,6 @@ private:
 
 	UPROPERTY()
 	AOnlineShooterGameMode* OnlineShooterGameMode;
-	
-	
 	
 	UPROPERTY()
 	float MatchTime = 0.f;
@@ -279,13 +305,13 @@ public:
 	void SetHUDGrenades(int32 Grenades);
 
 	UFUNCTION()
-	void OnMatchStateSet(FName State);
+	void OnMatchStateSet(FName State, bool bTeamsMatch = false);
 
 	UFUNCTION()
 	void OnRep_MatchState();
 
 	UFUNCTION()
-	void HandleMatchHasStarted();
+	void HandleMatchHasStarted(bool bTeamsMatch = false);
 
 	UFUNCTION()
 	void HandleCooldown();

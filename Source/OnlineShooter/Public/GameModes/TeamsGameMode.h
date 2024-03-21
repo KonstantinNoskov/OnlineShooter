@@ -10,6 +10,10 @@ class ONLINESHOOTER_API ATeamsGameMode : public AOnlineShooterGameMode
 {
 	GENERATED_BODY()
 
+public:
+	
+	ATeamsGameMode();
+
 protected:
 	virtual void HandleMatchHasStarted() override;
 	virtual void OnPostLogin(AController* NewPlayer) override;

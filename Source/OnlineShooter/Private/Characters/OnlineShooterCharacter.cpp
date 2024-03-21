@@ -520,7 +520,7 @@ void AOnlineShooterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, 
 	UpdateHUDHealth();
 	UpdateHUDShield();
 	PlayHitReactMontage();
-
+	
 	if(Health <= 0.f)
 	{
 		OnlineShooterGameMode = !OnlineShooterGameMode ? GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>() : OnlineShooterGameMode; 
@@ -592,10 +592,7 @@ void AOnlineShooterCharacter::SetTeamColor(ETeam InTeam)
 	}
 }
 
-#pragma region
-
-
-
+#pragma endregion
 
 #pragma region GAINING THE LEAD
 
@@ -882,7 +879,6 @@ void AOnlineShooterCharacter::ServerLeaveGame_Implementation()
 }
 
 #pragma endregion
-
 #pragma region DISSOLVE EFFECT
 
 void AOnlineShooterCharacter::UpdateDissolveMaterial(float DissolveValue)

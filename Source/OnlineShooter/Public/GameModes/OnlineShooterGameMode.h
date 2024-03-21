@@ -57,6 +57,10 @@ public:
 #pragma region TEAMS
 
 public:
+
+	UPROPERTY()
+	bool bTeamsMatch = false;
+	
 	UFUNCTION()
 	virtual float CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage);
 

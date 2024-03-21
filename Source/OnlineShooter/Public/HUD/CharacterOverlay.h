@@ -4,6 +4,7 @@
 #include "Blueprint/UserWidget.h"
 #include "CharacterOverlay.generated.h"
 
+class UHorizontalBox;
 class UImage;
 class UTextBlock;
 class UProgressBar;
@@ -67,5 +68,22 @@ public:
 
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	UWidgetAnimation* HighPingAnimation;
+
+#pragma region TEAMS
+
+	UPROPERTY(meta = (BindWidget))
+	UHorizontalBox* TeamScoreBox;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* BlueTeamScore;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* RedTeamScore;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* ScoreSpacerText;
+	
+
+#pragma endregion
 	
 };

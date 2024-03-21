@@ -133,6 +133,7 @@ void AOnlineShooterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetime
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AOnlineShooterPlayerController, MatchState)
+	DOREPLIFETIME(AOnlineShooterPlayerController, bShowTeamScores)
 }
 void AOnlineShooterPlayerController::OnPossess(APawn* InPawn)
 {
@@ -271,6 +272,95 @@ void AOnlineShooterPlayerController::ClientEliminateAnnouncement_Implementation(
 			// Someone killed someone else
 			OnlineShooterHUD->AddEliminateAnnouncement(Attacker->GetPlayerName(),  Victim->GetPlayerName());
 		}
+	}
+}
+
+#pragma endregion
+
+
+#pragma region TEAMS
+
+void AOnlineShooterPlayerController::HideTeamScores()
+{
+	bool bHUDValid =
+		OnlineShooterHUD &&
+		OnlineShooterHUD->CharacterOverlay &&
+		OnlineShooterHUD->CharacterOverlay->RedTeamScore &&
+		OnlineShooterHUD->CharacterOverlay->BlueTeamScore &&
+		OnlineShooterHUD->CharacterOverlay->ScoreSpacerText;
+		
+	if(bHUDValid)
+	{
+		OnlineShooterHUD->CharacterOverlay->RedTeamScore->SetText(FText());
+		OnlineShooterHUD->CharacterOverlay->BlueTeamScore->SetText(FText());
+		OnlineShooterHUD->CharacterOverlay->ScoreSpacerText->SetText(FText());
+	} 
+}
+
+void AOnlineShooterPlayerController::InitTeamScores()
+{
+	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+	
+	bool bHUDValid =
+		OnlineShooterHUD &&
+		OnlineShooterHUD->CharacterOverlay &&
+		OnlineShooterHUD->CharacterOverlay->RedTeamScore &&
+		OnlineShooterHUD->CharacterOverlay->BlueTeamScore &&
+		OnlineShooterHUD->CharacterOverlay->ScoreSpacerText;
+		
+	if(bHUDValid)
+	{
+		FString Zero("0");
+		FString Spacer("-");
+
+		
+		OnlineShooterHUD->CharacterOverlay->RedTeamScore->SetText(FText::FromString(Zero));
+		OnlineShooterHUD->CharacterOverlay->BlueTeamScore->SetText(FText::FromString(Zero));
+		OnlineShooterHUD->CharacterOverlay->ScoreSpacerText->SetText(FText::FromString(Spacer));
+	} 
+}
+
+void AOnlineShooterPlayerController::SetHUDRedTeamScore(int32 RedScore)
+{
+	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+	
+	bool bHUDValid =
+		OnlineShooterHUD &&
+		OnlineShooterHUD->CharacterOverlay &&
+		OnlineShooterHUD->CharacterOverlay->RedTeamScore;
+		
+	if(bHUDValid)
+	{
+		FString ScoreText = FString::Printf(TEXT("%d"), RedScore);
+		OnlineShooterHUD->CharacterOverlay->RedTeamScore->SetText(FText::FromString(ScoreText));
+	} 
+}
+
+void AOnlineShooterPlayerController::SetHUDBlueTeamScore(int32 BlueScore)
+{
+	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+	
+	bool bHUDValid =
+		OnlineShooterHUD &&
+		OnlineShooterHUD->CharacterOverlay &&
+		OnlineShooterHUD->CharacterOverlay->BlueTeamScore;
+		
+	if(bHUDValid)
+	{
+		FString ScoreText = FString::Printf(TEXT("%d"), BlueScore);
+		OnlineShooterHUD->CharacterOverlay->BlueTeamScore->SetText(FText::FromString(ScoreText));
+	} 
+}
+
+void AOnlineShooterPlayerController::OnRep_ShowTeamScores()
+{
+	if (bShowTeamScores)
+	{
+		InitTeamScores();
+	}
+	else
+	{
+		HideTeamScores();
 	}
 }
 
@@ -728,13 +818,13 @@ void AOnlineShooterPlayerController::CheckTimeSync(float DeltaTime)
 
 #pragma endregion
 
-void AOnlineShooterPlayerController::OnMatchStateSet(FName State)
+void AOnlineShooterPlayerController::OnMatchStateSet(FName State, bool bTeamsMatch)
 {	
 	MatchState = State;
 	
 	if(MatchState == MatchState::InProgress)
 	{
-		HandleMatchHasStarted();
+		HandleMatchHasStarted(true);
 	}
 	else if (MatchState == MatchState::Cooldown)
 	{
@@ -752,8 +842,13 @@ void AOnlineShooterPlayerController::OnRep_MatchState()
 		HandleCooldown();
 	}
 }
-void AOnlineShooterPlayerController::HandleMatchHasStarted() 
+void AOnlineShooterPlayerController::HandleMatchHasStarted(bool bTeamsMatch) 
 {
+	if (HasAuthority())
+	{
+		bShowTeamScores = bTeamsMatch;
+	}
+	
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
 	if(OnlineShooterHUD)
 	{
@@ -765,6 +860,17 @@ void AOnlineShooterPlayerController::HandleMatchHasStarted()
 		if(OnlineShooterHUD->Announcement)
 		{
 			OnlineShooterHUD->Announcement->SetVisibility(ESlateVisibility::Hidden);
+		}
+
+		if (!HasAuthority()) return;
+		
+		if (bTeamsMatch)
+		{
+			InitTeamScores();
+		}
+		else
+		{
+			HideTeamScores();
 		}
 	}
 }
@@ -859,8 +965,3 @@ void AOnlineShooterPlayerController::Client_JoinMidgame_Implementation(FName Sta
 		OnlineShooterHUD->AddAnnouncement();
 	}
 }
-
-
-
-
-

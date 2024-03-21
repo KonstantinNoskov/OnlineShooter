@@ -39,7 +39,6 @@ public:
 	UFUNCTION()
 	void SetAttackerName(FString Name);
 
-	
 private:
 
 	UPROPERTY()
@@ -65,8 +64,10 @@ public:
 	UFUNCTION()
 	void OnRep_Team();
 	
-	FORCEINLINE ETeam GetTeam()		const	{ return Team; }
+	UFUNCTION()
 	void SetTeam(ETeam NewTeam);
+	
+	FORCEINLINE ETeam GetTeam()	const { return Team; }
 	
 #pragma endregion
 

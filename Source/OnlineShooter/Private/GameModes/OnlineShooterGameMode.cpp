@@ -20,7 +20,6 @@ AOnlineShooterGameMode::AOnlineShooterGameMode()
 	bDelayedStart = true;
 }
 
-
 void AOnlineShooterGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -72,7 +71,7 @@ void AOnlineShooterGameMode::OnMatchStateSet()
 
 		if(OnlineShooterPlayer)
 		{
-			OnlineShooterPlayer->OnMatchStateSet(MatchState);
+			OnlineShooterPlayer->OnMatchStateSet(MatchState, bTeamsMatch);
 		}
 	}
 }
@@ -187,14 +186,12 @@ void AOnlineShooterGameMode::PlayerLeftGame(AOnlineShooterPlayerState* PlayerLea
 
 #pragma endregion
 
-
 #pragma region TEAMS
 
-float AOnlineShooterGameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)
+float AOnlineShooterGameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage) 
 {
 	return BaseDamage;
 }
-
 
 #pragma endregion
 

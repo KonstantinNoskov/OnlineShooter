@@ -92,6 +92,8 @@ void AOnlineShooterPlayerState::SetTeam(ETeam NewTeam)
 	}
 }
 
+
+
 void AOnlineShooterPlayerState::OnRep_Team()
 {
 	AOnlineShooterCharacter* ShooterCharacter = Cast <AOnlineShooterCharacter>(GetPawn());

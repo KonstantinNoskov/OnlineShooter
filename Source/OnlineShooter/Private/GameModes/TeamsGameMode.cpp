@@ -4,6 +4,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "PlayerStates/OnlineShooterPlayerState.h"
 
+ATeamsGameMode::ATeamsGameMode()
+{
+	bTeamsMatch = true;	
+}
+
 void ATeamsGameMode::OnPostLogin(AController* NewPlayer)
 {
 	Super::OnPostLogin(NewPlayer);
@@ -29,7 +34,6 @@ void ATeamsGameMode::OnPostLogin(AController* NewPlayer)
 		}
 	}
 }
-
 void ATeamsGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
@@ -49,7 +53,6 @@ void ATeamsGameMode::Logout(AController* Exiting)
 		}
 	}
 }
-
 float ATeamsGameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)
 {	
 	AOnlineShooterPlayerState* AttackerPState = Attacker->GetPlayerState<AOnlineShooterPlayerState>();
@@ -65,7 +68,6 @@ float ATeamsGameMode::CalculateDamage(AController* Attacker, AController* Victim
 	
 	return BaseDamage;
 }
-
 void ATeamsGameMode::HandleMatchHasStarted() 
 {
 	Super::HandleMatchHasStarted();

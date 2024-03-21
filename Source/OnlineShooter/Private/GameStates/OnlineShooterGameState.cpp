@@ -39,6 +39,16 @@ void AOnlineShooterGameState::UpdateTopScore(AOnlineShooterPlayerState* ScoringP
 
 #pragma region TEAMS
 
+void AOnlineShooterGameState::RedTeamScores()
+{
+	++RedTeamScore;
+}
+
+void AOnlineShooterGameState::BlueTeamScores()
+{
+	++BlueTeamScore;
+}
+
 void AOnlineShooterGameState::OnRep_RedTeamScore()
 {
 }

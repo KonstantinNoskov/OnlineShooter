@@ -32,6 +32,12 @@ public:
 	float BlueTeamScore = 0.f;
 
 	UFUNCTION()
+	void RedTeamScores();
+
+	UFUNCTION()
+	void BlueTeamScores();
+
+	UFUNCTION()
 	void OnRep_RedTeamScore();
 
 	UFUNCTION()
