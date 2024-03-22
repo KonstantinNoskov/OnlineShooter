@@ -21,6 +21,7 @@
 #include "HUD/OnlineShooterHUD.h"
 #include "HUD/ReturnToMainMenu.h"
 #include "HUD/SniperScopeWidget.h"
+#include "OnlineShooter/Data/Announcement.h"
 
 void AOnlineShooterPlayerController::BeginPlay()
 {
@@ -176,6 +177,7 @@ void AOnlineShooterPlayerController::ToggleChat()
 		}
 	}
 }
+
 
 void AOnlineShooterPlayerController::BroadcastChatMessage(APlayerState* PublisherState, FString MessageText)
 {
@@ -358,6 +360,82 @@ void AOnlineShooterPlayerController::OnRep_ShowTeamScores()
 		HideTeamScores();
 	}
 }
+
+FString AOnlineShooterPlayerController::GetInfoText(const TArray<AOnlineShooterPlayerState*>& Players)
+{
+	FString InfoTextString;
+	
+	AOnlineShooterPlayerState* OnlineShooterPlayerState = GetPlayerState<AOnlineShooterPlayerState>();
+	if (!OnlineShooterPlayerState) return FString(); 
+	
+	if(!Players.Num())
+	{
+		InfoTextString = Announcement::ThereIsNoWinner;
+	}
+	else if (Players.Num() == 1 && Players[0] == OnlineShooterPlayerState)
+	{
+		InfoTextString = Announcement::YouWon;
+	}
+	else if (Players.Num() == 1)
+	{
+		InfoTextString = FString::Printf(TEXT("Winner: \n%s" ), *Players[0]->GetPlayerName());
+	}
+	else if (Players.Num() > 1)
+	{	
+		InfoTextString = Announcement::MultipleWinners;
+
+		for (auto TiedPlayer : Players)
+		{
+			InfoTextString.Append(FString::Printf(TEXT("%s\n"), *TiedPlayer->GetPlayerName()));
+		}
+	}
+			
+	OnlineShooterHUD->Announcement->InfoText->SetText(FText::FromString(InfoTextString));
+	
+	return InfoTextString;
+}
+
+FString AOnlineShooterPlayerController::GetTeamsInfoText(AOnlineShooterGameState* OnlineShooterGameState)
+{
+	if (!OnlineShooterGameState) return FString();
+	FString InfoTextString;
+
+	int32 RedTeamScore = OnlineShooterGameState->RedTeamScore;
+	int32 BlueTeamScore = OnlineShooterGameState->BlueTeamScore;
+
+	if (!RedTeamScore && !BlueTeamScore)
+	{
+		InfoTextString = Announcement::ThereIsNoWinner;
+	}
+
+	else if (RedTeamScore == BlueTeamScore)
+	{
+		InfoTextString = Announcement::MultipleTeamsWinners;
+		InfoTextString.Append(Announcement::RedTeam);
+		InfoTextString.Append(TEXT("\n"));
+		InfoTextString.Append(Announcement::BlueTeam);
+		InfoTextString.Append(TEXT("\n"));
+	}
+
+	else if (RedTeamScore > BlueTeamScore)
+	{
+		InfoTextString = Announcement::RedTeamWin;
+		InfoTextString.Append(TEXT("\n"));
+		InfoTextString.Append(FString::Printf(TEXT("%s: %d\n"), *Announcement::RedTeam, RedTeamScore));
+		InfoTextString.Append(FString::Printf(TEXT("%s: %d\n"), *Announcement::BlueTeam, BlueTeamScore));
+	}
+
+	else if (RedTeamScore < BlueTeamScore)
+	{
+		InfoTextString = Announcement::BlueTeamWin;
+		InfoTextString.Append(TEXT("\n"));
+		InfoTextString.Append(FString::Printf(TEXT("%s: %d\n"), *Announcement::BlueTeam, BlueTeamScore));
+		InfoTextString.Append(FString::Printf(TEXT("%s: %d\n"), *Announcement::RedTeam, RedTeamScore));
+	}
+	
+	return InfoTextString;
+}
+
 
 #pragma endregion
 
@@ -883,7 +961,7 @@ void AOnlineShooterPlayerController::HandleCooldown()
 		
 		if(bHUDValid)
 		{
-			FString AnnouncementText("New match starts in:");
+			FString AnnouncementText = Announcement::NewMatchStartIn;
 			OnlineShooterHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
 			OnlineShooterHUD->Announcement->SetVisibility(ESlateVisibility::Visible);
 			
@@ -892,30 +970,8 @@ void AOnlineShooterPlayerController::HandleCooldown()
 			
 			if(OnlineShooterGameState && OnlineShooterPlayerState)
 			{
-				FString InfoTextStr;
-				
 				TArray<AOnlineShooterPlayerState*> TopPlayers = OnlineShooterGameState->TopScoringPlayers;
-				if(!TopPlayers.Num())
-				{
-					InfoTextStr = FString("There is no winners");
-				}
-				else if (TopPlayers.Num() == 1 && TopPlayers[0] == OnlineShooterPlayerState)
-				{
-					InfoTextStr = FString("You won!");
-				}
-				else if (TopPlayers.Num() == 1)
-				{
-					InfoTextStr = FString::Printf(TEXT("Winner: \n%s" ), *TopPlayers[0]->GetPlayerName());
-				}
-				else if (TopPlayers.Num() > 1)
-				{	
-					InfoTextStr = FString::Printf(TEXT("We have multiple Winners: \n" ));
-
-					for (auto TiedPlayer : TopPlayers)
-					{
-						InfoTextStr.Append(FString::Printf(TEXT("%s\n"), *TiedPlayer->GetPlayerName()));
-					}
-				}
+				FString InfoTextStr = bShowTeamScores ? GetTeamsInfoText(OnlineShooterGameState) : GetInfoText(TopPlayers);
 				
 				OnlineShooterHUD->Announcement->InfoText->SetText(FText::FromString(InfoTextStr));
 			}

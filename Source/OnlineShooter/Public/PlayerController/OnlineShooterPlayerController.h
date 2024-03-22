@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "OnlineShooterPlayerController.generated.h"
 
+class AOnlineShooterGameState;
+class AOnlineShooterPlayerState;
 class UReturnToMainMenu;
 class UInputAction;
 class UInputMappingContext;
@@ -85,12 +87,14 @@ private:
 
 #pragma endregion
 
-	
-
 #pragma region TEAMS
 
+	UFUNCTION()
+	FString GetInfoText(const TArray<AOnlineShooterPlayerState*>& Players);
 
-
+	UFUNCTION()
+	FString GetTeamsInfoText(AOnlineShooterGameState* OnlineShooterGameState);
+	
 	UFUNCTION()
 	void HideTeamScores();
 
