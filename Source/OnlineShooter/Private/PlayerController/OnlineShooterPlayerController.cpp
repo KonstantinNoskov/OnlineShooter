@@ -277,7 +277,6 @@ void AOnlineShooterPlayerController::ClientEliminateAnnouncement_Implementation(
 
 #pragma endregion
 
-
 #pragma region TEAMS
 
 void AOnlineShooterPlayerController::HideTeamScores()
@@ -296,7 +295,6 @@ void AOnlineShooterPlayerController::HideTeamScores()
 		OnlineShooterHUD->CharacterOverlay->ScoreSpacerText->SetText(FText());
 	} 
 }
-
 void AOnlineShooterPlayerController::InitTeamScores()
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
@@ -319,7 +317,6 @@ void AOnlineShooterPlayerController::InitTeamScores()
 		OnlineShooterHUD->CharacterOverlay->ScoreSpacerText->SetText(FText::FromString(Spacer));
 	} 
 }
-
 void AOnlineShooterPlayerController::SetHUDRedTeamScore(int32 RedScore)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
@@ -335,7 +332,6 @@ void AOnlineShooterPlayerController::SetHUDRedTeamScore(int32 RedScore)
 		OnlineShooterHUD->CharacterOverlay->RedTeamScore->SetText(FText::FromString(ScoreText));
 	} 
 }
-
 void AOnlineShooterPlayerController::SetHUDBlueTeamScore(int32 BlueScore)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
@@ -351,7 +347,6 @@ void AOnlineShooterPlayerController::SetHUDBlueTeamScore(int32 BlueScore)
 		OnlineShooterHUD->CharacterOverlay->BlueTeamScore->SetText(FText::FromString(ScoreText));
 	} 
 }
-
 void AOnlineShooterPlayerController::OnRep_ShowTeamScores()
 {
 	if (bShowTeamScores)

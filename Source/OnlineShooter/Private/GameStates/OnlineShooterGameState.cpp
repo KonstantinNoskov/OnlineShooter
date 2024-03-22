@@ -3,6 +3,7 @@
 
 #include "GameStates/OnlineShooterGameState.h"
 #include "Net/UnrealNetwork.h"
+#include "PlayerController/OnlineShooterPlayerController.h"
 #include "PlayerStates/OnlineShooterPlayerState.h"
 
 void AOnlineShooterGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -42,19 +43,42 @@ void AOnlineShooterGameState::UpdateTopScore(AOnlineShooterPlayerState* ScoringP
 void AOnlineShooterGameState::RedTeamScores()
 {
 	++RedTeamScore;
+
+	AOnlineShooterPlayerController* ShooterPlayer = Cast <AOnlineShooterPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (ShooterPlayer)
+	{
+		ShooterPlayer->SetHUDRedTeamScore(RedTeamScore);
+	}
 }
 
 void AOnlineShooterGameState::BlueTeamScores()
 {
 	++BlueTeamScore;
+
+	AOnlineShooterPlayerController* ShooterPlayer = Cast <AOnlineShooterPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (ShooterPlayer)
+	{
+		ShooterPlayer->SetHUDBlueTeamScore(BlueTeamScore);
+	}
 }
 
 void AOnlineShooterGameState::OnRep_RedTeamScore()
 {
+
+	AOnlineShooterPlayerController* ShooterPlayer = Cast <AOnlineShooterPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (ShooterPlayer)
+	{
+		ShooterPlayer->SetHUDRedTeamScore(RedTeamScore);
+	}
 }
 
 void AOnlineShooterGameState::OnRep_BlueTeamScore()
 {
+	AOnlineShooterPlayerController* ShooterPlayer = Cast <AOnlineShooterPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (ShooterPlayer)
+	{
+		ShooterPlayer->SetHUDBlueTeamScore(BlueTeamScore);
+	}
 }
 
 #pragma endregion

@@ -2,6 +2,7 @@
 
 #include "GameStates/OnlineShooterGameState.h"
 #include "Kismet/GameplayStatics.h"
+#include "PlayerController/OnlineShooterPlayerController.h"
 #include "PlayerStates/OnlineShooterPlayerState.h"
 
 ATeamsGameMode::ATeamsGameMode()
@@ -68,6 +69,29 @@ float ATeamsGameMode::CalculateDamage(AController* Attacker, AController* Victim
 	
 	return BaseDamage;
 }
+
+void ATeamsGameMode::PlayerEliminated(AOnlineShooterCharacter* ElimedCharacter,
+	AOnlineShooterPlayerController* VictimController, AOnlineShooterPlayerController* AttackerController)
+{
+	Super::PlayerEliminated(ElimedCharacter, VictimController, AttackerController);
+
+	AOnlineShooterGameState* ShooterGameState = Cast<AOnlineShooterGameState>(UGameplayStatics::GetGameState(this));
+	AOnlineShooterPlayerState* AttackerPlayerState = AttackerController ? Cast<AOnlineShooterPlayerState>(AttackerController->PlayerState) : nullptr;
+
+	if (ShooterGameState && AttackerPlayerState)
+	{
+		if (AttackerPlayerState->GetTeam() == ETeam::ET_BlueTeam)
+		{
+			ShooterGameState->BlueTeamScores();
+		}
+
+		if (AttackerPlayerState->GetTeam() == ETeam::ET_RedTeam)
+		{
+			ShooterGameState->RedTeamScores();
+		}
+	}
+}
+
 void ATeamsGameMode::HandleMatchHasStarted() 
 {
 	Super::HandleMatchHasStarted();

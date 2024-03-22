@@ -97,6 +97,8 @@ private:
 	UFUNCTION()
 	void InitTeamScores();
 
+public:
+	
 	UFUNCTION()
 	void SetHUDRedTeamScore(int32 RedScore);
 
