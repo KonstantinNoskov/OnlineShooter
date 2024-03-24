@@ -71,8 +71,6 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 				{
 					SpawnedProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation,SpawnParams);
 					SpawnedProjectile->bUserServerSideRewind = true;
-
-					
 				}
 			}
 
@@ -105,6 +103,7 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 				SpawnedProjectile->bUserServerSideRewind = false;
 				SpawnedProjectile->Damage = Damage;
 				SpawnedProjectile->CritDamage = Damage * CritFactor;
+				SpawnedProjectile->CollisionBox->IgnoreActorWhenMoving(SpawnParams.Owner, true);
 			}
 		}
 	}

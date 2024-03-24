@@ -10,7 +10,6 @@ AThrowGrenade::AThrowGrenade()
 
 	ThrowGrenadeParticleComponent = CreateDefaultSubobject<UParticleSystemComponent>("ThrowGrenadeParticle");
 	ThrowGrenadeParticleComponent->SetupAttachment(RootComponent);
-	
 }
 
 void AThrowGrenade::BeginPlay()

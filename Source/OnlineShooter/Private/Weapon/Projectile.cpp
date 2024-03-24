@@ -38,9 +38,6 @@ void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
-
-	
-	
 	if(Tracer)
 	{
 		TracerComponent = UGameplayStatics::SpawnEmitterAttached(

@@ -439,6 +439,60 @@ FString AOnlineShooterPlayerController::GetTeamsInfoText(AOnlineShooterGameState
 
 #pragma endregion
 
+#pragma region SYNC CLIENT/SERVER TIME
+
+void AOnlineShooterPlayerController::Server_RequestServerTime_Implementation(float TimeOfClientRequest)
+{
+	// Get time on the server
+	float ServerTimeOfReceipt = GetWorld()->GetTimeSeconds();
+
+	// Pass back to client ClientRequestTime and current server time
+	ClientReportServerTime(TimeOfClientRequest, ServerTimeOfReceipt);
+}
+void AOnlineShooterPlayerController::ClientReportServerTime_Implementation(float TimeOfClientRequest, float TimerServerReceivedClientRequest)
+{
+	// Getting delta between client request time and current client time. 
+	float RoundTripTime = GetWorld()->GetTimeSeconds() - TimeOfClientRequest;
+
+	SingleTripTime = RoundTripTime * .5f;
+	
+	// Client gets current server time by summing server time we've just passed in and the client request time divided by 2. 
+	float CurrentServerTime = TimerServerReceivedClientRequest + SingleTripTime;
+
+	// Delta between current client and current server time
+	ClientServerDeltaTime = CurrentServerTime - GetWorld()->GetTimeSeconds();
+}
+float AOnlineShooterPlayerController::GetServerTime() 
+{
+	// On Server we just getting it's current time we want to sync with.
+	if(HasAuthority()) return GetWorld()->GetTimeSeconds();
+
+	// Client should sync it's time with server by adding delta time which we've calculated earlier to client current time.
+	return GetWorld()->GetTimeSeconds() + ClientServerDeltaTime; 
+}
+
+void AOnlineShooterPlayerController::ReceivedPlayer()
+{
+	Super::ReceivedPlayer();
+
+	if (IsLocalController())
+	{
+		// Pass Current client time to server
+		Server_RequestServerTime(GetWorld()->GetTimeSeconds());
+	}
+}
+void AOnlineShooterPlayerController::CheckTimeSync(float DeltaTime)
+{
+	TimeSyncRunningTime += DeltaTime;
+
+	if(IsLocalController() && TimeSyncRunningTime > TimeSyncFrequency)
+	{
+		Server_RequestServerTime(GetWorld()->GetTimeSeconds());
+		TimeSyncRunningTime = 0.f;
+	}
+}
+
+#pragma endregion
 
 // Set Character Overlay
 void AOnlineShooterPlayerController::SetHUDHealth(float Health, float MaxHealth)
@@ -835,61 +889,6 @@ void AOnlineShooterPlayerController::SetHUDSniperScope(bool bIsAiming)
 		}
 	}
 }
-
-#pragma region  SYNC CLIENT/SERVER TIME
-
-void AOnlineShooterPlayerController::Server_RequestServerTime_Implementation(float TimeOfClientRequest)
-{
-	// Get time on the server
-	float ServerTimeOfReceipt = GetWorld()->GetTimeSeconds();
-
-	// Pass back to client ClientRequestTime and current server time
-	ClientReportServerTime(TimeOfClientRequest, ServerTimeOfReceipt);
-}
-void AOnlineShooterPlayerController::ClientReportServerTime_Implementation(float TimeOfClientRequest, float TimerServerReceivedClientRequest)
-{
-	// Getting delta between client request time and current client time. 
-	float RoundTripTime = GetWorld()->GetTimeSeconds() - TimeOfClientRequest;
-
-	SingleTripTime = RoundTripTime * .5f;
-	
-	// Client gets current server time by summing server time we've just passed in and the client request time divided by 2. 
-	float CurrentServerTime = TimerServerReceivedClientRequest + SingleTripTime;
-
-	// Delta between current client and current server time
-	ClientServerDeltaTime = CurrentServerTime - GetWorld()->GetTimeSeconds();
-}
-float AOnlineShooterPlayerController::GetServerTime() 
-{
-	// On Server we just getting it's current time we want to sync with.
-	if(HasAuthority()) return GetWorld()->GetTimeSeconds();
-
-	// Client should sync it's time with server by adding delta time which we've calculated earlier to client current time.
-	return GetWorld()->GetTimeSeconds() + ClientServerDeltaTime; 
-}
-
-void AOnlineShooterPlayerController::ReceivedPlayer()
-{
-	Super::ReceivedPlayer();
-
-	if (IsLocalController())
-	{
-		// Pass Current client time to server
-		Server_RequestServerTime(GetWorld()->GetTimeSeconds());
-	}
-}
-void AOnlineShooterPlayerController::CheckTimeSync(float DeltaTime)
-{
-	TimeSyncRunningTime += DeltaTime;
-
-	if(IsLocalController() && TimeSyncRunningTime > TimeSyncFrequency)
-	{
-		Server_RequestServerTime(GetWorld()->GetTimeSeconds());
-		TimeSyncRunningTime = 0.f;
-	}
-}
-
-#pragma endregion
 
 void AOnlineShooterPlayerController::OnMatchStateSet(FName State, bool bTeamsMatch)
 {	
