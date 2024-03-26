@@ -93,17 +93,19 @@ public:
 
 	UPROPERTY()
 	UChat* ChatWidget;
-
-
+	
 	UFUNCTION()
 	UChat* AddChat();
 
 	UFUNCTION()
 	void RemoveChat();
-
+	
 	UFUNCTION()
 	void OnInputCommitted(const FText& InText, ETextCommit::Type CommitMethod);
-	
+
+	UFUNCTION()
+	void OnInputChanged(const FText& InText);
+
 #pragma endregion
 	
 #pragma region ELIMINATE ANNOUNCE

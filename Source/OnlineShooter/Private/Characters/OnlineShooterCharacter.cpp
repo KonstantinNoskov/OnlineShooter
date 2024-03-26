@@ -441,7 +441,7 @@ void AOnlineShooterCharacter::Look(const FInputActionValue& Value)
 // Jump
 void AOnlineShooterCharacter::Jump()
 {
-	if (bDisableGameplay) return;
+	if (bDisableGameplay) return; 
 	bIsCrouched ? UnCrouch() : Super::Jump();
 }
 

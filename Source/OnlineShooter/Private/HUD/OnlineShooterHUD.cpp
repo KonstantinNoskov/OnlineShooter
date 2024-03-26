@@ -102,7 +102,7 @@ void AOnlineShooterHUD::AddSniperScope()
 
 #pragma region CHAT 
 
-UChat* AOnlineShooterHUD::AddChat()
+UChat* AOnlineShooterHUD::AddChat() 
 {
 	OwningPlayer = !OwningPlayer ? GetOwningPlayerController() : OwningPlayer;
 	if (OwningPlayer && ChatClass)
@@ -113,14 +113,21 @@ UChat* AOnlineShooterHUD::AddChat()
 
 			if (ChatWidget)
 			{
-				
+				ChatWidget->AddToViewport();
 				ChatWidget->ShowChat();
-				ChatWidget->SetChatOpen(true);
 				ChatWidget->GetChatInput()->SetClearKeyboardFocusOnCommit(false);
+				
 				ChatWidget->GetChatInput()->OnTextCommitted.AddDynamic(this, &AOnlineShooterHUD::OnInputCommitted);
+				ChatWidget->GetChatInput()->OnTextChanged.AddDynamic(this, &AOnlineShooterHUD::OnInputChanged);
 				
 				return ChatWidget;
 			}
+		}
+
+		else
+		{
+			ChatWidget->ShowChat();
+			
 		}
 	}
 
@@ -132,11 +139,11 @@ void AOnlineShooterHUD::RemoveChat()
 	{
 		ChatWidget->ChatTearDown();
 		ChatWidget->GetChatInput()->OnTextCommitted.RemoveDynamic(this, &AOnlineShooterHUD::OnInputCommitted);
+		ChatWidget->GetChatInput()->OnTextChanged.RemoveDynamic(this, &AOnlineShooterHUD::OnInputChanged);
 		ChatWidget->SetChatOpen(false);
 		ChatWidget = nullptr;
 	}
 }
-
 void AOnlineShooterHUD::OnInputCommitted(const FText& InText, ETextCommit::Type CommitMethod)
 {
 	if(CommitMethod != ETextCommit::OnEnter)
@@ -164,6 +171,11 @@ void AOnlineShooterHUD::OnInputCommitted(const FText& InText, ETextCommit::Type 
 		PlayerController->BroadcastChatMessage(PlayerController->GetPlayerState<AOnlineShooterPlayerState>(), InText.ToString());
 		ChatWidget->ClearInput();
 	}
+}
+
+void AOnlineShooterHUD::OnInputChanged(const FText& InText)
+{
+	ChatWidget->ResetChatTimer();
 }
 
 #pragma endregion
