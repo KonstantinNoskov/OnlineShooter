@@ -599,7 +599,9 @@ void AOnlineShooterCharacter::SetTeamColor(ETeam InTeam)
 void AOnlineShooterCharacter::MulticastGainedTheLead_Implementation()
 {
 	if (!CrownSystem) return;
-	if (!CrownComponent)
+
+	// Uncomment to spawn leader crown on gaining the lead
+	/*if (!CrownComponent)
 	{
 		FVector HeadLocation = GetMesh()->GetBoneLocation("head");
 		
@@ -613,7 +615,7 @@ void AOnlineShooterCharacter::MulticastGainedTheLead_Implementation()
 				EAttachLocation::KeepWorldPosition,
 				false
 			);
-	}
+	}*/
 
 	if (CrownComponent)
 	{

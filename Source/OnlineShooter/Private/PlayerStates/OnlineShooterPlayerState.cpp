@@ -92,8 +92,6 @@ void AOnlineShooterPlayerState::SetTeam(ETeam NewTeam)
 	}
 }
 
-
-
 void AOnlineShooterPlayerState::OnRep_Team()
 {
 	AOnlineShooterCharacter* ShooterCharacter = Cast <AOnlineShooterCharacter>(GetPawn());
@@ -104,11 +102,7 @@ void AOnlineShooterPlayerState::OnRep_Team()
 	}
 }
 
-
-
 #pragma endregion
-
-
 
 void AOnlineShooterPlayerState::MulticastPlayGainLeadAnnounce_Implementation()
 {
