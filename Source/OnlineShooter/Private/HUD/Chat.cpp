@@ -5,18 +5,33 @@
 #include "Components/TextBlock.h"
 #include "HUD/Message.h"
 
+
+
+void UChat::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	ChatHideOnTime(InDeltaTime);
+}
+
 void UChat::ChatSetup()
 {
 	ShowChat();
 	FocusChat();
-	
 }
 void UChat::ShowChat() 
 {
-	AddToViewport();
 	SetVisibility(ESlateVisibility::Visible);
-	SetIsFocusable(true);
+	bChatOpen = true;
 }
+
+void UChat::HideChat()
+{	
+	SetVisibility(ESlateVisibility::Hidden);
+	bChatOpen = false;
+	ChatHideCurrentTime = 0.f;
+}
+
 void UChat::FocusChat() 
 {
 	ChatInput->SetFocus();
@@ -39,6 +54,27 @@ void UChat::ChatTearDown()
 	}
 }
 
+void UChat::ChatHideOnTime(float DeltaTime)
+{
+	ChatHideCurrentTime += DeltaTime;
+
+	UE_LOG(LogTemp, Warning, TEXT("%f"), ChatHideCurrentTime);
+
+	if (ChatHideCurrentTime > ChatHideThreshold && IsChatOpen())
+	{
+		PlayerController = !PlayerController ? GetOwningPlayer() : PlayerController;
+
+		if (PlayerController)
+		{
+			FInputModeGameOnly InputModeData;
+			PlayerController->SetInputMode(InputModeData);
+			bChatOpen = false;
+			ChatHideCurrentTime = 0.f;
+			SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+}
+
 void UChat::AddChatMessageText(FString PublisherName, FString PlayerMessage)
 {
 	ChatMessage = CreateWidget<UMessage>(GetOwningPlayer(), ChatMessageClass);
@@ -49,3 +85,5 @@ void UChat::AddChatMessageText(FString PublisherName, FString PlayerMessage)
 		ChatScrollBox->AddChild(ChatMessage);
 	}
 }
+
+

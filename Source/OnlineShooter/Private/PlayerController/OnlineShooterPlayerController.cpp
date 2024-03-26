@@ -159,7 +159,9 @@ void AOnlineShooterPlayerController::ToggleChat()
 		if (!OnlineShooterHUD->ChatWidget)
 		{
 			OnlineShooterHUD->AddChat();
+			OnlineShooterHUD->ChatWidget->ShowChat();
 			OnlineShooterHUD->ChatWidget->FocusChat();
+			
 			return;
 		}	
 		
@@ -168,16 +170,14 @@ void AOnlineShooterPlayerController::ToggleChat()
 			OnlineShooterHUD->ChatWidget->SetVisibility(ESlateVisibility::Hidden);
 			OnlineShooterHUD->ChatWidget->SetChatOpen(false);
 		}
-
 		else
 		{
 			OnlineShooterHUD->ChatWidget->SetVisibility(ESlateVisibility::Visible);
+			OnlineShooterHUD->ChatWidget->FocusChat();
 			OnlineShooterHUD->ChatWidget->SetChatOpen(true);
-			OnlineShooterHUD->ChatWidget->ChatInput->SetFocus();
 		}
 	}
 }
-
 
 void AOnlineShooterPlayerController::BroadcastChatMessage(APlayerState* PublisherState, FString MessageText)
 {

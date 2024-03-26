@@ -16,7 +16,14 @@ UCLASS()
 class ONLINESHOOTER_API UChat : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
+
+protected:
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
+	friend class AOnlineShooterHUD;
+
+private:
 	UPROPERTY()
 	APlayerController* PlayerController;
 	
@@ -26,9 +33,14 @@ class ONLINESHOOTER_API UChat : public UUserWidget
 	UPROPERTY()
 	bool bChatOpen = false;
 
-public:
+	UPROPERTY(EditAnywhere)
+	float ChatHideThreshold = 5.f;
+	float ChatHideCurrentTime = 0.f;
 
-	
+	UFUNCTION()
+	void ChatHideOnTime(float DeltaTime);
+
+public:
 	
 	UPROPERTY(meta = (BindWidget))
 	UScrollBox* ChatScrollBox;
@@ -37,13 +49,14 @@ public:
 	UMessage* ChatMessage;
 	
 	UPROPERTY(meta = (BindWidget))
-	UEditableTextBox* ChatInput; 
-
+	UEditableTextBox* ChatInput;
+	
 	UFUNCTION()
 	void AddChatMessageText(FString PublisherName, FString PlayerMessage);
 
 	void FocusChat();
 	void ShowChat();
+	void HideChat();
 	void ChatSetup();
 	
 	void ChatTearDown();
@@ -52,4 +65,7 @@ public:
 	FORCEINLINE UEditableTextBox* GetChatInput() const { return ChatInput; }
 	FORCEINLINE bool IsChatOpen() const { return bChatOpen; }
 	FORCEINLINE void SetChatOpen(bool NewChatOpen) { bChatOpen = NewChatOpen; }
+	FORCEINLINE void ResetChatTimer() { ChatHideCurrentTime = 0.f; }
+
+
 };
