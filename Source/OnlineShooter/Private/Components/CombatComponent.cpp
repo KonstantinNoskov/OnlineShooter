@@ -303,7 +303,7 @@ void UCombatComponent::PlayEquippedWeaponSound(AWeapon* WeaponToEquip)
 }
 
 // Pickup Ammo
-void UCombatComponent::PickupAmmo(EWeaponType AmmoWeaponType, int32 AmmoAmount)
+void UCombatComponent::PickupAmmo(EWeaponType AmmoWeaponType, int32 AmmoAmount) 
 {
 	// Ammo type valid check
 	if (CarriedAmmoMap.Contains(AmmoWeaponType))

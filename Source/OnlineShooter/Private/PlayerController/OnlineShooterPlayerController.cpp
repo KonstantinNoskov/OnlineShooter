@@ -14,6 +14,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Components/EditableTextBox.h"
+#include "Components/HorizontalBoxSlot.h"
 #include "Components/Image.h"
 #include "HUD/Announcement.h"
 #include "HUD/CharacterOverlay.h"
