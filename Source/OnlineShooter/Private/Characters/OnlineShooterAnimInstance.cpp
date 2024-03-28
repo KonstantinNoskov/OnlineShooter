@@ -31,16 +31,16 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	// Speed (horizontal)
 	Speed = OnlineShooterCharacter->GetVelocity().Size2D();
-
-	// Is character eliminated
-	bEliminated = OnlineShooterCharacter->IsEliminated();
-
+	
 	// Is character jumping
 	bIsInAir = OnlineShooterCharacter->GetCharacterMovement()->IsFalling();
 
 	// Is character moving
-	bIsAccelerating = OnlineShooterCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0 ? true : false;
+	bIsAccelerating = OnlineShooterCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size2D() > 0 ? true : false;
 
+	// Is character eliminated
+	bEliminated = OnlineShooterCharacter->IsEliminated();
+	
 	// Does character have a equipped weapon
 	bWeaponEquipped = OnlineShooterCharacter->IsWeaponEquipped();
 
@@ -144,4 +144,34 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		OnlineShooterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied &&
 		OnlineShooterCharacter->GetCombatState() != ECombatState::ECS_SwappingWeapon &&
 		!OnlineShooterCharacter->GetDisableGameplay();
+}
+
+void UOnlineShooterAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
+
+#pragma region LYRA STYLE
+
+	bHasVelocity = !FMath::IsNearlyEqual(Speed, 0.f);
+
+	
+	bHasAcceleration = HasAcceleration();
+
+	//OnlineShooterCharacter->GetMovementComponent()->GetLastInputVector()
+
+	#pragma endregion
+}
+
+bool UOnlineShooterAnimInstance::HasAcceleration()
+{
+	if (OnlineShooterCharacter)
+	{
+		FVector LocalAcceleration2D = UKismetMathLibrary::Quat_UnrotateVector(
+		OnlineShooterCharacter->GetActorRotation().Quaternion(),
+		OnlineShooterCharacter->GetCharacterMovement()->GetCurrentAcceleration() * FVector(1.f,1.f,0));
+
+		return !FMath::IsNearlyEqual(LocalAcceleration2D.Size2D(), 0.f);
+	}
+	
+	return false;
 }

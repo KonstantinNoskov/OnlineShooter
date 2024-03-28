@@ -319,7 +319,7 @@ private:
 	UCurveFloat* DissolveCurve;
 	
 	// Dynamic instance that we can change at runtime
-	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UPROPERTY()
 	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_0;
 
 	// Material instance set on the Blueprint, used with the dynamic material instance 
@@ -327,7 +327,7 @@ private:
 	UMaterialInstance* DissolveMaterialInstance_0;
 	
 	// Dynamic instance that we can change at runtime
-	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UPROPERTY()
 	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_1;
 
 	// Material instance set on the Blueprint, used with the dynamic material instance 
@@ -335,7 +335,7 @@ private:
 	UMaterialInstance* DissolveMaterialInstance_1;
 
 	// Dynamic instance that we can change at runtime
-	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UPROPERTY()
 	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_2;
 
 	// Material instance set on the Blueprint, used with the dynamic material instance 
@@ -343,7 +343,7 @@ private:
 	UMaterialInstance* DissolveMaterialInstance_2;
 
 	// Dynamic instance that we can change at runtime
-	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UPROPERTY()
 	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_3;
 
 	// Material instance set on the Blueprint, used with the dynamic material instance 
@@ -351,7 +351,7 @@ private:
 	UMaterialInstance* DissolveMaterialInstance_3;
 
 	// Dynamic instance that we can change at runtime
-	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UPROPERTY()
 	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_5;
 
 	// Material instance set on the Blueprint, used with the dynamic material instance 
@@ -359,7 +359,7 @@ private:
 	UMaterialInstance* DissolveMaterialInstance_5;
 
 	// Dynamic instance that we can change at runtime
-	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UPROPERTY()
 	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_6;
 
 	// Material instance set on the Blueprint, used with the dynamic material instance 
@@ -367,7 +367,7 @@ private:
 	UMaterialInstance* DissolveMaterialInstance_6;
 
 	// Dynamic instance that we can change at runtime
-	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UPROPERTY()
 	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_7;
 
 	// Material instance set on the Blueprint, used with the dynamic material instance 
@@ -375,7 +375,7 @@ private:
 	UMaterialInstance* DissolveMaterialInstance_7;
 
 	// Dynamic instance that we can change at runtime
-	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UPROPERTY()
 	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_8;
 
 	// Material instance set on the Blueprint, used with the dynamic material instance 
@@ -383,7 +383,7 @@ private:
 	UMaterialInstance* DissolveMaterialInstance_8;
 
 	// Dynamic instance that we can change at runtime
-	UPROPERTY(VisibleAnywhere, Category = Elimination)
+	UPROPERTY()
 	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance_9;
 
 	// Material instance set on the Blueprint, used with the dynamic material instance 
