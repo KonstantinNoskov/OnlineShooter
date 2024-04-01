@@ -26,7 +26,7 @@ enum class EWeaponState : uint8
 
 UENUM(BlueprintType)
 enum class EFireType : uint8
-{
+{	
 	EFT_HitScan		UMETA(DisplayName = "HitScan Weapon"),
 	EFT_Projectile	UMETA(DisplayName = "Projectile Weapon"),
 	EFT_Shotgun		UMETA(DisplayName = "Shotgun Weapon"),
@@ -260,6 +260,8 @@ public:
 	FORCEINLINE float GetDamage() const { return Damage; }
 	FORCEINLINE float GetCritFactor() const { return CritFactor; }
 	FORCEINLINE float GetCritDamage() const { return CritDamage; }
+
+
 
 #pragma endregion
 };

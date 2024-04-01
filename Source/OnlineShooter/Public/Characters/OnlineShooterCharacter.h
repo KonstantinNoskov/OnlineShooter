@@ -198,17 +198,8 @@ private:
 private:
 
 	UPROPERTY()
-	AOnlineShooterPlayerController* OnlineShooterPlayerController; 
+	AOnlineShooterPlayerController* OnlineShooterPlayerController;
 	
-	UPROPERTY()
-	float AO_Yaw;
-
-	UPROPERTY()
-	float AO_Pitch;
-	
-	UPROPERTY()
-	float InterpAO_Yaw;
-
 	UPROPERTY()
 	ETurningInPlace TurningInPlace;
 
@@ -229,10 +220,7 @@ private:
 
 	UPROPERTY()
 	bool bEliminated = false;
-
-	UPROPERTY()
-	bool bRotateRootBone;
-
+	
 	UPROPERTY()
 	float TurnThreshold = .5f;
 
@@ -248,6 +236,35 @@ private:
 	UPROPERTY()
 	float TimeSinceLastMovementReplication;
 
+
+
+
+#pragma region AIM OFFSET
+
+public:
+	
+	UPROPERTY()
+	FRotator StartingAimRotation;
+	
+private:
+
+	UPROPERTY()
+	float AO_Yaw;
+
+	UPROPERTY()
+	float AO_Pitch;
+	
+	UPROPERTY()
+	float InterpAO_Yaw;
+
+	UPROPERTY()
+	bool bRotateRootBone;
+	
+	UFUNCTION()
+	void AimOffset(float DeltaTime);
+
+#pragma endregion
+	
 #pragma region MONTAGES
 
 	UPROPERTY(EditAnywhere, Category = Montages)
@@ -562,9 +579,6 @@ public:
 private:
 	
 	UFUNCTION()
-	void AimOffset(float DeltaTime);
-
-	UFUNCTION()
 	void SimProxiesTurn();
 	
 	UFUNCTION() // Handles character turn in place animations depending on Z-axis offset.
@@ -622,8 +636,8 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowSniperScopeWidget(bool bShowScope);
-	
-	FRotator StartingAimRotation;
+
+
 
 	UFUNCTION()
 	void SpawnDefaultWeapon();
@@ -657,6 +671,7 @@ public:
 	FORCEINLINE float GetAO_Pitch() const							{ return AO_Pitch; }
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const			{ return TurningInPlace; }
 	FORCEINLINE bool ShouldRotateRootBone() const					{ return bRotateRootBone; }
+	FORCEINLINE bool IsFiring() const								{ return Combat->IsFiring(); }
 	bool IsLocallyReloading() const;
 
 	// States

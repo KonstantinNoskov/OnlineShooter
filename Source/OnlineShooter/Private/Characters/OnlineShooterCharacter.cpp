@@ -303,6 +303,8 @@ void AOnlineShooterCharacter::Tick(float DeltaTime)
 
 	// Try to Initialize relevant classes every tick if it's equal to null 
 	PollInit();
+
+
 }
 
 // Replication
@@ -458,6 +460,7 @@ void AOnlineShooterCharacter::CrouchButtonReleased()
 }
 
 #pragma region AIM
+
 void AOnlineShooterCharacter::AimButtonPressed()
 {
 	if (bDisableGameplay) return;
@@ -476,6 +479,44 @@ void AOnlineShooterCharacter::AimButtonReleased()
 		Combat->SetAiming(false);
 	}
 }
+
+void AOnlineShooterCharacter::AimOffset(float DeltaTime)
+{
+	if (!Combat && !Combat->EquippedWeapon) return; 
+	
+	float Speed = GetVelocity().Size2D();
+	bool bIsInAir = GetCharacterMovement()->IsFalling();
+	
+	if (!Speed && !bIsInAir) // standing still, not jumping
+		{
+		bRotateRootBone = true;
+		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
+		AO_Yaw = DeltaAimRotation.Yaw;
+		bUseControllerRotationYaw = false;
+	
+		if(TurningInPlace == ETurningInPlace::ETIP_NotTurning)
+		{
+			InterpAO_Yaw = AO_Yaw;
+		}
+		
+		//bUseControllerRotationYaw = true;
+	
+		TurnInPlace(DeltaTime);
+		}
+
+	if (Speed || bIsInAir) // running or jumping
+		{
+		bRotateRootBone = false;
+		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		AO_Yaw = 0.f;
+		bUseControllerRotationYaw = true;
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		}
+
+	CalculateAO_Pitch();
+}
+
 void AOnlineShooterCharacter::CalculateAO_Pitch()
 {
 	AO_Pitch = GetBaseAimRotation().Pitch;
@@ -488,8 +529,8 @@ void AOnlineShooterCharacter::CalculateAO_Pitch()
 		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
 	}
 }
-#pragma endregion
 
+#pragma endregion
 #pragma region PLAYER STATS
 
 void AOnlineShooterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
@@ -864,7 +905,6 @@ void AOnlineShooterCharacter::EliminatedTimerFinished()
 }
 
 #pragma endregion
-
 #pragma region LEAVING SESSION
 
 void AOnlineShooterCharacter::ServerLeaveGame_Implementation()
@@ -956,41 +996,6 @@ void AOnlineShooterCharacter::Destroyed()
 	bool bMatchNotInProgress = OnlineShooterGameMode && OnlineShooterGameMode->GetMatchState() != MatchState::InProgress;
 }
 
-void AOnlineShooterCharacter::AimOffset(float DeltaTime)
-{
-	if (!Combat && !Combat->EquippedWeapon) return; 
-	
-	float Speed = GetVelocity().Size2D();
-	bool bIsInAir = GetCharacterMovement()->IsFalling();
-	
-	if (!Speed && !bIsInAir) // standing still, not jumping
-	{
-		bRotateRootBone = true;
-		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
-		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
-		AO_Yaw = DeltaAimRotation.Yaw;
-	
-		if(TurningInPlace == ETurningInPlace::ETIP_NotTurning)
-		{
-			InterpAO_Yaw = AO_Yaw;
-		}
-		
-		bUseControllerRotationYaw = true;
-	
-		TurnInPlace(DeltaTime);
-	}
-
-	if (Speed || bIsInAir) // running or jumping
-	{
-		bRotateRootBone = false;
-		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
-		AO_Yaw = 0.f;
-		bUseControllerRotationYaw = true;
-		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
-	}
-
-	CalculateAO_Pitch();
-}
 void AOnlineShooterCharacter::SimProxiesTurn()
 {
 	if(!Combat || !Combat->EquippedWeapon) return;
@@ -1030,10 +1035,12 @@ void AOnlineShooterCharacter::SimProxiesTurn()
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 }
 
-// Fire
+#pragma region FIRE
+
 void AOnlineShooterCharacter::FireButtonPressed()
 {
 	if (bDisableGameplay) return;
+	
 	if(Combat && Combat->EquippedWeapon)
 	{
 		Combat->FireButtonPressed(true);
@@ -1042,12 +1049,16 @@ void AOnlineShooterCharacter::FireButtonPressed()
 void AOnlineShooterCharacter::FireButtonReleased()
 {
 	if (bDisableGameplay) return;
+	
 	if(Combat && Combat->EquippedWeapon)
 	{
 		Combat->FireButtonPressed(false);
 	}
 }
 
+
+
+#pragma endregion
 // Reload
 void AOnlineShooterCharacter::ReloadButtonPressed()
 {

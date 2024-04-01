@@ -8,7 +8,7 @@
 #include "OnlineShooterAnimInstance.generated.h"
 
 
-
+enum class EWeaponType : uint8;
 class AOnlineShooterCharacter;
 class AWeapon;
 
@@ -40,50 +40,53 @@ public:
 
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 
 private:
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
 	AOnlineShooterCharacter* OnlineShooterCharacter;
 
-
-#pragma region LYRA STYLE
-
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	bool bHasVelocity = false;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	bool bHasAcceleration = false;
-
-	UFUNCTION()
-	bool HasAcceleration();
-	
-#pragma endregion
-	
 	UPROPERTY(EditAnywhere)
 	bool bDebug = false;
-	
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float Speed;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	bool bIsInAir;
+#pragma region WEAPON DATA
 
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	bool bIsAccelerating;
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon Data", meta = (AllowPrivateAccess = "true"))
+	EWeaponType WeaponType; 
 
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon Data", meta = (AllowPrivateAccess = "true"))
 	bool bWeaponEquipped;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon Data", meta = (AllowPrivateAccess = "true"))
 	AWeapon* EquippedWeapon;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	bool bIsCrouching;
+	bool bAiming;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	bool bAiming;
+	bool bFiring;
+	
+#pragma endregion
+
+#pragma region MOVEMENT DATA
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement Data", meta = (AllowPrivateAccess = "true"))
+	bool bHasVelocity = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement Data", meta = (AllowPrivateAccess = "true"))
+	bool bHasAcceleration = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement Data", meta = (AllowPrivateAccess = "true"))
+	float Speed;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement Data", meta = (AllowPrivateAccess = "true"))
+	bool bIsInAir;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement Data", meta = (AllowPrivateAccess = "true"))
+	bool bIsAccelerating;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	bool bIsCrouching;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float YawOffset;
@@ -91,6 +94,22 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float Lean;
 
+	UPROPERTY(EditAnywhere)
+	float LeanInterpSpeed = 15.f;
+
+	UPROPERTY(EditAnywhere)
+	float StrafeInterpSpeed = 15.f;
+	
+	UFUNCTION()
+	bool HasAcceleration();
+
+	UFUNCTION()
+	void CalculateOffsetYaw(float DeltaTime);
+
+#pragma endregion
+
+#pragma region AIM OFFSET
+	
 	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	ETurningInPlace TurningInPlace;
 
@@ -104,6 +123,8 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = "Aim Offset", meta = (AllowPrivateAccess = "true"))
 	float AO_Pitch;
 
+#pragma endregion
+	
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon Grip", meta = (AllowPrivateAccess = "true"))
 	FTransform WeaponLeftHandTransform;
 

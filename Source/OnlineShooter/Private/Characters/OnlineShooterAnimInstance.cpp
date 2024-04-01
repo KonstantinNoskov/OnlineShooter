@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿
 
 
 #include "Characters/OnlineShooterAnimInstance.h"
@@ -18,7 +18,6 @@ void UOnlineShooterAnimInstance::NativeInitializeAnimation()
 	// Get the reference to a player character 
 	OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(TryGetPawnOwner());
 }
-
 void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
@@ -29,8 +28,13 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	// if player reference still is null, return
 	if(!OnlineShooterCharacter) { return; }
 
+#pragma region MOVEMENT DATA
+	
 	// Speed (horizontal)
 	Speed = OnlineShooterCharacter->GetVelocity().Size2D();
+
+	bHasVelocity = !FMath::IsNearlyEqual(Speed, 0.f);
+	bHasAcceleration = HasAcceleration();
 	
 	// Is character jumping
 	bIsInAir = OnlineShooterCharacter->GetCharacterMovement()->IsFalling();
@@ -38,8 +42,30 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	// Is character moving
 	bIsAccelerating = OnlineShooterCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size2D() > 0 ? true : false;
 
+	// Is character crouching
+	bIsCrouching = OnlineShooterCharacter->bIsCrouched;
+
+	// Is character aiming
+	bAiming = OnlineShooterCharacter->IsAiming();
+
+	// Calculate Offset Yaw for Strafing
+	CalculateOffsetYaw(DeltaSeconds);
+	
+	// Calculate Lean angle
+	CharacterRotationLastFrame = CharacterRotation;
+	CharacterRotation = OnlineShooterCharacter->GetActorRotation();
+	const FRotator CharacterRotationDelta = UKismetMathLibrary::NormalizedDeltaRotator(CharacterRotation, CharacterRotationLastFrame);
+	const float Target = CharacterRotationDelta.Yaw / DeltaSeconds;
+	const float Interp = FMath::FInterpTo(Lean, Target, DeltaSeconds, LeanInterpSpeed);
+	Lean = FMath::Clamp(Interp, -90.f, 90.f);
+
+#pragma endregion
+	
 	// Is character eliminated
 	bEliminated = OnlineShooterCharacter->IsEliminated();
+
+	
+#pragma region WEAPON DATA
 	
 	// Does character have a equipped weapon
 	bWeaponEquipped = OnlineShooterCharacter->IsWeaponEquipped();
@@ -47,36 +73,29 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	// Returns character's equipped weapon. 
 	EquippedWeapon = OnlineShooterCharacter->GetEquippedWeapon();
 
-	// Is character crouching
-	bIsCrouching = OnlineShooterCharacter->bIsCrouched;
+	// Weapon Type
+	if(EquippedWeapon)
+	{
+		WeaponType = EquippedWeapon->GetWeaponType();	
+	}
 
-	// Is character aiming
-	bAiming = OnlineShooterCharacter->IsAiming();
+	bFiring = OnlineShooterCharacter->IsFiring();
+
+#pragma endregion
+#pragma region AIM OFFSET
+
+	// Calculate AimOffset
+	AO_Yaw = OnlineShooterCharacter->GetAO_Yaw();
+	AO_Pitch = OnlineShooterCharacter->GetAO_Pitch();
+
+#pragma endregion
 
 	// Which side the character is turning to
 	TurningInPlace = OnlineShooterCharacter->GetTurningInPlace();
 	
 	bRotateRootBone = OnlineShooterCharacter->ShouldRotateRootBone();
 	
-	// Calculate Offset Yaw for Strafing
-	FRotator AimRotation = OnlineShooterCharacter->GetBaseAimRotation();
-	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(OnlineShooterCharacter->GetVelocity());
 	
-	FRotator Delta = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation);
-	StrafingDeltaRotation = FMath::RInterpTo(StrafingDeltaRotation, Delta, DeltaSeconds, 6.f);
-	YawOffset = StrafingDeltaRotation.Yaw;
-	
-	// Calculate Lean angle
-	CharacterRotationLastFrame = CharacterRotation;
-	CharacterRotation = OnlineShooterCharacter->GetActorRotation();
-	const FRotator CharacterRotationDelta = UKismetMathLibrary::NormalizedDeltaRotator(CharacterRotation, CharacterRotationLastFrame);
-	const float Target = CharacterRotationDelta.Yaw / DeltaSeconds;
-	const float Interp = FMath::FInterpTo(Lean, Target, DeltaSeconds, 6.f);
-	Lean = FMath::Clamp(Interp, -90.f, 90.f);
-
-	// Calculate AimOffset
-	AO_Yaw = OnlineShooterCharacter->GetAO_Yaw();
-	AO_Pitch = OnlineShooterCharacter->GetAO_Pitch();
 
 	// Calculate weapon socket transform
 	if(bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh())
@@ -146,22 +165,6 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		!OnlineShooterCharacter->GetDisableGameplay();
 }
 
-void UOnlineShooterAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
-{
-	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
-
-#pragma region LYRA STYLE
-
-	bHasVelocity = !FMath::IsNearlyEqual(Speed, 0.f);
-
-	
-	bHasAcceleration = HasAcceleration();
-
-	//OnlineShooterCharacter->GetMovementComponent()->GetLastInputVector()
-
-	#pragma endregion
-}
-
 bool UOnlineShooterAnimInstance::HasAcceleration()
 {
 	if (OnlineShooterCharacter)
@@ -174,4 +177,26 @@ bool UOnlineShooterAnimInstance::HasAcceleration()
 	}
 	
 	return false;
+}
+
+void UOnlineShooterAnimInstance::CalculateOffsetYaw(float DeltaTime)
+{
+	if (OnlineShooterCharacter)
+	{
+		FRotator AimRotation = OnlineShooterCharacter->GetBaseAimRotation();
+		FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(OnlineShooterCharacter->GetVelocity());
+		FRotator Delta = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation);
+		
+		StrafingDeltaRotation = FMath::RInterpTo(StrafingDeltaRotation, Delta, DeltaTime, StrafeInterpSpeed);
+		YawOffset = StrafingDeltaRotation.Yaw;
+
+		// DEBUG
+		if (bDebug)
+		{	
+			UE_LOG(LogTemp, Warning, TEXT("AimRotation YAW: %f, MovementRotation YAW: %f, Delta Rotation YAW: %f"),
+			       AimRotation.Yaw,
+			       MovementRotation.Yaw,
+			       Delta.Yaw);
+		}
+	}
 }

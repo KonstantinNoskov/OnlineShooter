@@ -47,9 +47,30 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
 	ECombatState CombatState;
-	
+
+#pragma region FIRE
+
 	UPROPERTY()
 	bool bCanFire = true;
+
+	UPROPERTY()
+	bool bFiring = false;
+
+	UPROPERTY(EditAnywhere)
+	float FiringTimeThreshold = 1.f;
+
+	UPROPERTY()
+	float FiringTime = FiringTimeThreshold;
+	
+	UFUNCTION()
+	void FiringTimer(float DeltaTime);
+
+public:
+	
+	FORCEINLINE float GetFiringTime() const { return FiringTime; }
+	FORCEINLINE bool IsFiring() const { return bFiring; }
+
+#pragma endregion
 
 	UPROPERTY()
 	bool bLocallyReloading = false;
@@ -158,6 +179,33 @@ private:
 	void InterpFOV(float DeltaTime);
 
 
+#pragma region EQUIP WEAPON
+
+protected:
+
+	UFUNCTION()
+	void EquipWeapon(AWeapon* WeaponToEquip);
+
+	UFUNCTION()
+	void EquipPrimaryWeapon(AWeapon* WeaponToEquip);
+
+	UFUNCTION()
+	void EquipSecondaryWeapon(AWeapon* WeaponToEquip);
+	
+	UFUNCTION()
+	void SwapWeapon();
+
+	UFUNCTION()
+	void OnRep_EquippedWeapon();
+
+	UFUNCTION()
+	void OnRep_SecondaryWeapon();
+
+	UFUNCTION()
+	void DropEquippedWeapon();
+
+#pragma endregion
+
 private:
 
 	UFUNCTION()
@@ -231,27 +279,6 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void Server_SetAiming(bool bIsAiming);
 	
-	UFUNCTION()
-	void EquipWeapon(AWeapon* WeaponToEquip);
-
-	UFUNCTION()
-	void EquipPrimaryWeapon(AWeapon* WeaponToEquip);
-
-	UFUNCTION()
-	void EquipSecondaryWeapon(AWeapon* WeaponToEquip);
-	
-	UFUNCTION()
-	void SwapWeapon();
-
-	UFUNCTION()
-	void OnRep_EquippedWeapon();
-
-	UFUNCTION()
-	void OnRep_SecondaryWeapon();
-
-	UFUNCTION()
-	void DropEquippedWeapon();
-
 	UFUNCTION()
 	void AttachActorToRightHand(AActor* ActorToAttach);
 

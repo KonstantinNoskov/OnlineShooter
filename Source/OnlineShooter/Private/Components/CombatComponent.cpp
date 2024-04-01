@@ -85,7 +85,10 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		// Aim zoom
 		InterpFOV(DeltaTime);
 	}
-	
+
+	FiringTimer(DeltaTime);
+
+	UE_LOG(LogTemp, Warning, TEXT("%f"), FiringTime)
 }
 
 // Replication
@@ -100,6 +103,8 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(UCombatComponent, CombatState);
 	DOREPLIFETIME(UCombatComponent, Grenades);
 }
+
+#pragma region EQUIP WEAPON
 
 // Equip weapon
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
@@ -302,6 +307,8 @@ void UCombatComponent::PlayEquippedWeaponSound(AWeapon* WeaponToEquip)
 	}
 }
 
+#pragma endregion
+
 // Pickup Ammo
 void UCombatComponent::PickupAmmo(EWeaponType AmmoWeaponType, int32 AmmoAmount) 
 {
@@ -389,6 +396,7 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 	if (bFireButtonPressed)
 	{
 		Fire();
+		bFiring = true;
 	}
 }
 bool UCombatComponent::CanFire()
@@ -414,6 +422,8 @@ void UCombatComponent::Fire()
 	if (CanFire())
 	{
 		bCanFire = false;
+		FiringTime = FiringTimeThreshold;
+		
 		if(EquippedWeapon)
 		{
 			CrosshairShootFactor = .75f;
@@ -438,6 +448,19 @@ void UCombatComponent::Fire()
 		}
 		
 		StartFireTimer();
+	}
+}
+
+void UCombatComponent::FiringTimer(float DeltaTime)
+{
+	if (bFiring)
+	{
+		FiringTime -= DeltaTime;
+
+		if (FiringTime <= 0)
+		{
+			bFiring = false;
+		}
 	}
 }
 
