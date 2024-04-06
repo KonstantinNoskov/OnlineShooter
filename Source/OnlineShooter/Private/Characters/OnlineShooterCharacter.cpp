@@ -303,8 +303,6 @@ void AOnlineShooterCharacter::Tick(float DeltaTime)
 
 	// Try to Initialize relevant classes every tick if it's equal to null 
 	PollInit();
-
-
 }
 
 // Replication
@@ -316,6 +314,7 @@ void AOnlineShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME(AOnlineShooterCharacter, Health);
 	DOREPLIFETIME(AOnlineShooterCharacter, Shield);
 	DOREPLIFETIME(AOnlineShooterCharacter, bDisableGameplay);
+	DOREPLIFETIME(AOnlineShooterCharacter, DamageDirection);
 }
 
 // Replicated movement
@@ -459,6 +458,28 @@ void AOnlineShooterCharacter::CrouchButtonReleased()
 	UnCrouch();
 }
 
+#pragma region FIRE
+
+void AOnlineShooterCharacter::FireButtonPressed()
+{
+	if (bDisableGameplay) return;
+	
+	if(Combat && Combat->EquippedWeapon)
+	{
+		Combat->FireButtonPressed(true);
+	}
+}
+void AOnlineShooterCharacter::FireButtonReleased()
+{
+	if (bDisableGameplay) return;
+	
+	if(Combat && Combat->EquippedWeapon)
+	{
+		Combat->FireButtonPressed(false);
+	}
+}
+
+#pragma endregion
 #pragma region AIM
 
 void AOnlineShooterCharacter::AimButtonPressed()
@@ -482,37 +503,36 @@ void AOnlineShooterCharacter::AimButtonReleased()
 
 void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 {
-	if (!Combat && !Combat->EquippedWeapon) return; 
+	if (!Combat && !Combat->EquippedWeapon) return;
 	
 	float Speed = GetVelocity().Size2D();
 	bool bIsInAir = GetCharacterMovement()->IsFalling();
 	
 	if (!Speed && !bIsInAir) // standing still, not jumping
-		{
+	{
 		bRotateRootBone = true;
 		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
 		AO_Yaw = DeltaAimRotation.Yaw;
-		bUseControllerRotationYaw = false;
+		//bUseControllerRotationYaw = false;
 	
 		if(TurningInPlace == ETurningInPlace::ETIP_NotTurning)
 		{
 			InterpAO_Yaw = AO_Yaw;
 		}
-		
-		//bUseControllerRotationYaw = true;
-	
-		TurnInPlace(DeltaTime);
-		}
 
+		bUseControllerRotationYaw = true;
+		TurnInPlace(DeltaTime);
+	}
 	if (Speed || bIsInAir) // running or jumping
-		{
+	{
 		bRotateRootBone = false;
 		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		AO_Yaw = 0.f;
 		bUseControllerRotationYaw = true;
+		
 		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
-		}
+	}
 
 	CalculateAO_Pitch();
 }
@@ -531,7 +551,7 @@ void AOnlineShooterCharacter::CalculateAO_Pitch()
 }
 
 #pragma endregion
-#pragma region PLAYER STATS
+#pragma region TAKEN DAMAGE
 
 void AOnlineShooterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
 {
@@ -539,7 +559,18 @@ void AOnlineShooterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, 
 	if(bEliminated || !OnlineShooterGameMode) return;
 	
 	Damage = OnlineShooterGameMode->CalculateDamage(InstigatorController, Controller, Damage);
-
+	
+	FRotator PlayerRotation = GetActorRotation();
+	FRotator DamageVectorRotation = UKismetMathLibrary::MakeRotFromX(DamageCauser->GetActorLocation() - GetActorLocation());
+	DamageRotationDelta = UKismetMathLibrary::NormalizedDeltaRotator(DamageVectorRotation, PlayerRotation);
+	DamageDirection = DamageRotationDelta.Yaw;
+	
+	// DEBUG
+	if (bDebug)
+	{
+		UE_LOG(LogTemp, Error, TEXT("DamageRotationDelta: %f"),  DamageDirection);	
+	}
+	
 	float DamageToHealth = Damage;
 
 	if (Shield > 0.f)
@@ -556,7 +587,7 @@ void AOnlineShooterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, 
 		}
 	}
 	
-	Health = FMath::Clamp(Health - DamageToHealth, 0.f, MaxHealth);
+	Health = FMath::Clamp(Health - DamageToHealth, 0.f, MaxHealth); 
 	
 	UpdateHUDHealth();
 	UpdateHUDShield();
@@ -574,6 +605,12 @@ void AOnlineShooterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, 
 		}	
 	}
 }
+
+void AOnlineShooterCharacter::MultiCastHit_Implementation()
+{
+	PlayHitReactMontage();	
+}
+
 void AOnlineShooterCharacter::OnRep_Health(float LastHealth)
 {
 	UpdateHUDHealth();
@@ -607,7 +644,6 @@ void AOnlineShooterCharacter::SetTeamColor(ETeam InTeam)
 		for (uint8 i = 0; i < 2; i++)
 		{
 			GetMesh()->SetMaterial(i, OriginalMaterial);
-			
 		}
 		
 		break;
@@ -1010,7 +1046,6 @@ void AOnlineShooterCharacter::SimProxiesTurn()
 		return;
 	}
 	
-	
 	ProxyRotationLastFrame = ProxyRotation;
 	ProxyRotation = GetActorRotation();
 	ProxyYaw = UKismetMathLibrary::NormalizedDeltaRotator(ProxyRotation, ProxyRotationLastFrame).Yaw;
@@ -1035,30 +1070,6 @@ void AOnlineShooterCharacter::SimProxiesTurn()
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 }
 
-#pragma region FIRE
-
-void AOnlineShooterCharacter::FireButtonPressed()
-{
-	if (bDisableGameplay) return;
-	
-	if(Combat && Combat->EquippedWeapon)
-	{
-		Combat->FireButtonPressed(true);
-	}
-}
-void AOnlineShooterCharacter::FireButtonReleased()
-{
-	if (bDisableGameplay) return;
-	
-	if(Combat && Combat->EquippedWeapon)
-	{
-		Combat->FireButtonPressed(false);
-	}
-}
-
-
-
-#pragma endregion
 // Reload
 void AOnlineShooterCharacter::ReloadButtonPressed()
 {
@@ -1225,7 +1236,7 @@ void AOnlineShooterCharacter::TurnInPlace(float DeltaTime)
 		InterpAO_Yaw = FMath::FInterpTo(InterpAO_Yaw, 0.f, DeltaTime, 4.f);
 		AO_Yaw = InterpAO_Yaw;
 
-		if (FMath::Abs(AO_Yaw) < 5.f)
+		if (FMath::Abs(AO_Yaw) < 15.f)
 		{
 			TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 			StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
@@ -1292,7 +1303,9 @@ void AOnlineShooterCharacter::PlayFireMontage(bool bAiming)
 	if(AnimInstance && FireWeaponMontage)
 	{
 		AnimInstance->Montage_Play(FireWeaponMontage);
-		FName SectionName = bAiming ? FName("RifleAim") : FName("RifleHip");
+		//FName SectionName = bAiming ? FName("RifleAim") : FName("RifleHip");
+		FName SectionName = FName("RifleIronsight");
+		
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
@@ -1349,15 +1362,47 @@ void AOnlineShooterCharacter::PlayReloadMontage()
 void AOnlineShooterCharacter::PlayHitReactMontage()
 {
 	// Play hit react montage only if we have a combat component and a weapon
-	if (!Combat || !Combat->EquippedWeapon) return;
+	if (!Combat /*|| !Combat->EquippedWeapon*/) return;
 	
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	FName SectionToPlay;
 	
 	if(AnimInstance && HitReactMontage && !AnimInstance->IsAnyMontagePlaying())
-	{
+	{	
+		SectionToPlay = FName("Front");
+
+		// Front Hit
+		if (DamageDirection >= -45.f && DamageDirection <= 45.f)
+		{
+			SectionToPlay = FName("Front");
+		}
+
+		// Left Hit
+		if (DamageDirection < -45.f && DamageDirection > -135.f )
+		{
+			SectionToPlay = FName("Left");
+		}
+
+		// Back Hit
+		if (DamageDirection <= -135.f && DamageDirection <= 135.f )
+		{
+			SectionToPlay = FName("Back");
+		}
+
+		// Right Hit
+		if (DamageDirection < 135.f && DamageDirection > 45.f )
+		{
+			SectionToPlay = FName("Right");
+		}
+
+		if (bDebug)
+		{
+			UE_LOG(LogClass, Error, TEXT("HIT: %s, DamageDirection: %f"), *SectionToPlay.ToString(), DamageDirection)
+		}
+		
 		AnimInstance->Montage_Play(HitReactMontage);
-		FName SectionName("FromFront");
-		AnimInstance->Montage_JumpToSection(SectionName);
+		AnimInstance->Montage_JumpToSection(SectionToPlay);
 	}
 }
 void AOnlineShooterCharacter::PlayElimMontage()
@@ -1366,10 +1411,12 @@ void AOnlineShooterCharacter::PlayElimMontage()
 	
 	if(AnimInstance && EliminatedMontage)
 	{
+		FName SectionToPlay = EliminatedMontage->GetSectionName(FMath::FRandRange(0.f, EliminatedMontage->GetNumSections()));
+		
 		AnimInstance->Montage_Play(EliminatedMontage);
+		AnimInstance->Montage_JumpToSection(SectionToPlay);
 	}
 }
-
 void AOnlineShooterCharacter::PlayThrowGrenadeMontage()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -1379,7 +1426,6 @@ void AOnlineShooterCharacter::PlayThrowGrenadeMontage()
 		AnimInstance->Montage_Play(ThrowGrenadeMontage);
 	}
 }
-
 void AOnlineShooterCharacter::PlaySwapWeaponMontage()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -1404,7 +1450,6 @@ ECombatState AOnlineShooterCharacter::GetCombatState() const
 
 	return Combat->CombatState;
 }
-
 bool AOnlineShooterCharacter::IsLocallyReloading() const
 {
 	if (!Combat) return false;

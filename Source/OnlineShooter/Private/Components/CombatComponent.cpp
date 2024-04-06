@@ -87,8 +87,6 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	}
 
 	FiringTimer(DeltaTime);
-
-	UE_LOG(LogTemp, Warning, TEXT("%f"), FiringTime)
 }
 
 // Replication
@@ -102,6 +100,9 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
 	DOREPLIFETIME(UCombatComponent, CombatState);
 	DOREPLIFETIME(UCombatComponent, Grenades);
+	DOREPLIFETIME(UCombatComponent, bFiring);
+	DOREPLIFETIME(UCombatComponent, FiringTime);
+	
 }
 
 #pragma region EQUIP WEAPON
@@ -421,6 +422,8 @@ void UCombatComponent::Fire()
 {
 	if (CanFire())
 	{
+		UE_LOG(LogTemp, Error, TEXT("Firing: %hd"), bFiring)
+	
 		bCanFire = false;
 		FiringTime = FiringTimeThreshold;
 		
@@ -532,6 +535,8 @@ void UCombatComponent::ShotgunLocalFire(const TArray<FVector_NetQuantize>& Trace
 // Common Fire RPC 
 void UCombatComponent::Server_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget) 
 {
+	bFiring = true;
+	FiringTime = FiringTimeThreshold;
 	Multicast_Fire(TraceHitTarget);
 }
 void UCombatComponent::Multicast_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget) 

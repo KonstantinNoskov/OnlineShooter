@@ -53,13 +53,13 @@ private:
 	UPROPERTY()
 	bool bCanFire = true;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	bool bFiring = false;
 
 	UPROPERTY(EditAnywhere)
 	float FiringTimeThreshold = 1.f;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	float FiringTime = FiringTimeThreshold;
 	
 	UFUNCTION()

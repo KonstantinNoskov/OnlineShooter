@@ -59,7 +59,6 @@ public:
 
 	// Friend Classes
 	friend UCombatComponent;
-	
 
 protected:
 	
@@ -197,6 +196,9 @@ private:
 
 private:
 
+	UPROPERTY(EditAnywhere)
+	bool bDebug = false;
+	
 	UPROPERTY()
 	AOnlineShooterPlayerController* OnlineShooterPlayerController;
 	
@@ -236,9 +238,6 @@ private:
 	UPROPERTY()
 	float TimeSinceLastMovementReplication;
 
-
-
-
 #pragma region AIM OFFSET
 
 public:
@@ -272,10 +271,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Montages)
 	UAnimMontage* ReloadMontage;
-
-	UPROPERTY(EditAnywhere, Category = Montages)
-	UAnimMontage* HitReactMontage;
-
+	
 	UPROPERTY(EditAnywhere, Category = Montages)
 	UAnimMontage* EliminatedMontage;
 
@@ -294,10 +290,7 @@ public:
 
 	UFUNCTION()
 	void PlayReloadMontage();
-
-	UFUNCTION()
-	void PlayHitReactMontage();
-
+	
 	UFUNCTION()
 	void PlayElimMontage();
 
@@ -415,7 +408,7 @@ private:
 
 #pragma endregion
 
-#pragma region PLAYER STATS
+#pragma region TAKEN DAMAGE
 
 	UPROPERTY(EditAnywhere, Category = "Player Stats")
 	float MaxHealth = 100.f;
@@ -428,13 +421,30 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_Shield, EditAnywhere, Category = "Player Stats")
 	float Shield = 0.f;
+
+	UPROPERTY(Replicated)
+	float DamageDirection;
+
+	UPROPERTY()
+	FRotator DamageRotationDelta;
+
+	UPROPERTY(EditAnywhere, Category = Montages)
+	UAnimMontage* HitReactMontage;
 	
 	UFUNCTION()
 	void OnRep_Health(float LastHealth);
 	
 	UFUNCTION()
 	void OnRep_Shield(float LastShield);
+	
+public:
 
+	UFUNCTION()
+	void PlayHitReactMontage();
+	
+	UFUNCTION(NetMulticast, Unreliable)
+	void MultiCastHit();
+	
 #pragma endregion
 
 #pragma region LEAVING SESSION
@@ -636,9 +646,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowSniperScopeWidget(bool bShowScope);
-
-
-
+	
 	UFUNCTION()
 	void SpawnDefaultWeapon();
 
@@ -671,7 +679,7 @@ public:
 	FORCEINLINE float GetAO_Pitch() const							{ return AO_Pitch; }
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const			{ return TurningInPlace; }
 	FORCEINLINE bool ShouldRotateRootBone() const					{ return bRotateRootBone; }
-	FORCEINLINE bool IsFiring() const								{ return Combat->IsFiring(); }
+	FORCEINLINE bool IsFiring() const								{ return Combat ? Combat->IsFiring() : false; }
 	bool IsLocallyReloading() const;
 
 	// States

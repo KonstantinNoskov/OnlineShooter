@@ -106,13 +106,13 @@ private:
 	UFUNCTION()
 	void CalculateOffsetYaw(float DeltaTime);
 
+	UFUNCTION()
+	void CalculateLeanAngle(float DeltaTime);
+
 #pragma endregion
 
 #pragma region AIM OFFSET
 	
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	ETurningInPlace TurningInPlace;
-
 	FRotator CharacterRotationLastFrame;
 	FRotator CharacterRotation;
 	FRotator StrafingDeltaRotation;
@@ -123,11 +123,18 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = "Aim Offset", meta = (AllowPrivateAccess = "true"))
 	float AO_Pitch;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	ETurningInPlace TurningInPlace;
+
 #pragma endregion
-	
+
+#pragma region LEFT HAND FABRIK
+
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon Grip", meta = (AllowPrivateAccess = "true"))
 	FTransform WeaponLeftHandTransform;
-
+	
+#pragma endregion
+	
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon Grip", meta = (AllowPrivateAccess = "true"))
 	FRotator RightHandRotation;
 	

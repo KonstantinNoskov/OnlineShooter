@@ -1,7 +1,4 @@
-﻿
-
-
-#include "Characters/OnlineShooterAnimInstance.h"
+﻿#include "Characters/OnlineShooterAnimInstance.h"
 
 // Math
 #include "Kismet/KismetMathLibrary.h"
@@ -52,19 +49,13 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	CalculateOffsetYaw(DeltaSeconds);
 	
 	// Calculate Lean angle
-	CharacterRotationLastFrame = CharacterRotation;
-	CharacterRotation = OnlineShooterCharacter->GetActorRotation();
-	const FRotator CharacterRotationDelta = UKismetMathLibrary::NormalizedDeltaRotator(CharacterRotation, CharacterRotationLastFrame);
-	const float Target = CharacterRotationDelta.Yaw / DeltaSeconds;
-	const float Interp = FMath::FInterpTo(Lean, Target, DeltaSeconds, LeanInterpSpeed);
-	Lean = FMath::Clamp(Interp, -90.f, 90.f);
+	CalculateLeanAngle(DeltaSeconds);
 
 #pragma endregion
 	
 	// Is character eliminated
 	bEliminated = OnlineShooterCharacter->IsEliminated();
 
-	
 #pragma region WEAPON DATA
 	
 	// Does character have a equipped weapon
@@ -89,17 +80,12 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	AO_Pitch = OnlineShooterCharacter->GetAO_Pitch();
 
 #pragma endregion
-
-	// Which side the character is turning to
-	TurningInPlace = OnlineShooterCharacter->GetTurningInPlace();
+#pragma region RIGHT & LEFT HANDS FABRIK
 	
-	bRotateRootBone = OnlineShooterCharacter->ShouldRotateRootBone();
-	
-	
-
 	// Calculate weapon socket transform
 	if(bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh())
 	{
+		
 		WeaponLeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("SKT_LeftHand"), RTS_World);
 		FVector OutPositionLeft;
 		FRotator OutRotationLeft;
@@ -112,23 +98,19 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		if (OnlineShooterCharacter->IsLocallyControlled())
 		{
 			bLocallyControlled = true;
-			
 			FTransform RightHandTransform = OnlineShooterCharacter->GetMesh()->GetSocketTransform(FName("hand_r"), RTS_World);
-
 			FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(FVector(), RightHandTransform.GetLocation() - OnlineShooterCharacter->GetHitTarget());
 
-			LookAtRotation.Roll += OnlineShooterCharacter->RightHandRotationRoll;
+			/*LookAtRotation.Roll += OnlineShooterCharacter->RightHandRotationRoll;
 			LookAtRotation.Yaw += OnlineShooterCharacter->RightHandRotationYaw;
-			LookAtRotation.Pitch += OnlineShooterCharacter->RightHandRotationPitch;
+			LookAtRotation.Pitch += OnlineShooterCharacter->RightHandRotationPitch;*/
 			
 			RightHandRotation = FMath::RInterpTo(RightHandRotation, LookAtRotation, DeltaSeconds, 20.f);// UKismetMathLibrary::FindLookAtRotation(FVector(), RightHandTransform.GetLocation() - OnlineShooterCharacter->GetHitTarget());
-			
 		}
 		
 		FTransform MuzzleTipTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"), RTS_World);
 		FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
-
-
+		
 		if (bDebug)
 		{
 			// Debug Lines for correcting muzzle rotation towards to crosshair
@@ -150,6 +132,13 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		bUseFABRIK = !OnlineShooterCharacter->IsLocallyReloading();
 	}
+	
+#pragma endregion
+
+
+	// Which side the character is turning to
+	TurningInPlace = OnlineShooterCharacter->GetTurningInPlace();
+	bRotateRootBone = OnlineShooterCharacter->ShouldRotateRootBone();
 	
 	// Use AimOffsets all the time except reloading & when the game state is on cooldown.
 	bUseAimOffsets =
@@ -178,7 +167,6 @@ bool UOnlineShooterAnimInstance::HasAcceleration()
 	
 	return false;
 }
-
 void UOnlineShooterAnimInstance::CalculateOffsetYaw(float DeltaTime)
 {
 	if (OnlineShooterCharacter)
@@ -189,14 +177,14 @@ void UOnlineShooterAnimInstance::CalculateOffsetYaw(float DeltaTime)
 		
 		StrafingDeltaRotation = FMath::RInterpTo(StrafingDeltaRotation, Delta, DeltaTime, StrafeInterpSpeed);
 		YawOffset = StrafingDeltaRotation.Yaw;
-
-		// DEBUG
-		if (bDebug)
-		{	
-			UE_LOG(LogTemp, Warning, TEXT("AimRotation YAW: %f, MovementRotation YAW: %f, Delta Rotation YAW: %f"),
-			       AimRotation.Yaw,
-			       MovementRotation.Yaw,
-			       Delta.Yaw);
-		}
 	}
+}
+void UOnlineShooterAnimInstance::CalculateLeanAngle(float DeltaTime)
+{
+	CharacterRotationLastFrame = CharacterRotation;
+	CharacterRotation = OnlineShooterCharacter->GetActorRotation();
+	const FRotator CharacterRotationDelta = UKismetMathLibrary::NormalizedDeltaRotator(CharacterRotation, CharacterRotationLastFrame);
+	const float Target = CharacterRotationDelta.Yaw / DeltaTime;
+	const float Interp = FMath::FInterpTo(Lean, Target, DeltaTime, LeanInterpSpeed);
+	Lean = FMath::Clamp(Interp, -90.f, 90.f);
 }

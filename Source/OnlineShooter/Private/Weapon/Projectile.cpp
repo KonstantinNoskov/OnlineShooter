@@ -112,6 +112,11 @@ void AProjectile::ExplodeDamage()
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                         FVector NormalImpulse, const FHitResult& Hit)
 {
+	AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(OtherActor);
+	if (OnlineShooterCharacter)
+	{
+		OnlineShooterCharacter->MultiCastHit();
+	}
 	Destroy();
 }
 
