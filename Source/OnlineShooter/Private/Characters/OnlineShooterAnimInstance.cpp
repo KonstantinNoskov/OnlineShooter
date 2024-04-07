@@ -80,6 +80,7 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	AO_Pitch = OnlineShooterCharacter->GetAO_Pitch();
 
 #pragma endregion
+	
 #pragma region RIGHT & LEFT HANDS FABRIK
 	
 	// Calculate weapon socket transform
@@ -134,8 +135,7 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 	
 #pragma endregion
-
-
+	
 	// Which side the character is turning to
 	TurningInPlace = OnlineShooterCharacter->GetTurningInPlace();
 	bRotateRootBone = OnlineShooterCharacter->ShouldRotateRootBone();
@@ -151,7 +151,7 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bTransformRightHand =
 		OnlineShooterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied &&
 		OnlineShooterCharacter->GetCombatState() != ECombatState::ECS_SwappingWeapon &&
-		!OnlineShooterCharacter->GetDisableGameplay();
+		OnlineShooterCharacter->GetDisableGameplay();
 }
 
 bool UOnlineShooterAnimInstance::HasAcceleration()

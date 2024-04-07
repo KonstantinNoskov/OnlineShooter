@@ -199,7 +199,7 @@ AActor* AOnlineShooterGameMode::GetRespawnPoint()
 {	
 	/*
 	 * We want to make eliminated character spawn as far as possible from the all other characters
-	 * Most remote spawn point gonna be determined by summarizing magnitudes from all characters to it. 
+	 * Most remote spawn point have to be determined by summarizing magnitudes from all characters to it. 
 	 */
 	
 	AActor* MostDistancePoint = nullptr;

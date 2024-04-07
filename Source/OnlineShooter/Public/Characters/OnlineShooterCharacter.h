@@ -265,7 +265,7 @@ private:
 #pragma endregion
 	
 #pragma region MONTAGES
-
+	
 	UPROPERTY(EditAnywhere, Category = Montages)
 	UAnimMontage* FireWeaponMontage;
 
@@ -302,7 +302,7 @@ public:
 
 #pragma endregion
 
-#pragma region ELIMBOT
+#pragma region ELIMINATION
 
 private:
 	

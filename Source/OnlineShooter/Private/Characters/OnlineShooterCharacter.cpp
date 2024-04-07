@@ -242,7 +242,7 @@ void AOnlineShooterCharacter::PostInitializeComponents()
 void AOnlineShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	// Set Enhanced input subsystem
 	if (const ULocalPlayer* Player = (GEngine && GetWorld()) ? GEngine->GetFirstGamePlayer(GetWorld()) : nullptr)
 	{
@@ -594,7 +594,7 @@ void AOnlineShooterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, 
 	PlayHitReactMontage();
 	
 	if(Health <= 0.f)
-	{
+	{	
 		OnlineShooterGameMode = !OnlineShooterGameMode ? GetWorld()->GetAuthGameMode<AOnlineShooterGameMode>() : OnlineShooterGameMode; 
 		if(OnlineShooterGameMode)
 		{
@@ -764,7 +764,6 @@ void AOnlineShooterCharacter::UpdateHUDGrenades()
 void AOnlineShooterCharacter::Eliminated(bool bPlayerLeftGame)
 {
 	DropOrDestroyWeapons();
-	
 	Multicast_Eliminated(bPlayerLeftGame);
 }
 void AOnlineShooterCharacter::Multicast_Eliminated_Implementation(bool bPlayerLeftGame)
@@ -777,6 +776,10 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation(bool bPlayerLe
 	
 	bEliminated = true;
 	PlayElimMontage();
+
+	FAttachmentTransformRules AttachmentRules(FAttachmentTransformRules::KeepRelativeTransform);
+	CameraBoom->AttachToComponent(RootComponent, AttachmentRules);
+	CameraBoom->SetWorldLocation(CameraBoom->GetComponentLocation() + FVector(0.f,0.f, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
 	
 	// Start Dissolve effect
 	if(DissolveMaterialInstance_0)
@@ -866,7 +869,7 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation(bool bPlayerLe
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	// Show elimbot effect
+	/*// Show elimbot effect
 	if(ElimBotEffect)
 	{
 		FVector ElimBotSpawnPoint(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 200.f);
@@ -877,7 +880,7 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation(bool bPlayerLe
 	if(ElimBotSound)
 	{
 		UGameplayStatics::SpawnSoundAtLocation(this, ElimBotSound, GetActorLocation());
-	}
+	}*/
 
 	bool bHideSniperScope =
 		IsLocallyControlled() &&
