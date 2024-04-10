@@ -422,8 +422,6 @@ void UCombatComponent::Fire()
 {
 	if (CanFire())
 	{
-		UE_LOG(LogTemp, Error, TEXT("Firing: %hd"), bFiring)
-	
 		bCanFire = false;
 		FiringTime = FiringTimeThreshold;
 		
@@ -618,7 +616,7 @@ void UCombatComponent::OnRep_CombatState()
 		
 		case ECombatState::ECS_Reloading:
 			
-			if (Character && Character->IsLocallyControlled())
+			if (Character && !Character->IsLocallyControlled())
 			{
 				HandleReload();	
 			}
@@ -702,7 +700,6 @@ void UCombatComponent::FinishReloading()
 		Fire();
 	}
 }
-
 int32 UCombatComponent::AmountToReload()
 {
 	if(!EquippedWeapon) return 0;
@@ -816,6 +813,7 @@ void UCombatComponent::ThrowGrenade()
 		Server_ThrowGrenade();	
 	}
 
+	// Local Call
 	if (Character && Character->HasAuthority())
 	{
 		// Decrement grenades amount

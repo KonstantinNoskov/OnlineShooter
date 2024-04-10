@@ -30,6 +30,7 @@
 // GameModes
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyEnums.h"
 #include "Components/BoxComponent.h"
 #include "Components/BuffComponent.h"
 #include "Components/LagCompensationComponent.h"
@@ -198,7 +199,6 @@ AOnlineShooterCharacter::AOnlineShooterCharacter()
 	}
 
 #pragma endregion
-	
 }
 
 // Post Initialize Components 
@@ -426,10 +426,10 @@ void AOnlineShooterCharacter::Look(const FInputActionValue& Value)
 	bool bScopeLook =
 		Combat &&
 		Combat->bAiming &&
-		GetEquippedWeapon() &&
-		GetEquippedWeapon()->GetWeaponType() == EWeaponType::EWT_SniperRifle;
+		GetEquippedWeapon()/* &&
+		GetEquippedWeapon()->GetWeaponType() == EWeaponType::EWT_SniperRifle*/;
 
-	float MouseSensitivity = bScopeLook ? .1f : 1.f;
+	float MouseSensitivity = bScopeLook ? .2f : 1.f;
 	
 	if (Controller != nullptr)
 	{
@@ -503,7 +503,7 @@ void AOnlineShooterCharacter::AimButtonReleased()
 
 void AOnlineShooterCharacter::AimOffset(float DeltaTime)
 {
-	if (!Combat && !Combat->EquippedWeapon) return;
+	if (!Combat/* && !Combat->EquippedWeapon*/) return;
 	
 	float Speed = GetVelocity().Size2D();
 	bool bIsInAir = GetCharacterMovement()->IsFalling();

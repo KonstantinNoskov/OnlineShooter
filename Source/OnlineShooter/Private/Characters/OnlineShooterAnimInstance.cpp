@@ -105,8 +105,11 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			/*LookAtRotation.Roll += OnlineShooterCharacter->RightHandRotationRoll;
 			LookAtRotation.Yaw += OnlineShooterCharacter->RightHandRotationYaw;
 			LookAtRotation.Pitch += OnlineShooterCharacter->RightHandRotationPitch;*/
-			
-			RightHandRotation = FMath::RInterpTo(RightHandRotation, LookAtRotation, DeltaSeconds, 20.f);// UKismetMathLibrary::FindLookAtRotation(FVector(), RightHandTransform.GetLocation() - OnlineShooterCharacter->GetHitTarget());
+
+			if (!OnlineShooterCharacter->GetDisableGameplay())
+			{
+				RightHandRotation = FMath::RInterpTo(RightHandRotation, LookAtRotation, DeltaSeconds, 20.f);// UKismetMathLibrary::FindLookAtRotation(FVector(), RightHandTransform.GetLocation() - OnlineShooterCharacter->GetHitTarget());	
+			}
 		}
 		
 		FTransform MuzzleTipTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"), RTS_World);
@@ -121,7 +124,8 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 	
 	// Use FABRIK all the time except reloading. FABRIK used to always place left hand on weapon 
-	bUseFABRIK = OnlineShooterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;
+	bUseFABRIK =
+		OnlineShooterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;
 
 	bool bFABRIKOverride =
 		OnlineShooterCharacter->IsLocallyControlled() &&
@@ -151,7 +155,7 @@ void UOnlineShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bTransformRightHand =
 		OnlineShooterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied &&
 		OnlineShooterCharacter->GetCombatState() != ECombatState::ECS_SwappingWeapon &&
-		OnlineShooterCharacter->GetDisableGameplay();
+		!OnlineShooterCharacter->GetDisableGameplay();
 }
 
 bool UOnlineShooterAnimInstance::HasAcceleration()

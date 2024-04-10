@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "Pickup.generated.h"
 
+class APickupSpawnPoint;
 class AOnlineShooterCharacter;
 class UNiagaraSystem;
 class UNiagaraComponent;
@@ -30,6 +31,14 @@ protected:
 	UFUNCTION()
 	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent,AActor* OtherActor,UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+private:
+
+	UPROPERTY()
+	APickupSpawnPoint* SpawnPointOwner;
+
+public:
+	FORCEINLINE void SetSpawnPointOwner(APickupSpawnPoint* NewOwner) { SpawnPointOwner = NewOwner; }
 
 private:
 	

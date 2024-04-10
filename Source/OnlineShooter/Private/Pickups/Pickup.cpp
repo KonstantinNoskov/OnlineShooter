@@ -8,6 +8,7 @@
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "Pickups/PickupSpawnPoint.h"
 #include "Weapon/WeaponTypes.h"
 
 APickup::APickup()
@@ -65,7 +66,11 @@ void APickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	{
 		Multicast_PlayEffect(OverlapCharacter);	
 	}
-	
+
+	if (SpawnPointOwner)
+	{
+		SpawnPointOwner->SetNoPickupHighLight();
+	}
 	Destroy();
 }
 

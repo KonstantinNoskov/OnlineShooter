@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "PickupSpawnPoint.generated.h"
 
+class AWeapon;
 class APickup;
 
 UCLASS()
@@ -14,12 +15,15 @@ class ONLINESHOOTER_API APickupSpawnPoint : public AActor
 public:
 	APickupSpawnPoint();
 	virtual void Tick(float DeltaTime) override;
-	
+
 protected:
 	virtual void BeginPlay() override;
 
 private:
 
+	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* SpawnPointMesh;
+	
 	UPROPERTY()
 	FTimerHandle SpawnPickupTimer;
 
@@ -31,9 +35,15 @@ private:
 	
 	UPROPERTY(EditAnywhere)
 	TArray<TSubclassOf<APickup>> PickupClasses;
-
+	
 	UPROPERTY()
 	APickup* SpawnedPickup;
+
+	UPROPERTY(EditAnywhere)
+	UMaterialInstance* NoPickupMaterial;
+	
+	UPROPERTY(EditAnywhere)
+	UMaterialInstance* PickupMaterial;
 
 	UPROPERTY(EditAnywhere, Category = "Spawn Time")
 	bool bSpawnLoop = true;
@@ -51,5 +61,10 @@ protected:
 
 	UFUNCTION()
 	void StartSpawnPickupTimer(AActor* DestroyedActor);
+
+public:
+	
+	void SetPickupHighLight();
+	void SetNoPickupHighLight();
 	
 };
