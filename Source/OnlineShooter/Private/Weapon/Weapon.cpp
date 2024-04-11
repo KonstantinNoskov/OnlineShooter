@@ -54,7 +54,7 @@ void AWeapon::BeginPlay()
 	// Bind overlap delegates
 	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);
 	AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);
-
+	
 	// Make Weapon pick up widget invisible by default
 	if (PickupWidget)
 	{

@@ -31,9 +31,7 @@ protected:
 	UFUNCTION()
 	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent,AActor* OtherActor,UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-private:
-
+	
 	UPROPERTY()
 	APickupSpawnPoint* SpawnPointOwner;
 
@@ -64,12 +62,12 @@ protected:
 	
 	UPROPERTY(EditAnywhere)
 	float BaseTurnRate = 45.f;
-
-private:
-
+	
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_PlayEffect(AOnlineShooterCharacter* OverlappedCharacter);
-
+	
+private:
+	
 	UFUNCTION()
 	void BindOverlapTimerFinished();
 	

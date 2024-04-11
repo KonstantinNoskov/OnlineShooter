@@ -5,6 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
 
+class AWeaponSpawnPoint;
 class AOnlineShooterPlayerController;
 class AOnlineShooterCharacter;
 class ACasing;
@@ -62,8 +63,11 @@ protected:
 	virtual void HandleWeaponEquipped();
 	virtual void HandleWeaponDropped();
 	virtual void HandleEquippedSecondary();
-	
+
 private:
+	
+	UPROPERTY()
+	AWeaponSpawnPoint* SpawnPointOwner;
 	
 	// Weapon mesh
 	UPROPERTY(VisibleAnywhere)
@@ -102,7 +106,7 @@ private:
 	// Shells, casings ejected after shot
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ACasing> CasingClass;
-
+	
 protected:
 
 	UPROPERTY()
@@ -131,14 +135,16 @@ protected:
 
 	UPROPERTY(Replicated, EditAnywhere)
 	bool bUseServerSideRewind = false;
-
+	
 private:
 
 	UFUNCTION()
 	void OnPingTooHigh(bool bPingTooHigh);
 	
 public:
-
+	FORCEINLINE void SetSpawnPointOwner(AWeaponSpawnPoint* NewOwner) { SpawnPointOwner = NewOwner; }
+	FORCEINLINE AWeaponSpawnPoint* GetSpawnPointOwner() const { return SpawnPointOwner; }
+	
 	UPROPERTY()
 	bool bDestroyWeapon = false;
 	
@@ -257,8 +263,6 @@ public:
 	FORCEINLINE float GetDamage() const { return Damage; }
 	FORCEINLINE float GetCritFactor() const { return CritFactor; }
 	FORCEINLINE float GetCritDamage() const { return CritDamage; }
-
-
 
 #pragma endregion
 };

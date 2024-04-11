@@ -78,7 +78,6 @@ void AProjectileGrenade::OnBounceGrenade(const FHitResult& ImpactResult, const F
 		DestroyDelay(3.f);
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("Bounce of: %s"), *ImpactResult.GetComponent()->GetName())
 	if (BounceSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(

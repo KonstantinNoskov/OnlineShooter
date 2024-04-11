@@ -66,11 +66,12 @@ void APickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	{
 		Multicast_PlayEffect(OverlapCharacter);	
 	}
-
+	
 	if (SpawnPointOwner)
 	{
-		SpawnPointOwner->SetNoPickupHighLight();
+		SpawnPointOwner->SetSpawnPointHighLight(true);
 	}
+	
 	Destroy();
 }
 
@@ -82,7 +83,6 @@ void APickup::BindOverlapTimerFinished()
 
 void APickup::Multicast_PlayEffect_Implementation(AOnlineShooterCharacter* OverlapCharacter)
 {
-	
 	if (PickupEffect && OverlapCharacter && OverlapCharacter->GetMesh())
 	{
 		UNiagaraComponent* SideEffect = UNiagaraFunctionLibrary::SpawnSystemAttached(

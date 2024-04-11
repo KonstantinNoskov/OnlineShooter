@@ -1,7 +1,9 @@
 ﻿#include "Pickups/PickupSpawnPoint.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "MaterialEditor/Public/MaterialEditingLibrary.h"
+#include "Materials/MaterialInstanceConstant.h"
 #include "Pickups/Pickup.h"
-#include "Weapon/Weapon.h"
 
 APickupSpawnPoint::APickupSpawnPoint()
 {
@@ -15,7 +17,11 @@ void APickupSpawnPoint::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SpawnPickup();
+	if (HasAuthority())
+	{
+		SpawnPickup();	
+	}
+	
 	
 	//StartSpawnPickupTimer((AActor*)nullptr);
 }
@@ -32,9 +38,15 @@ void APickupSpawnPoint::SpawnPickup()
 	
 	if (NumPickupClasses)
 	{
-		SetPickupHighLight();
+		SetSpawnPointHighLight(false);
+
+		if (SpawnSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this,SpawnSound, this->GetActorLocation());	
+		}
 		
 		int32 Selection = FMath::RandRange(0, NumPickupClasses - 1);
+		
 		SpawnedPickup = GetWorld()->SpawnActor<APickup>(PickupClasses[Selection], GetActorTransform());
 		SpawnedPickup->SetSpawnPointOwner(this);
 		
@@ -56,43 +68,32 @@ void APickupSpawnPoint::SpawnPickup()
 
 void APickupSpawnPoint::StartSpawnPickupTimer(AActor* DestroyedActor)
 {
+	UE_LOG(LogTemp, Error, TEXT("APickupSpawnPoint::StartSpawnPickupTimer()"))
 	const float SpawnTime = FMath::FRandRange(SpawnPickupTimeMin, SpawnPickupTimeMax);
-	GetWorldTimerManager().SetTimer(SpawnPickupTimer, this, &APickupSpawnPoint::SpawnPickupFinished, SpawnTime);
+	GetWorldTimerManager().SetTimer(SpawnPickupTimer, this, &ThisClass::SpawnPickupFinished, SpawnTime);
 }
 
-void APickupSpawnPoint::SetPickupHighLight()
+void APickupSpawnPoint::SetSpawnPointHighLight(bool bPickedUp)
 {
 	bool bPickupHighLightValid =
 			SpawnPointMesh
 			&& SpawnPointMesh->GetStaticMesh()
-			&& SpawnPointMesh->GetStaticMesh()->GetStaticMaterials().Num()
-			&& PickupMaterial;
+			&& SpawnPointMesh->GetStaticMesh()->GetStaticMaterials().Num();
 	
 	if (bPickupHighLightValid)
 	{
-		SpawnPointMesh->GetStaticMesh()->SetMaterial(0, PickupMaterial); 
-	}
-}
-
-void APickupSpawnPoint::SetNoPickupHighLight()
-{
-	bool bPickupHighLightValid =
-			SpawnPointMesh
-			&& SpawnPointMesh->GetStaticMesh()
-			&& SpawnPointMesh->GetStaticMesh()->GetStaticMaterials().Num()
-			&& NoPickupMaterial;
-	
-	if (bPickupHighLightValid)
-	{
-		SpawnPointMesh->GetStaticMesh()->SetMaterial(0, NoPickupMaterial); 
+		UMaterialInstanceConstant* PickUpMaterial = Cast<UMaterialInstanceConstant>(SpawnPointMesh->GetStaticMesh()->GetMaterial(0));
+		UMaterialEditingLibrary::SetMaterialInstanceVectorParameterValue(PickUpMaterial, "Color",  bPickedUp ? FColor::Red : FColor::Green );
 	}
 }
 
 void APickupSpawnPoint::SpawnPickupFinished()
 {
+	UE_LOG(LogTemp, Error, TEXT("APickupSpawnPoint::SpawnPickupFinished()"))
 	if (HasAuthority())
 	{
 		SpawnPickup();
+		UE_LOG(LogTemp, Error, TEXT("APickupSpawnPoint::SpawnPickup()"))
 	}
 }
 

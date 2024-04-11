@@ -24,8 +24,7 @@ private:
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* SpawnPointMesh;
 	
-	UPROPERTY()
-	FTimerHandle SpawnPickupTimer;
+	
 
 	UPROPERTY(EditAnywhere, Category = "Spawn Time")
 	float SpawnPickupTimeMin;
@@ -39,12 +38,14 @@ private:
 	UPROPERTY()
 	APickup* SpawnedPickup;
 
-	UPROPERTY(EditAnywhere)
-	UMaterialInstance* NoPickupMaterial;
+protected:
+
+	UPROPERTY()
+	FTimerHandle SpawnPickupTimer;
 	
 	UPROPERTY(EditAnywhere)
-	UMaterialInstance* PickupMaterial;
-
+	USoundBase* SpawnSound;
+	
 	UPROPERTY(EditAnywhere, Category = "Spawn Time")
 	bool bSpawnLoop = true;
 	
@@ -54,17 +55,19 @@ private:
 protected:
 
 	UFUNCTION()
-	void SpawnPickup();
+	virtual void SpawnPickup();
 
 	UFUNCTION()
 	void SpawnPickupFinished();
 
-	UFUNCTION()
-	void StartSpawnPickupTimer(AActor* DestroyedActor);
+	
 
 public:
+
+	UFUNCTION()
+	void StartSpawnPickupTimer(AActor* DestroyedActor);
 	
-	void SetPickupHighLight();
-	void SetNoPickupHighLight();
+	virtual void SetSpawnPointHighLight(bool bPickedUp);
+	
 	
 };

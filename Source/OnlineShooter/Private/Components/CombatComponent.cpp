@@ -30,6 +30,7 @@
 // HUD
 #include "Components/BoxComponent.h"
 #include "HUD/OnlineShooterHUD.h"
+#include "Pickups/WeaponSpawnPoint.h"
 
 // Constructor
 UCombatComponent::UCombatComponent()
@@ -112,6 +113,17 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 {
 	if (!Character || !WeaponToEquip) return;
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
+
+	
+	WeaponToEquip->GetWeaponMesh()->SetRelativeScale3D(FVector(1.f,1.f,1.f));
+
+	AWeaponSpawnPoint* WeaponSpawnPoint = WeaponToEquip->GetSpawnPointOwner();
+	if (WeaponSpawnPoint)
+	{
+		WeaponSpawnPoint->StartSpawnPickupTimer(WeaponToEquip);
+		WeaponSpawnPoint->SetSpawnPointHighLight(true);
+		WeaponToEquip->SetSpawnPointOwner(nullptr);
+	}
 	
 	// if there's no secondary weapon
 	if (EquippedWeapon && !SecondaryWeapon)
