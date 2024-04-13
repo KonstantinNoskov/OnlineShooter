@@ -113,7 +113,6 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 {
 	if (!Character || !WeaponToEquip) return;
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
-
 	
 	WeaponToEquip->GetWeaponMesh()->SetRelativeScale3D(FVector(1.f,1.f,1.f));
 
@@ -144,7 +143,7 @@ void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
 {
 	if (!WeaponToEquip) return;
 
-	/*if(SecondaryWeapon && SecondaryWeapon->GetWeaponType() == WeaponToEquip->GetWeaponType())
+	if(SecondaryWeapon && SecondaryWeapon->GetWeaponType() == WeaponToEquip->GetWeaponType())
 	{
 		SecondaryWeapon->AddAmmo(WeaponToEquip->Ammo);
 		CarriedAmmoMap[SecondaryWeapon->GetWeaponType()] +=  WeaponToEquip->Ammo;
@@ -155,11 +154,27 @@ void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
 		PlayEquippedWeaponSound(WeaponToEquip);
 		
 		return;
-	}*/
+	}
+
+	if(EquippedWeapon && EquippedWeapon->GetWeaponType() == WeaponToEquip->GetWeaponType())
+	{
+		EquippedWeapon->AddAmmo(WeaponToEquip->Ammo);
+		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] +=  WeaponToEquip->Ammo;
+		UpdateCarriedAmmo();
+		
+		WeaponToEquip->Destroy();
+
+		// Play equip weapon sound
+		PlayEquippedWeaponSound(WeaponToEquip);
+		
+		return;
+	}
 	
 	// Drop the current weapon if already have one
-	DropEquippedWeapon();
+	//DropEquippedWeapon();
 
+	//EquippedWeapon->Destroy();
+	
 	// Set weapon state to "Equipped"
 	EquippedWeapon = WeaponToEquip;
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
@@ -185,7 +200,6 @@ void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
 void UCombatComponent::EquipSecondaryWeapon(AWeapon* WeaponToEquip)
 {
 	if (!WeaponToEquip) return;
-
 	
 	if (EquippedWeapon->GetWeaponType() == WeaponToEquip->GetWeaponType())
 	{
@@ -356,7 +370,10 @@ bool UCombatComponent::ShouldSwapWeapon()
 }
 void UCombatComponent::SwapWeapon() 
 {
-	SetAiming(false);
+	if (bAiming)
+	{
+		SetAiming(false);	
+	}
 	
 	if (!Character || CombatState != ECombatState::ECS_Unoccupied || !Character->HasAuthority()) return;
 
@@ -394,7 +411,7 @@ void UCombatComponent::FinishSwapAttachWeapon()
 	EquippedWeapon->SetHUDAmmo();
 	UpdateCarriedAmmo();
 	
-	//ReloadEmptyWeapon();
+	ReloadEmptyWeapon();
 	
 	// Set params as primary weapon become secondary 
 	SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
@@ -572,7 +589,6 @@ void UCombatComponent::StartFireTimer()
 
 	Character->GetWorldTimerManager().SetTimer(FireTimer, this, &UCombatComponent::OnFireTimerFinished, EquippedWeapon->GetFireRate());
 }
-
 void UCombatComponent::InitializeCarriedAmmo()
 {
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_AssaultRifle, StartingARAmmo);
@@ -670,6 +686,7 @@ void UCombatComponent::Reload()
  	if (bCanReload)
 	{
 		Server_Reload();
+ 		Server_SetAiming(false);
  		
 		HandleReload();
  		
@@ -928,7 +945,7 @@ void UCombatComponent::OnRep_Grenades()
 // Crosshair & Aiming
 void UCombatComponent::SetAiming(bool bIsAiming)
 {
-	if(!Character || !EquippedWeapon) return;
+	if(!Character || !EquippedWeapon || Character->GetCombatState() != ECombatState::ECS_Unoccupied ) return;
 	
 	bAiming = bIsAiming;
 	Server_SetAiming(bIsAiming);

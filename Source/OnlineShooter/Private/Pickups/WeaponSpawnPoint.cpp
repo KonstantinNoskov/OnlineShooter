@@ -33,6 +33,7 @@ void AWeaponSpawnPoint::SpawnPickup()
 
 		SpawnedWeapon->GetWeaponMesh()->SetRelativeScale3D(FVector(2.f, 2.f, 2.f));
 		SpawnedWeapon->SetSpawnPointOwner(this);
+		SpawnedWeapon->bDestroyWeapon = true;
 		
 		if (HasAuthority() && SpawnedWeapon)
 		{

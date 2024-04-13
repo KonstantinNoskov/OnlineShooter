@@ -79,11 +79,12 @@ void APickupSpawnPoint::SetSpawnPointHighLight(bool bPickedUp)
 			SpawnPointMesh
 			&& SpawnPointMesh->GetStaticMesh()
 			&& SpawnPointMesh->GetStaticMesh()->GetStaticMaterials().Num();
+
 	
 	if (bPickupHighLightValid)
-	{
-		UMaterialInstanceConstant* PickUpMaterial = Cast<UMaterialInstanceConstant>(SpawnPointMesh->GetStaticMesh()->GetMaterial(0));
-		UMaterialEditingLibrary::SetMaterialInstanceVectorParameterValue(PickUpMaterial, "Color",  bPickedUp ? FColor::Red : FColor::Green );
+	{	
+		UMaterialInstance* SpawnPadMaterial = bPickedUp ? SpawnOffMaterial : SpawnOnMaterial;
+		if (SpawnPadMaterial) SpawnPointMesh->SetMaterial(0, SpawnPadMaterial);
 	}
 }
 

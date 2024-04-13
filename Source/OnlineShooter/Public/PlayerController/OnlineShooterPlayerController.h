@@ -136,6 +136,12 @@ private:
 
 	UPROPERTY()
 	AOnlineShooterGameMode* OnlineShooterGameMode;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* CountdownSound;
+	
+	UPROPERTY(EditAnywhere)
+	float CountThreshold = 5.f;
 	
 	UPROPERTY()
 	float MatchTime = 0.f;
@@ -148,10 +154,10 @@ private:
 
 	UPROPERTY()
 	float CooldownTime = 0.f;
-
+	
 	UPROPERTY()
 	int32 CountdownInt = 0;
-
+	
 	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
 	FName MatchState;
 

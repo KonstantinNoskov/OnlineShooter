@@ -716,12 +716,17 @@ void AOnlineShooterPlayerController::SetHUDMatchCountdown(float CountdownTime)
 		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
 		
 		OnlineShooterHUD->CharacterOverlay->MatchCountdownText->SetText(FText::FromString(CountdownText));
+
+		if (CountdownSound && FMath::FloorToInt(CountdownTime) <= CountThreshold)
+		{
+			UGameplayStatics::PlaySound2D(this, CountdownSound);
+		}
 	}
 }
 void AOnlineShooterPlayerController::SetHUDAnnouncementCountdown(float CountdownTime)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
-
+	
 	bool bHUDValid =
 		OnlineShooterHUD &&
 		OnlineShooterHUD->Announcement &&
@@ -740,12 +745,17 @@ void AOnlineShooterPlayerController::SetHUDAnnouncementCountdown(float Countdown
 		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
 		
 		OnlineShooterHUD->Announcement->WarmupTime->SetText(FText::FromString(CountdownText));
+
+		if (CountdownSound && FMath::FloorToInt(CountdownTime) <= CountThreshold)
+		{
+			UGameplayStatics::PlaySound2D(this, CountdownSound);
+		}
 	}
 }
 void AOnlineShooterPlayerController::SetHUDTime()
 {
 	float TimeLeft = 0.f;
-
+	
 	if(MatchState == MatchState::WaitingToStart)	TimeLeft = WarmupTime - GetServerTime() + LevelStartingTime;
 	else if (MatchState == MatchState::InProgress)	TimeLeft = WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;
 	else if (MatchState == MatchState::Cooldown)	TimeLeft = CooldownTime + WarmupTime + MatchTime - GetServerTime() + LevelStartingTime; 
@@ -890,7 +900,6 @@ void AOnlineShooterPlayerController::SetHUDSniperScope(bool bIsAiming)
 		}
 	}
 }
-
 void AOnlineShooterPlayerController::OnMatchStateSet(FName State, bool bTeamsMatch)
 {	
 	MatchState = State;

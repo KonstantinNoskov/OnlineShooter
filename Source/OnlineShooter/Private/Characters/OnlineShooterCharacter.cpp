@@ -1014,7 +1014,6 @@ void AOnlineShooterCharacter::StartDissolve()
 
 	if(DissolveCurve && DissolveTimeline)
 	{
-		
 		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
 		DissolveTimeline->Play();
 	}
