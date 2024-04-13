@@ -173,7 +173,7 @@ void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
 	// Drop the current weapon if already have one
 	//DropEquippedWeapon();
 
-	//EquippedWeapon->Destroy();
+	if (EquippedWeapon) EquippedWeapon->Destroy();
 	
 	// Set weapon state to "Equipped"
 	EquippedWeapon = WeaponToEquip;
@@ -686,9 +686,9 @@ void UCombatComponent::Reload()
  	if (bCanReload)
 	{
 		Server_Reload();
- 		Server_SetAiming(false);
- 		
 		HandleReload();
+
+		SetAiming(false);
  		
  		bLocallyReloading = true;
 	}
@@ -748,7 +748,7 @@ int32 UCombatComponent::AmountToReload()
 void UCombatComponent::HandleReload() 
 {
 	if (Character)
-	{
+	{	
 		Character->PlayReloadMontage();
 	}
 }
@@ -945,10 +945,10 @@ void UCombatComponent::OnRep_Grenades()
 // Crosshair & Aiming
 void UCombatComponent::SetAiming(bool bIsAiming)
 {
-	if(!Character || !EquippedWeapon || Character->GetCombatState() != ECombatState::ECS_Unoccupied ) return;
+	if(!Character || !EquippedWeapon || Character->GetCombatState() == ECombatState::ECS_ThrowingGrenade || Character->GetCombatState() == ECombatState::ECS_SwappingWeapon ) return;
 	
 	bAiming = bIsAiming;
-	Server_SetAiming(bIsAiming);
+	Server_SetAiming(bIsAiming); 
 	
 	// Calculate walk speed aiming factor
 	Character->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimingWalkSpeed : BaseWalkSpeed;

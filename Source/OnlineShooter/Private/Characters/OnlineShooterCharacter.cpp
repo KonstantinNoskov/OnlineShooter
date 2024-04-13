@@ -791,7 +791,6 @@ void AOnlineShooterCharacter::Multicast_Eliminated_Implementation(bool bPlayerLe
 	}
 	if(DissolveMaterialInstance_1)
 	{
-		
 		DynamicDissolveMaterialInstance_1 = UMaterialInstanceDynamic::Create(DissolveMaterialInstance_1, this);
 		GetMesh()->SetMaterial(1, DynamicDissolveMaterialInstance_1);
 		DynamicDissolveMaterialInstance_1->SetScalarParameterValue(TEXT("Dissolve"), .75f);
