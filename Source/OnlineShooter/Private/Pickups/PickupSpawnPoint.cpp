@@ -3,7 +3,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "MaterialEditor/Public/MaterialEditingLibrary.h"
 #include "Materials/MaterialInstanceConstant.h"
+#include "Pickups/HealthPickup.h"
 #include "Pickups/Pickup.h"
+#include "Pickups/ShieldPickup.h"
 
 APickupSpawnPoint::APickupSpawnPoint()
 {
@@ -21,7 +23,6 @@ void APickupSpawnPoint::BeginPlay()
 	{
 		SpawnPickup();	
 	}
-	
 	
 	//StartSpawnPickupTimer((AActor*)nullptr);
 }
@@ -49,6 +50,14 @@ void APickupSpawnPoint::SpawnPickup()
 		
 		SpawnedPickup = GetWorld()->SpawnActor<APickup>(PickupClasses[Selection], GetActorTransform());
 		SpawnedPickup->SetSpawnPointOwner(this);
+
+		AShieldPickup* Shield = Cast<AShieldPickup>(SpawnedPickup);
+		if (Shield)
+		{
+			Shield->SetShieldValue(SpawnedPickupValue);
+		}
+		
+		
 		
 		if (HasAuthority() && SpawnedPickup)
 		{
@@ -97,6 +106,17 @@ void APickupSpawnPoint::SpawnPickupFinished()
 		UE_LOG(LogTemp, Error, TEXT("APickupSpawnPoint::SpawnPickup()"))
 	}
 }
+
+void APickupSpawnPoint::SetSpawnedPickupValue(AActor* ActorToSpawn)
+{
+	switch (ActorToSpawn)
+	{
+		case ActorToSpawn == Cast<AHealthPickup>(ActorToSpawn):
+	}
+	
+}
+
+
 
 
 

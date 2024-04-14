@@ -12,6 +12,7 @@ AShieldPickup::AShieldPickup()
 void AShieldPickup::BeginPlay()
 {
 	Super::BeginPlay();
+
 	
 }
 

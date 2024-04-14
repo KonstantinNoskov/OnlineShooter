@@ -25,5 +25,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float ShieldReplenishTime  = 5.f;
-	
+
+
+public:
+
+	FORCEINLINE void SetShieldValue(float NewShieldValue) { ShieldReplenishAmount = NewShieldValue; }
 };

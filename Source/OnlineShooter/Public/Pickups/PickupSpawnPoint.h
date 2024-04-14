@@ -20,14 +20,14 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-
+	
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* SpawnPointMesh;
 	
-	UPROPERTY(EditAnywhere, Category = "Spawn Time")
+	UPROPERTY(EditAnywhere, Category = "Spawn Pickup")
 	float SpawnPickupTimeMin;
 
-	UPROPERTY(EditAnywhere, Category = "Spawn Time")
+	UPROPERTY(EditAnywhere, Category = "Spawn Pickup")
 	float SpawnPickupTimeMax;
 	
 	UPROPERTY(EditAnywhere)
@@ -36,18 +36,21 @@ private:
 	UPROPERTY()
 	APickup* SpawnedPickup;
 
+	UPROPERTY(EditAnywhere, Category = "Spawn Pickup")
+	float SpawnedPickupValue = 0.f;
+
 protected:
 
 	UPROPERTY()
 	FTimerHandle SpawnPickupTimer;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Spawn Pickup")
 	USoundBase* SpawnSound;
 	
-	UPROPERTY(EditAnywhere, Category = "Spawn Time")
+	UPROPERTY(EditAnywhere, Category = "Spawn Pickup")
 	bool bSpawnLoop = true;
 	
-	UPROPERTY(EditAnywhere, Category = "Spawn Time", meta = (EditCondition = "!bSpawnLoop"))
+	UPROPERTY(EditAnywhere, Category = "Spawn Pickup", meta = (EditCondition = "!bSpawnLoop"))
 	int32 SpawnRepeatAmount = 0;
 
 	UPROPERTY(EditAnywhere, Category = "Materials")
@@ -55,7 +58,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Materials")
 	UMaterialInstance* SpawnOffMaterial;
-
+	
 protected:
 
 	UFUNCTION()
@@ -64,6 +67,9 @@ protected:
 	UFUNCTION()
 	void SpawnPickupFinished();
 
+	UFUNCTION()
+	void SetSpawnedPickupValue(AActor* ActorToSpawn);
+	
 public:
 
 	UFUNCTION()

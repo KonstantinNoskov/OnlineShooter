@@ -54,6 +54,9 @@ private:
 
 protected:
 
+	UPROPERTY()
+	float SpawnedPickupValue = 0.f;
+
 	UPROPERTY(VisibleAnywhere)
 	UNiagaraComponent* PickupEffectComponent;
 
@@ -70,5 +73,9 @@ private:
 	
 	UFUNCTION()
 	void BindOverlapTimerFinished();
+
+public:
+
+	FORCEINLINE void SetSpawnedPickupValue(float NewValue) { SpawnedPickupValue = NewValue; }
 	
 };
