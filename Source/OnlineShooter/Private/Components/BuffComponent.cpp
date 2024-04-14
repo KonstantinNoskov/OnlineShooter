@@ -88,8 +88,8 @@ void UBuffComponent::BuffSpeed(float BuffBaseSpeed, float BuffCrouchSpeed, float
 
 	if(Character->GetCharacterMovement())
 	{
-		Character->GetCharacterMovement()->MaxWalkSpeed = BuffBaseSpeed;
-		Character->GetCharacterMovement()->MaxWalkSpeedCrouched = BuffCrouchSpeed;
+		Character->GetCharacterMovement()->MaxWalkSpeed += BuffBaseSpeed;
+		Character->GetCharacterMovement()->MaxWalkSpeedCrouched += BuffCrouchSpeed;
 	}
 
 	Multicast_UpdateSpeeds(BuffBaseSpeed, BuffCrouchSpeed);

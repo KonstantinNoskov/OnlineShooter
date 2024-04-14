@@ -67,8 +67,7 @@ protected:
 	UFUNCTION()
 	void SpawnPickupFinished();
 
-	UFUNCTION()
-	void SetSpawnedPickupValue(AActor* ActorToSpawn);
+	
 	
 public:
 

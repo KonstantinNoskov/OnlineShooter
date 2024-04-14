@@ -30,7 +30,7 @@ void AAmmoPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 		UCombatComponent* CombatComponent = OnlineShooterCharacter->GetCombatComponent();
 		if (CombatComponent)
 		{
-			CombatComponent->PickupAmmo(WeaponType, AmmoAmount);
+			CombatComponent->PickupAmmo(WeaponType, SpawnedPickupValue ? SpawnedPickupValue : AmmoAmount);
 		}
 	}
 

@@ -54,6 +54,7 @@ private:
 
 protected:
 
+	/* If greater than 0 overrides inherited pickup's values */
 	UPROPERTY()
 	float SpawnedPickupValue = 0.f;
 

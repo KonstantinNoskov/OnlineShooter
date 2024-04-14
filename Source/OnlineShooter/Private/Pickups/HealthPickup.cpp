@@ -27,7 +27,7 @@ void AHealthPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		UBuffComponent* Buff = Cast<UBuffComponent>(OnlineShooterCharacter->GetBuffComponent());
 		if(Buff)
 		{
-			Buff->Heal(HealAmount, HealingTime);
+			Buff->Heal(SpawnedPickupValue ? SpawnedPickupValue : HealAmount, HealingTime);
 		}
 
 		Super::OnSphereOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);

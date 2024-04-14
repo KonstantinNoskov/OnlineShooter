@@ -14,6 +14,11 @@ void AJumpPickup::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AJumpPickup::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void AJumpPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -25,13 +30,7 @@ void AJumpPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 		UBuffComponent* Buff = Cast<UBuffComponent>(OnlineShooterCharacter->GetBuffComponent());
 		if(Buff)
 		{
-			Buff->BuffJump(JumpZVelocityBuff, JumpBuffTime);
+			Buff->BuffJump( SpawnedPickupValue ? SpawnedPickupValue : JumpZVelocityBuff, JumpBuffTime);
 		}
 	}
 }
-
-void AJumpPickup::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-

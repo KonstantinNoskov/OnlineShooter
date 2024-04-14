@@ -50,14 +50,7 @@ void APickupSpawnPoint::SpawnPickup()
 		
 		SpawnedPickup = GetWorld()->SpawnActor<APickup>(PickupClasses[Selection], GetActorTransform());
 		SpawnedPickup->SetSpawnPointOwner(this);
-
-		AShieldPickup* Shield = Cast<AShieldPickup>(SpawnedPickup);
-		if (Shield)
-		{
-			Shield->SetShieldValue(SpawnedPickupValue);
-		}
-		
-		
+		SpawnedPickup->SetSpawnedPickupValue(SpawnedPickupValue);
 		
 		if (HasAuthority() && SpawnedPickup)
 		{
@@ -107,14 +100,7 @@ void APickupSpawnPoint::SpawnPickupFinished()
 	}
 }
 
-void APickupSpawnPoint::SetSpawnedPickupValue(AActor* ActorToSpawn)
-{
-	switch (ActorToSpawn)
-	{
-		case ActorToSpawn == Cast<AHealthPickup>(ActorToSpawn):
-	}
-	
-}
+
 
 
 

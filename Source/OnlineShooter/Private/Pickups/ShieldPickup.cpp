@@ -31,7 +31,7 @@ void AShieldPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		if(Buff && OnlineShooterCharacter->GetShield() < OnlineShooterCharacter->GetMaxShield())
 		{
 			UE_LOG(LogTemp, Warning, TEXT("%f"), Buff->GetShieldReplenishAmount())
-			Buff->ReplenishShield(ShieldReplenishAmount, ShieldReplenishTime);
+			Buff->ReplenishShield(SpawnedPickupValue ? SpawnedPickupValue : ShieldReplenishAmount, ShieldReplenishTime);
 			Super::OnSphereOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 		}
 	}

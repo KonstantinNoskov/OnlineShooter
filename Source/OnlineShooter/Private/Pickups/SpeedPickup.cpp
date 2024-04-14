@@ -34,7 +34,10 @@ void ASpeedPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 		UBuffComponent* Buff = Cast<UBuffComponent>(OnlineShooterCharacter->GetBuffComponent());
 		if(Buff)
 		{
-			Buff->BuffSpeed(BaseSpeedBuff, CrouchSpeedBuff, SpeedBuffTime);
+			Buff->BuffSpeed(
+				SpawnedPickupValue ? SpawnedPickupValue : BaseSpeedBuff,
+				SpawnedPickupValue ? SpawnedPickupValue : CrouchSpeedBuff,
+				SpeedBuffTime);
 		}
 	}
 }
