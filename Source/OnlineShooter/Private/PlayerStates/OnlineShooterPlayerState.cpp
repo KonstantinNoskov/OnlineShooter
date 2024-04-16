@@ -10,8 +10,6 @@
 void AOnlineShooterPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
-
-	SetPlayerName(FString("Nagibator228"));
 }
 
 void AOnlineShooterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const 

@@ -43,7 +43,7 @@ public:
 	UTextBlock* AmmoText;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* WeaponAmmoAmount;
+	UTextBlock* WeaponAmmoAmountText;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Divider;
@@ -55,7 +55,7 @@ public:
 	UTextBlock* MatchCountdownText;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* GrenadesAmount;
+	UTextBlock* GrenadesAmountText;
 
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* ShieldBar;

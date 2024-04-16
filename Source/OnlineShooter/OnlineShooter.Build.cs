@@ -28,8 +28,8 @@ public class OnlineShooter : ModuleRules
 		{
 			"Slate",
 			"SlateCore",
-			"UMG",
-			"MaterialEditor"
+			"UMG"//,
+			//"MaterialEditor"
 		});
 		
 		// Uncomment if you are using online features

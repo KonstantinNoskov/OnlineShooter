@@ -26,7 +26,6 @@ void AThrowGrenade::Tick(float DeltaTime)
 
 void AThrowGrenade::OnBounceGrenade(const FHitResult& ImpactResult, const FVector& ImpactVelocity)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Bounce of: %s"), *ImpactResult.GetComponent()->GetName())
 	if (BounceSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(

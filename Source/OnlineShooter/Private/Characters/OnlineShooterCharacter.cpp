@@ -30,7 +30,6 @@
 // GameModes
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
-#include "BehaviorTree/Blackboard/BlackboardKeyEnums.h"
 #include "Components/BoxComponent.h"
 #include "Components/BuffComponent.h"
 #include "Components/LagCompensationComponent.h"
@@ -429,7 +428,7 @@ void AOnlineShooterCharacter::Look(const FInputActionValue& Value)
 		GetEquippedWeapon()/* &&
 		GetEquippedWeapon()->GetWeaponType() == EWeaponType::EWT_SniperRifle*/;
 
-	float MouseSensitivity = bScopeLook ? .2f : 1.f;
+	float MouseSensitivity = bScopeLook ? AimSensitivity : 1.f;
 	
 	if (Controller != nullptr)
 	{
@@ -443,7 +442,16 @@ void AOnlineShooterCharacter::Look(const FInputActionValue& Value)
 void AOnlineShooterCharacter::Jump()
 {
 	if (bDisableGameplay) return; 
-	bIsCrouched ? UnCrouch() : Super::Jump();
+	if (bIsCrouched)
+	{
+		UnCrouch();
+	}
+	else
+	{
+		if (!JumpCurrentCount && JumpStartSound) UGameplayStatics::PlaySoundAtLocation(this, JumpStartSound, GetActorLocation());
+		Super::Jump();
+		
+	}
 }
 
 // Crouch
@@ -754,7 +762,7 @@ void AOnlineShooterCharacter::UpdateHUDGrenades()
 {
 	// Player controller valid check
 	OnlineShooterPlayerController = !OnlineShooterPlayerController ? Cast<AOnlineShooterPlayerController>(Controller) : OnlineShooterPlayerController;
-	if(OnlineShooterPlayerController && Combat /*&& Combat->GetGrenades()*/)
+	if(OnlineShooterPlayerController && Combat && Combat->GetGrenades())
 	{
 		// Update HUD Carried and Weapon ammo
 		OnlineShooterPlayerController->SetHUDGrenades(Combat->GetGrenades());

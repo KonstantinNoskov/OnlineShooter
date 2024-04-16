@@ -4,10 +4,10 @@
 namespace Announcement
 {
 	const FString NewMatchStartIn(TEXT("New Match Starts In:"));
-	const FString ThereIsNoWinner(TEXT("There Is No Winner"));
+	const FString ThereIsNoWinner(TEXT("Draw"));
 	const FString YouWon(TEXT("You Won!"));
 	const FString MultipleWinners(TEXT("We Have Multiple Winners: \n"));
-	const FString MultipleTeamsWinners(TEXT("Teams tied for the win: \n"));
+	const FString MultipleTeamsWinners(TEXT("Draw\n"));
 	const FString RedTeam(TEXT("Red Team"));
 	const FString BlueTeam(TEXT("Blue Team"));
 

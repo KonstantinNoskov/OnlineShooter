@@ -161,6 +161,13 @@ void AOnlineShooterGameMode::RequestRespawn(ACharacter* EliminatedCharacter, ACo
 		{
 			// Spawn eliminated player
 			RestartPlayerAtPlayerStart(EliminatedController, MostRemoteStartPoint);
+			AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(EliminatedController->GetPawn());
+			if (OnlineShooterCharacter)
+			{
+				OnlineShooterCharacter->UpdateHUDGrenades();
+				OnlineShooterCharacter->UpdateHUDAmmo();
+				OnlineShooterCharacter->UpdateHUDShield();
+			}
 		}
 	}
 }

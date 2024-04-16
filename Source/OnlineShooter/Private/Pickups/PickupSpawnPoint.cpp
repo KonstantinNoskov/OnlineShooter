@@ -1,11 +1,7 @@
 ﻿#include "Pickups/PickupSpawnPoint.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "MaterialEditor/Public/MaterialEditingLibrary.h"
-#include "Materials/MaterialInstanceConstant.h"
-#include "Pickups/HealthPickup.h"
 #include "Pickups/Pickup.h"
-#include "Pickups/ShieldPickup.h"
 
 APickupSpawnPoint::APickupSpawnPoint()
 {

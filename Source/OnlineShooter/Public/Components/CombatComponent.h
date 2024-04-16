@@ -107,7 +107,7 @@ public:
 	int32 StartingGrenadeLauncherAmmo = 0;
 
 	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Grenades)
-	int32 Grenades = 3;
+	int32 Grenades = 2;
 
 	UPROPERTY(EditAnywhere)
 	int32 MaxGrenades = 3;

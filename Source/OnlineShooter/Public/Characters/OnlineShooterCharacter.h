@@ -141,8 +141,15 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ThrowGrenadeAction;
 
+	UPROPERTY(EditAnywhere)
+	USoundCue* JumpStartSound;
 
+	UPROPERTY(EditAnywhere)
+	float AimSensitivity = .1f;
+	
 protected:
+
+	
 	
 	/** Callback for movement input */
 	UFUNCTION()
@@ -615,12 +622,7 @@ protected:
 	UFUNCTION()
 	void PollInit();
 
-	UFUNCTION()
-	void UpdateHUDAmmo();
-
-	UFUNCTION()
-	void UpdateHUDGrenades();
-
+	
 	UFUNCTION()
 	void DropOrDestroyWeapons();
 
@@ -634,6 +636,12 @@ public:
 
 	UFUNCTION()
 	void UpdateHUDShield();
+
+	UFUNCTION()
+	void UpdateHUDAmmo();
+
+	UFUNCTION()
+	void UpdateHUDGrenades();
 	
 	// Determines whether player overlap weapon
 	void SetOverlappingWeapon(AWeapon* Weapon);
@@ -698,7 +706,7 @@ public:
 	FORCEINLINE float GetShield() const								{ return Shield; }
 	FORCEINLINE float GetMaxShield() const							{ return MaxShield; }
 	FORCEINLINE void SetShield(float NewShieldAmount)				{ Shield = NewShieldAmount; }
-
+	
 	// Lag Compensation
 	FORCEINLINE ULagCompensationComponent* GetLagCompensation() const{ return LagCompensation; }
 	

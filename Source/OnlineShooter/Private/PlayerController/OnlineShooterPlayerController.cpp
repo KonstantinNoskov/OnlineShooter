@@ -13,7 +13,6 @@
 // HUD
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Components/EditableTextBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/Image.h"
 #include "HUD/Announcement.h"
@@ -23,6 +22,7 @@
 #include "HUD/ReturnToMainMenu.h"
 #include "HUD/SniperScopeWidget.h"
 #include "OnlineShooter/Data/Announcement.h"
+#include "Weapon/Weapon.h"
 
 void AOnlineShooterPlayerController::BeginPlay()
 {
@@ -121,14 +121,20 @@ void AOnlineShooterPlayerController::PollInit()
 				if (bInitializeScore)		SetHUDScore(HUDScore);
 				if (bInitializeDefeats)		SetHUDDefeats(HUDDefeats);
 				
+				UE_LOG(LogTemp, Warning, TEXT("PollInit"))
+				
 				AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(GetPawn());
 				if (OnlineShooterCharacter && OnlineShooterCharacter->GetCombatComponent())
 				{
-					if (bInitializeGrenades) SetHUDGrenades(OnlineShooterCharacter->GetCombatComponent()->GetGrenades());	
+					if (bInitializeGrenades) SetHUDGrenades(OnlineShooterCharacter->GetCombatComponent()->GetGrenades());
+					
+					UE_LOG(LogTemp, Error, TEXT("SetHUDGrenades"))
 				}
 			}
 		}
 	}
+
+	
 }
 void AOnlineShooterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -145,7 +151,7 @@ void AOnlineShooterPlayerController::OnPossess(APawn* InPawn)
 
 	if(OnlineShooterCharacter)
 	{
-		SetHUDHealth(OnlineShooterCharacter->GetHealth(), OnlineShooterCharacter->GetMaxHealth());
+		UpdateHUD();
 		HideElimMessage();
 	}
 }
@@ -367,6 +373,7 @@ FString AOnlineShooterPlayerController::GetInfoText(const TArray<AOnlineShooterP
 	FString InfoTextString;
 	
 	AOnlineShooterPlayerState* OnlineShooterPlayerState = GetPlayerState<AOnlineShooterPlayerState>();
+	
 	if (!OnlineShooterPlayerState) return FString(); 
 	
 	if(!Players.Num())
@@ -471,7 +478,6 @@ float AOnlineShooterPlayerController::GetServerTime()
 	// Client should sync it's time with server by adding delta time which we've calculated earlier to client current time.
 	return GetWorld()->GetTimeSeconds() + ClientServerDeltaTime; 
 }
-
 void AOnlineShooterPlayerController::ReceivedPlayer()
 {
 	Super::ReceivedPlayer();
@@ -496,6 +502,34 @@ void AOnlineShooterPlayerController::CheckTimeSync(float DeltaTime)
 #pragma endregion
 
 // Set Character Overlay
+void AOnlineShooterPlayerController::UpdateHUD()
+{
+	if(OnlineShooterHUD && OnlineShooterHUD->CharacterOverlay)
+	{
+		CharacterOverlay = OnlineShooterHUD->CharacterOverlay; 
+		if(CharacterOverlay)
+		{
+			AOnlineShooterCharacter* OnlineShooterCharacter = Cast<AOnlineShooterCharacter>(GetPawn());
+			if (OnlineShooterCharacter && OnlineShooterCharacter->GetCombatComponent())
+			{
+				UGameplayStatics::GetPlayerState(this, 0);
+				SetHUDHealth		(OnlineShooterCharacter->GetHealth(), OnlineShooterCharacter->GetMaxHealth());
+				SetHUDShield		(OnlineShooterCharacter->GetShield(), OnlineShooterCharacter->GetMaxShield());
+				SetHUDWeaponAmmo	(OnlineShooterCharacter->GetEquippedWeapon()->Ammo);
+				SetHUDCarriedAmmo	(OnlineShooterCharacter->GetCombatComponent()->CarriedAmmo);
+				SetHUDGrenades		(OnlineShooterCharacter->GetCombatComponent()->GetGrenades());
+			}
+
+			AOnlineShooterPlayerState* OnlineShooterPlayerState = GetPlayerState<AOnlineShooterPlayerState>(); 
+			if (OnlineShooterPlayerState)
+			{
+				SetHUDScore			(OnlineShooterPlayerState->GetScore());
+				SetHUDDefeats		(OnlineShooterPlayerState->GetDefeats());
+			}
+		}
+	}
+}
+
 void AOnlineShooterPlayerController::SetHUDHealth(float Health, float MaxHealth)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
@@ -521,7 +555,7 @@ void AOnlineShooterPlayerController::SetHUDHealth(float Health, float MaxHealth)
 		bInitializeHealth = true;
 		HUDHealth = Health;
 		HUDMaxHealth = MaxHealth;
-	}
+	} 
 }
 void AOnlineShooterPlayerController::SetHUDShield(float Shield, float MaxShield)
 {
@@ -633,17 +667,17 @@ void AOnlineShooterPlayerController::HideElimMessage()
 }
 void AOnlineShooterPlayerController::SetHUDWeaponAmmo(int32 WeaponAmmo)
 {
-	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
+	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD; 
 
 	bool bHUDValid =
 		OnlineShooterHUD &&
 		OnlineShooterHUD->CharacterOverlay &&
-		OnlineShooterHUD->CharacterOverlay->WeaponAmmoAmount;
+		OnlineShooterHUD->CharacterOverlay->WeaponAmmoAmountText;
 
 	if(bHUDValid)
 	{
 		FString WeaponAmmoText = FString::Printf(TEXT("%d"), WeaponAmmo); 
-		OnlineShooterHUD->CharacterOverlay->WeaponAmmoAmount->SetText(FText::FromString(WeaponAmmoText));
+		OnlineShooterHUD->CharacterOverlay->WeaponAmmoAmountText->SetText(FText::FromString(WeaponAmmoText));
 	}
 	else
 	{
@@ -678,16 +712,17 @@ void AOnlineShooterPlayerController::SetHUDGrenades(int32 Grenades)
 	bool bHUDValid =
 		OnlineShooterHUD &&
 		OnlineShooterHUD->CharacterOverlay &&
-		OnlineShooterHUD->CharacterOverlay->GrenadesAmount; 
+		OnlineShooterHUD->CharacterOverlay->GrenadesAmountText; 
 
 	if(bHUDValid)
 	{
 		FString GrenadesText = FString::Printf(TEXT("%d"), Grenades); 
-		OnlineShooterHUD->CharacterOverlay->GrenadesAmount->SetText(FText::FromString(GrenadesText));
+		OnlineShooterHUD->CharacterOverlay->GrenadesAmountText->SetText(FText::FromString(GrenadesText));
 	}
 
 	else
 	{
+		UE_LOG(LogTemp, Error, TEXT("SetHUDGrenades Invalid"))
 		bInitializeGrenades = true;
 		HUDGrenades = Grenades;
 	}
@@ -907,6 +942,7 @@ void AOnlineShooterPlayerController::OnMatchStateSet(FName State, bool bTeamsMat
 	if(MatchState == MatchState::InProgress)
 	{
 		HandleMatchHasStarted(true);
+		UpdateHUD();
 	}
 	else if (MatchState == MatchState::Cooldown)
 	{
@@ -936,7 +972,7 @@ void AOnlineShooterPlayerController::HandleMatchHasStarted(bool bTeamsMatch)
 	{
 		if(!OnlineShooterHUD->CharacterOverlay)
 		{
-			OnlineShooterHUD->AddCharacterOverlay();	
+			OnlineShooterHUD->AddCharacterOverlay();
 		}
 		
 		if(OnlineShooterHUD->Announcement)

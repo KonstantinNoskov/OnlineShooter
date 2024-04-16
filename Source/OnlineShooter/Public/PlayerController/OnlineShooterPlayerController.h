@@ -136,7 +136,7 @@ private:
 
 	UPROPERTY()
 	AOnlineShooterGameMode* OnlineShooterGameMode;
-
+	
 	UPROPERTY(EditAnywhere)
 	USoundBase* CountdownSound;
 	
@@ -217,6 +217,9 @@ public:
 private:
 	UFUNCTION(Server, Reliable)
 	void ServerReportPingStatus(bool bHighPing);
+
+	UFUNCTION()
+	void UpdateHUD();
 
 #pragma endregion
 

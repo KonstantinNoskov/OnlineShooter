@@ -128,6 +128,7 @@ void UReturnToMainMenu::ReturnButtonClicked()
 			{
 				OnlineShooterCharacter->ServerLeaveGame();
 				OnlineShooterCharacter->OnLeftGame.AddDynamic(this, &UReturnToMainMenu::OnPlayerLeftGame);
+				RemoveFromParent();
 			}
 			else
 			{
