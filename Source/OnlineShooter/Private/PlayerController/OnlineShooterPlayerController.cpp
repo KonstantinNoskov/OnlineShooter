@@ -515,9 +515,13 @@ void AOnlineShooterPlayerController::UpdateHUD()
 				UGameplayStatics::GetPlayerState(this, 0);
 				SetHUDHealth		(OnlineShooterCharacter->GetHealth(), OnlineShooterCharacter->GetMaxHealth());
 				SetHUDShield		(OnlineShooterCharacter->GetShield(), OnlineShooterCharacter->GetMaxShield());
-				SetHUDWeaponAmmo	(OnlineShooterCharacter->GetEquippedWeapon()->Ammo);
 				SetHUDCarriedAmmo	(OnlineShooterCharacter->GetCombatComponent()->CarriedAmmo);
 				SetHUDGrenades		(OnlineShooterCharacter->GetCombatComponent()->GetGrenades());
+			}
+
+			if (OnlineShooterCharacter->GetEquippedWeapon())
+			{
+				SetHUDWeaponAmmo	(OnlineShooterCharacter->GetEquippedWeapon()->Ammo);
 			}
 
 			AOnlineShooterPlayerState* OnlineShooterPlayerState = GetPlayerState<AOnlineShooterPlayerState>(); 

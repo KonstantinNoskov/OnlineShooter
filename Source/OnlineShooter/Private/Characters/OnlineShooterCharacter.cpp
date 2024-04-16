@@ -929,11 +929,11 @@ void AOnlineShooterCharacter::DropOrDestroyWeapon(AWeapon* Weapon)
 	
 	if (Weapon->bDestroyWeapon)
 	{
-		Combat->EquippedWeapon->Destroy();
+		Weapon->Destroy();
 	}
 	else
 	{
-		Combat->EquippedWeapon->Dropped();
+		Weapon->Dropped();
 	}
 }
 void AOnlineShooterCharacter::EliminatedTimerFinished()

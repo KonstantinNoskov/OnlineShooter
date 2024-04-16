@@ -688,7 +688,10 @@ void UCombatComponent::Reload()
 		Server_Reload();
 		HandleReload();
 
-		SetAiming(false);
+		if (bAiming)
+		{
+			SetAiming(false);	
+		}
  		
  		bLocallyReloading = true;
 	}
@@ -945,7 +948,14 @@ void UCombatComponent::OnRep_Grenades()
 // Crosshair & Aiming
 void UCombatComponent::SetAiming(bool bIsAiming)
 {
-	if(!Character || !EquippedWeapon || Character->GetCombatState() == ECombatState::ECS_ThrowingGrenade || Character->GetCombatState() == ECombatState::ECS_SwappingWeapon ) return;
+	if(bIsAiming)
+	{
+		if(!Character
+		|| !EquippedWeapon
+		|| Character->GetCombatState() != ECombatState::ECS_Unoccupied)
+			return;
+	}
+	
 	
 	bAiming = bIsAiming;
 	Server_SetAiming(bIsAiming); 
