@@ -89,7 +89,7 @@ void UBuffComponent::BuffSpeed(float BuffBaseSpeed, float BuffCrouchSpeed, float
 	if(Character->GetCharacterMovement())
 	{
 		Character->GetCharacterMovement()->MaxWalkSpeed += BuffBaseSpeed;
-		Character->GetCharacterMovement()->MaxWalkSpeedCrouched += BuffCrouchSpeed;
+		Character->GetCharacterMovement()->MaxWalkSpeedCrouched = 600.f ;
 	}
 
 	Multicast_UpdateSpeeds(BuffBaseSpeed, BuffCrouchSpeed);
@@ -147,10 +147,12 @@ void UBuffComponent::ResetJump()
 	
 	Character->GetCharacterMovement()->JumpZVelocity = InitialJumpVelocity;
 
-	if (BuffEffect)
+	/*if (BuffEffect)
 	{
 		BuffEffect->Deactivate();
-	}
+	}*/
+
+	BuffEffect->Deactivate();
 	
 	Multicast_UpdateJumpVelocity(InitialJumpVelocity);
 }

@@ -475,6 +475,7 @@ void AOnlineShooterCharacter::FireButtonPressed()
 	if(Combat && Combat->EquippedWeapon)
 	{
 		Combat->FireButtonPressed(true);
+		
 	}
 }
 void AOnlineShooterCharacter::FireButtonReleased()
@@ -768,7 +769,6 @@ void AOnlineShooterCharacter::UpdateHUDGrenades()
 		OnlineShooterPlayerController->SetHUDGrenades(Combat->GetGrenades());
 	}
 }
-
 void AOnlineShooterCharacter::Eliminated(bool bPlayerLeftGame)
 {
 	DropOrDestroyWeapons();
@@ -1444,7 +1444,6 @@ void AOnlineShooterCharacter::PlaySwapWeaponMontage()
 		AnimInstance->Montage_Play(SwapWeaponMontage);
 	}
 }
-
 FVector AOnlineShooterCharacter::GetHitTarget() const
 {
 	if (!Combat) return FVector();

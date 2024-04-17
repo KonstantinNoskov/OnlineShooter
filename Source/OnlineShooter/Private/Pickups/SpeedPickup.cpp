@@ -36,7 +36,7 @@ void ASpeedPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 		{
 			Buff->BuffSpeed(
 				SpawnedPickupValue ? SpawnedPickupValue : BaseSpeedBuff,
-				SpawnedPickupValue ? SpawnedPickupValue : CrouchSpeedBuff,
+				600.f,
 				SpeedBuffTime);
 		}
 	}

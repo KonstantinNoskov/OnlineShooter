@@ -127,7 +127,7 @@ protected:
 	float ClientServerDeltaTime = 0.f; // difference between client and server time
 
 	UPROPERTY(EditAnywhere, Category = Time)
-	float TimeSyncFrequency = 5.f;
+	float TimeSyncFrequency = 1.f;
 
 	UPROPERTY()
 	float TimeSyncRunningTime = 0.f;

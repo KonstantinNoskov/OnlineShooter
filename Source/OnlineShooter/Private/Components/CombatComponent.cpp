@@ -480,7 +480,6 @@ void UCombatComponent::Fire()
 		StartFireTimer();
 	}
 }
-
 void UCombatComponent::FiringTimer(float DeltaTime)
 {
 	if (bFiring)

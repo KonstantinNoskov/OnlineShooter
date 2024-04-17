@@ -496,6 +496,8 @@ void AOnlineShooterPlayerController::CheckTimeSync(float DeltaTime)
 	{
 		Server_RequestServerTime(GetWorld()->GetTimeSeconds());
 		TimeSyncRunningTime = 0.f;
+
+		
 	}
 }
 
@@ -533,7 +535,6 @@ void AOnlineShooterPlayerController::UpdateHUD()
 		}
 	}
 }
-
 void AOnlineShooterPlayerController::SetHUDHealth(float Health, float MaxHealth)
 {
 	OnlineShooterHUD = !OnlineShooterHUD ? Cast<AOnlineShooterHUD>(GetHUD()) : OnlineShooterHUD;
