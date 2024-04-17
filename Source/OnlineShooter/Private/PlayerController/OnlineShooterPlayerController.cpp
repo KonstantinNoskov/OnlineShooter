@@ -1034,7 +1034,11 @@ void AOnlineShooterPlayerController::HandleCooldown()
 	{
 		OnlineShooterCharacter->bDisableGameplay = true;
 		OnlineShooterCharacter->GetCombatComponent()->FireButtonPressed(false);
-		OnlineShooterCharacter->GetCombatComponent()->SetAiming(false);
+
+		if (OnlineShooterCharacter->GetCombatComponent()->bAiming)
+		{
+			OnlineShooterCharacter->GetCombatComponent()->SetAiming(false);	
+		}
 	}
 }
 void AOnlineShooterPlayerController::Server_CheckMatchState_Implementation()  

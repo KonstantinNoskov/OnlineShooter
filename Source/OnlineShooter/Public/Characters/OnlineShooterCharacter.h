@@ -54,6 +54,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
+	void SetCharacterSpawnPoint();
 	virtual void OnRep_ReplicatedMovement() override;
 	virtual void Destroyed() override;
 

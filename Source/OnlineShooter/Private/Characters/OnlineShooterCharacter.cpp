@@ -241,6 +241,8 @@ void AOnlineShooterCharacter::PostInitializeComponents()
 void AOnlineShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetCharacterSpawnPoint();
 	
 	// Set Enhanced input subsystem
 	if (const ULocalPlayer* Player = (GEngine && GetWorld()) ? GEngine->GetFirstGamePlayer(GetWorld()) : nullptr)
@@ -349,6 +351,17 @@ void AOnlineShooterCharacter::PollInit()
 				MulticastGainedTheLead();
 			}
 		}
+	}
+}
+
+// Set SpawnPoint
+void AOnlineShooterCharacter::SetCharacterSpawnPoint()
+{
+	AOnlineShooterGameMode* GameMode = Cast<AOnlineShooterGameMode>(GetWorld()->GetAuthGameMode());
+	if (GameMode)
+	{
+		SetActorLocation(GameMode->GetRespawnPoint()->GetActorLocation());
+		SetActorRotation(GameMode->GetRespawnPoint()->GetActorRotation());
 	}
 }
 

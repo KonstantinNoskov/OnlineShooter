@@ -147,12 +147,11 @@ void UBuffComponent::ResetJump()
 	
 	Character->GetCharacterMovement()->JumpZVelocity = InitialJumpVelocity;
 
-	/*if (BuffEffect)
+	if (BuffEffect)
 	{
 		BuffEffect->Deactivate();
-	}*/
-
-	BuffEffect->Deactivate();
+	}
+	
 	
 	Multicast_UpdateJumpVelocity(InitialJumpVelocity);
 }

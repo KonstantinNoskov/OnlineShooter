@@ -345,10 +345,10 @@ void UCombatComponent::PickupAmmo(EWeaponType AmmoWeaponType, int32 AmmoAmount)
 		// Add the pickup ammo to the carried ammo
 		CarriedAmmoMap[AmmoWeaponType] = FMath::Clamp(CarriedAmmoMap[AmmoWeaponType] + AmmoAmount, 0, MaxCarriedAmmo);
 
-		//CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
-		CarriedAmmo = CarriedAmmoMap[AmmoWeaponType];
+		 CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+		// CarriedAmmo = CarriedAmmoMap[AmmoWeaponType];
 		
-		// Update carried ammo in HUD if still have ammo.
+		// Update carried ammo HUD if still have ammo.
 		Controller = !Controller ? Cast<AOnlineShooterPlayerController>(Character->Controller) : Controller;
 		if(Controller && EquippedWeapon && EquippedWeapon->GetWeaponType() == AmmoWeaponType)
 		{

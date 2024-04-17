@@ -254,6 +254,7 @@ AActor* AOnlineShooterGameMode::GetRespawnPoint()
 			// Override most remote spawn point
 			MostDistancePoint = RespawnPoint; 
 		}
+		
 	}
 	
 	return MostDistancePoint;

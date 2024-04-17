@@ -109,10 +109,12 @@ void APickup::Destroyed()
 
 	if(PickupSound)
 	{
-		UGameplayStatics::PlaySound2D(
+		/*UGameplayStatics::PlaySound2D(
 			this,
 			PickupSound
-			);
+			);*/
+
+		UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
 	}
 }
 
